@@ -1,0 +1,130 @@
+/* Table Styling */
+table {
+  width: 100%;
+  border-collapse: collapse; /* Ensures borders are merged */
+  margin-top: 20px; /* Adds space above the table */
+}
+
+th, td {
+  border: 1px solid #ddd; /* Adds borders to table cells */
+  padding: 12px; /* Adds padding inside cells for better spacing */
+  text-align: left; /* Aligns text to the left */
+}
+
+th {
+  background-color: #f2f2f2; /* Light gray background for header */
+  font-weight: bold; /* Makes header text bold */
+}
+
+tr:hover {
+  background-color: #f5f5f5; /* Light gray background on row hover */
+}
+
+/* Alternating row colors for better readability */
+tr:nth-child(even) {
+  background-color: #f9f9f9;
+}
+
+/* Input and Select Styling */
+input, select {
+  width: 100%; /* Makes inputs and selects fill the cell */
+  padding: 8px; /* Adds padding inside inputs and selects */
+  box-sizing: border-box; /* Ensures padding is included in width */
+  border: 1px solid #ccc; /* Adds a border to inputs and selects */
+  border-radius: 4px; /* Rounds the corners */
+}
+
+/* Button Styling */
+button {
+  padding: 8px 12px; /* Adds padding to buttons */
+  margin: 4px; /* Adds space between buttons */
+  border: none; /* Removes default border */
+  border-radius: 4px; /* Rounds the corners */
+  background-color: #007bff; /* Blue background */
+  color: white; /* White text */
+  cursor: pointer; /* Changes cursor to pointer on hover */
+}
+
+button:hover {
+  background-color: #0056b3; /* Darker blue on hover */
+}
+
+/* Context Menu Styling */
+.context-menu {
+  position: fixed;
+  background-color: white;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  z-index: 1000;
+  padding: 8px;
+}
+
+.context-menu div {
+  padding: 8px;
+  cursor: pointer;
+}
+
+.context-menu div:hover {
+  background-color: #f1f1f1;
+}
+
+/* Form Styling */
+.task-form {
+  display: flex;
+  flex-wrap: wrap; /* Allows wrapping to the next line if the screen is too small */
+  gap: 16px; /* Adds space between input fields */
+  align-items: center; /* Aligns items vertically in the center */
+}
+
+.task-form input,
+.task-form textarea,
+.task-form select {
+  flex: 1; /* Allows inputs to grow and fill available space */
+  padding: 8px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  box-sizing: border-box;
+}
+
+.task-form textarea {
+  resize: vertical; /* Allows vertical resizing of the textarea */
+}
+
+.task-form button {
+  padding: 8px 16px;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.task-form button:hover {
+  background-color: #0056b3;
+}
+
+.autocomplete {
+  position: relative;
+}
+
+.suggestions {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  background-color: white;
+  border: 1px solid #ccc;
+  border-top: none;
+  z-index: 1000;
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.suggestions li {
+  padding: 8px;
+  cursor: pointer;
+}
+
+.suggestions li:hover {
+  background-color: #f0f0f0;
+}
