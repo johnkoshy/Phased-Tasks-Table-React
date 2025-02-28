@@ -14,47 +14,71 @@ function App() {
   });
   const [showForm, setShowForm] = useState(false);
   const [assigneeSuggestions, setAssigneeSuggestions] = useState([]);
-  const [expandedTasks, setExpandedTasks] = useState({}); // Track expanded/collapsed tasks
+  const [expandedTasks, setExpandedTasks] = useState({});
   const formRef = useRef(null);
 
-  const [editingTaskId, setEditingTaskId] = useState(null); // Track the task being edited
-  const [editingTaskData, setEditingTaskData] = useState({}); // Temporary data for the task being edited
-
-  const isoDate = "2025-02-26T03:59";
-  const formattedDate = isoDate.replace("T", " "); // Replace "T" with a space
+  const [editingTaskId, setEditingTaskId] = useState(null);
+  const [editingTaskData, setEditingTaskData] = useState({});
 
   const [editError, setEditError] = useState('');
 
+  // Function to calculate duration in days
+  const calculateDurationInDays = (start, end) => {
+    const startDate = new Date(start);
+    const endDate = new Date(end);
+  
+    if (isNaN(startDate) || isNaN(endDate)) return ""; // Return empty if dates are invalid
+  
+    const timeDiff = endDate - startDate; // Difference in milliseconds
+    const daysDiff = Math.ceil(timeDiff / (1000 * 60 * 60 * 24)); // Convert to days
+  
+    return daysDiff > 0 ? daysDiff : 0; // Prevent negative values
+  };
+  
+
+  // Define isDescendant function
+  const isDescendant = (taskId, potentialParentId, tasks) => {
+    let currentTaskId = potentialParentId;
+
+    while (currentTaskId !== null) {
+      if (currentTaskId === taskId) {
+        return true; // The task is a descendant of the potential parent
+      }
+
+      const currentTask = tasks.find((t) => t.id === currentTaskId);
+      currentTaskId = currentTask ? currentTask.parentTaskId : null;
+    }
+
+    return false; // The task is not a descendant
+  };
+
   const formatDateTime = (isoDate) => {
-    if (!isoDate) return "N/A"; // Handle empty or invalid dates
+    if (!isoDate) return "N/A";
 
     const date = new Date(isoDate);
     const year = date.getFullYear();
-    const month = String(date.getMonth() + 1).padStart(2, '0'); // Months are zero-based
+    const month = String(date.getMonth() + 1).padStart(2, '0');
     const day = String(date.getDate()).padStart(2, '0');
     let hours = date.getHours();
     const minutes = String(date.getMinutes()).padStart(2, '0');
     const ampm = hours >= 12 ? 'PM' : 'AM';
 
-    // Convert to 12-hour format
     hours = hours % 12 || 12;
 
     return `${year}-${month}-${day}, ${hours}:${minutes} ${ampm}`;
   };
 
-  console.log(formattedDate); // Output: "2025-02-26 03:59"
-
   const handleEditTask = (taskId) => {
     const taskToEdit = tasks.find((task) => task.id === taskId);
     setEditingTaskId(taskId);
-    setEditingTaskData({ ...taskToEdit }); // Copy the task data for editing
+    setEditingTaskData({ ...taskToEdit });
   };
 
   const [contextMenu, setContextMenu] = useState({
-    visible: false, // Whether the context menu is visible
-    taskId: null, // The task ID of the right-clicked row
-    x: 0, // X position of the context menu
-    y: 0, // Y position of the context menu
+    visible: false,
+    taskId: null,
+    x: 0,
+    y: 0,
   });
 
   const ContextMenu = ({ visible, x, y, onAddSubtask, onClose }) => {
@@ -72,16 +96,10 @@ function App() {
           padding: '8px',
         }}
       >
-        <div
-          style={{ padding: '8px', cursor: 'pointer' }}
-          onClick={onAddSubtask}
-        >
+        <div style={{ padding: '8px', cursor: 'pointer' }} onClick={onAddSubtask}>
           Add Subtask
         </div>
-        <div
-          style={{ padding: '8px', cursor: 'pointer' }}
-          onClick={onClose}
-        >
+        <div style={{ padding: '8px', cursor: 'pointer' }} onClick={onClose}>
           Close
         </div>
       </div>
@@ -94,26 +112,21 @@ function App() {
         task.id === taskId ? { ...editingTaskData } : task
       )
     );
-    setEditingTaskId(null); // Exit edit mode
+    setEditingTaskId(null);
   };
 
   const handleCancelEdit = () => {
-    setEditingTaskId(null); // Exit edit mode
+    setEditingTaskId(null);
   };
 
   const handleAddSubtask = () => {
     if (contextMenu.taskId) {
-      // Set the parent task ID for the new task
       setTask((prevTask) => ({
         ...prevTask,
-        parentTaskId: contextMenu.taskId, // Set parentTaskId to the right-clicked row's taskId
+        parentTaskId: contextMenu.taskId,
       }));
-  
-      // Show the task form
       setShowForm(true);
     }
-  
-    // Close the context menu
     setContextMenu({ visible: false, taskId: null, x: 0, y: 0 });
   };
 
@@ -121,7 +134,6 @@ function App() {
     setContextMenu({ visible: false, taskId: null, x: 0, y: 0 });
   };
 
-  // Sample list of assignees (can be fetched from an API)
   const assignees = [
     'John Doe',
     'Jane Smith',
@@ -133,21 +145,16 @@ function App() {
   const handleChange = (e) => {
     const { name, value } = e.target;
 
-    // Allow only letters and spaces for 'title' and 'description'
     if ((name === 'title' || name === 'description') && !/^[a-zA-Z\s]*$/.test(value)) {
-      return; // Prevent invalid input
+      return;
     }
 
-    // For 'duration', ensure the value is a valid number
-    if (name === 'duration') {
-      if (!/^\d*$/.test(value)) {
-        return;
-      }
+    if (name === 'duration' && !/^\d*$/.test(value)) {
+      return;
     }
 
     setTask((prevTask) => ({ ...prevTask, [name]: value }));
 
-    // Update suggestions for "Assigned To"
     if (name === 'assignedTo') {
       const filteredSuggestions = assignees.filter((assignee) =>
         assignee.toLowerCase().includes(value.toLowerCase())
@@ -158,11 +165,10 @@ function App() {
 
   const handleSuggestionClick = (suggestion) => {
     setTask((prevTask) => ({ ...prevTask, assignedTo: suggestion }));
-    setAssigneeSuggestions([]); // Clear suggestions after selection
+    setAssigneeSuggestions([]);
   };
 
   const handleAssignedToFocus = () => {
-    // Show all suggestions when the input is focused
     setAssigneeSuggestions(assignees);
   };
 
@@ -171,31 +177,30 @@ function App() {
   
     if (!task.title.trim() || !task.description.trim()) return;
   
-    // Check if a main task already exists and the new task is also a main task
-    const mainTaskExists = tasks.some((t) => t.parentTaskId === null);
-    if (mainTaskExists && task.parentTaskId === '') {
-      alert('Only one main task is allowed. Please create a subtask instead.');
-      return;
-    }
+    // Ensure task.duration is formatted correctly before submitting
+    const durationInDays = task.duration ? task.duration : calculateDurationInDays(task.createdDate, task.completionDate);
   
     const newTask = {
-      id: Date.now(),
+      id: Date.now().toString(), // Ensure unique ID
       title: task.title,
       description: task.description,
       assignedTo: task.assignedTo,
-      duration: task.duration ? Number(task.duration) : 0,
-      completionDate: task.completionDate || 'N/A',
-      createdDate: task.createdDate || new Date().toISOString().split('T')[0],
-      parentTaskId: task.parentTaskId || null, // Ensure parentTaskId is set correctly
+      duration: durationInDays,  // Set duration properly here
+      completionDate: task.completionDate,
+      createdDate: new Date().toISOString(),
+      parentTaskId: task.parentTaskId || null, // Allow null for main tasks
+      subtasks: [], // Ensure subtasks are empty at creation
     };
   
-    setTasks((prevTasks) => [...prevTasks, newTask]); // Add new task to the tasks array
+    // Add the new task to the list
+    setTasks([...tasks, newTask]);
   
+    // Reset the form
     setTask({
       title: '',
       description: '',
       assignedTo: '',
-      duration: '',
+      duration: '',  // Reset the duration
       completionDate: '',
       createdDate: '',
       parentTaskId: '',
@@ -205,24 +210,10 @@ function App() {
   };
 
   const handleAddTaskClick = () => {
-    // Check if a main task already exists
-    const mainTask = tasks.find((task) => task.parentTaskId === null);
-  
-    if (mainTask) {
-      // If a main task exists, set the parentTaskId to the main task's ID
-      setTask((prevTask) => ({
-        ...prevTask,
-        parentTaskId: mainTask.id,
-      }));
-    } else {
-      // If no main task exists, reset the parentTaskId
-      setTask((prevTask) => ({
-        ...prevTask,
-        parentTaskId: '',
-      }));
-    }
-  
-    // Show the form
+    setTask((prevTask) => ({
+      ...prevTask,
+      parentTaskId: '', // Allow the task to be a main task by default
+    }));
     setShowForm(true);
   };
 
@@ -232,13 +223,10 @@ function App() {
         if (typeof value === 'string') {
           return value.trim() !== '';
         }
-        return value !== null && value !== undefined; // Handle non-string values like duration
+        return value !== null && value !== undefined;
       });
-  
-      console.log('Clicked outside. Is any input filled?', isAnyInputFilled); // Debugging
-  
+
       if (!isAnyInputFilled) {
-        console.log('No input filled. Closing form.'); // Debugging
         setShowForm(false);
         setTask({
           title: '',
@@ -247,7 +235,7 @@ function App() {
           duration: '',
           completionDate: '',
           createdDate: '',
-          parentTaskId: '', // Explicitly reset parentTaskId
+          parentTaskId: '',
         });
       }
     }
@@ -255,42 +243,28 @@ function App() {
 
   const handleDateTimeChange = (e) => {
     const { name, value } = e.target;
-    setTask((prevTask) => ({ ...prevTask, [name]: value }));
+  
+    setTask((prevTask) => {
+      const updatedTask = { ...prevTask, [name]: value };
+  
+      // Recalculate duration dynamically
+      if (updatedTask.createdDate && updatedTask.completionDate) {
+        updatedTask.duration = calculateDurationInDays(updatedTask.createdDate, updatedTask.completionDate);
+      }
+  
+      return updatedTask;
+    });
   };
+  
+  
 
   const handleParentChange = (e, taskId) => {
-    const newParentId = e.target.value === '' ? null : e.target.value; // Convert empty string to null
+    const newParentId = e.target.value === '' ? null : e.target.value;
 
     const taskToModify = tasks.find((task) => task.id === taskId);
-    if (taskToModify.parentTaskId === null && newParentId !== null) {
-      alert('Main tasks cannot be moved to subtasks.');
-      return; // Prevent the change
-    }
 
-// Check if a main task already exists and the new task is also a main task
-  const mainTaskExists = tasks.some((t) => t.parentTaskId === null && t.id !== taskId);
-  if (mainTaskExists && newParentId === null) {
-    alert('Only one main task is allowed.');
-    return;
-  }
-
-    // Check if the new parent is valid
-    const isValidParent = (taskId, newParentId) => {
-      if (newParentId === null) return true; // No parent is always valid
-      if (taskId === newParentId) return false; // A task cannot be its own parent
-
-      // Check if the new parent is a subtask of the current task (to prevent circular dependencies)
-      const isCircular = (parentId) => {
-        const parentTask = tasks.find((t) => t.id === parentId);
-        if (!parentTask) return false;
-        if (parentTask.parentTaskId === taskId) return true; // Circular dependency detected
-        return isCircular(parentTask.parentTaskId); // Recursively check the parent chain
-      };
-
-      return !isCircular(newParentId);
-    };
-
-    if (!isValidParent(taskId, newParentId)) {
+    // Check if the new parent is a descendant of the current task
+    if (isDescendant(newParentId, taskId, tasks)) {
       alert('Invalid parent selection. A task cannot be its own parent or a subtask of its own subtasks.');
       return;
     }
@@ -303,25 +277,21 @@ function App() {
     );
   };
 
-  // Toggle expanded/collapsed state for a task
   const toggleExpand = (taskId) => {
     setExpandedTasks((prev) => ({
       ...prev,
-      [taskId]: !prev[taskId], // Toggle the expanded state
+      [taskId]: !prev[taskId],
     }));
   };
 
   const handleRowClick = (taskId, e) => {
-    // Prevent edit mode if clicking on an input or select element
     if (e.target.tagName.toLowerCase() === 'input' || e.target.tagName.toLowerCase() === 'select') {
       return;
     }
-  
+
     if (editingTaskId === taskId) {
-      // If the row is already in edit mode, save the changes and exit edit mode
       handleSaveTask(taskId);
     } else {
-      // If the row is not in edit mode, enable edit mode
       handleEditTask(taskId);
     }
   };
@@ -329,29 +299,25 @@ function App() {
   const handleEditInputChange = (e) => {
     const { name, value } = e.target;
 
-    // Allow only letters and spaces for 'title', 'description', and 'assignedTo'
     if (
       (name === 'title' || name === 'description' || name === 'assignedTo') &&
       !/^[a-zA-Z\s]*$/.test(value)
     ) {
-      return; // Prevent invalid input
+      return;
     }
 
-    // For "Assigned To", only allow values from the predefined list
     if (name === 'assignedTo') {
-      const isValidAssignee = assignees.includes(value); // Check if the value is in the predefined list
+      const isValidAssignee = assignees.includes(value);
       if (!isValidAssignee && value.trim() !== '') {
-        return; // Prevent invalid input
+        return;
       }
     }
 
-    // Update the editing task data
     setEditingTaskData((prevData) => ({
       ...prevData,
       [name]: value,
     }));
 
-    // Update suggestions for "Assigned To"
     if (name === 'assignedTo') {
       const filteredSuggestions = assignees.filter((assignee) =>
         assignee.toLowerCase().includes(value.toLowerCase())
@@ -361,9 +327,7 @@ function App() {
   };
 
   const handleRowRightClick = (e, taskId) => {
-    e.preventDefault(); // Prevent the default browser context menu
-
-    // Set the context menu position and task ID
+    e.preventDefault();
     setContextMenu({
       visible: true,
       taskId: taskId,
@@ -374,29 +338,29 @@ function App() {
 
   const renderTasks = (tasks, parentId = null, level = 0) => {
     return tasks
-      .filter((task) => task.parentTaskId == parentId) // Filter only direct children
+      .filter((task) => task.parentTaskId == parentId)
       .map((task) => {
-        const hasSubtasks = tasks.some((t) => t.parentTaskId == task.id); // Check if the task has subtasks
-        const isExpanded = expandedTasks[task.id]; // Check if the task is expanded
-        const isEditing = editingTaskId === task.id; // Check if the task is in edit mode
-  
+        const hasSubtasks = tasks.some((t) => t.parentTaskId == task.id);
+        const isExpanded = expandedTasks[task.id];
+        const isEditing = editingTaskId === task.id;
+
         return (
           <React.Fragment key={task.id}>
             <tr
               key={task.id}
-              onClick={(e) => handleRowClick(task.id, e)} // Handle row click for edit mode
-              onContextMenu={(e) => handleRowRightClick(e, task.id)} // Keep the right-click handler
+              onClick={(e) => handleRowClick(task.id, e)}
+              onContextMenu={(e) => handleRowRightClick(e, task.id)}
             >
               <td style={{ paddingLeft: `${level * 20}px` }}>
                 {hasSubtasks && (
                   <span
                     onClick={(e) => {
-                      e.stopPropagation(); // Prevent row click from triggering when toggling subtasks
+                      e.stopPropagation();
                       toggleExpand(task.id);
                     }}
                     style={{ cursor: 'pointer', marginRight: '8px' }}
                   >
-                    {isExpanded ? '▼' : '▶'} {/* Show ▼ if expanded, ▶ if collapsed */}
+                    {isExpanded ? '▼' : '▶'}
                   </span>
                 )}
                 {isEditing ? (
@@ -442,18 +406,19 @@ function App() {
                 )}
               </td>
               <td>
-                {isEditing ? (
-                  <input
-                    type="number"
-                    value={editingTaskData.duration}
-                    onChange={(e) =>
-                      setEditingTaskData({ ...editingTaskData, duration: e.target.value })
-                    }
-                  />
-                ) : (
-                  task.duration
-                )}
-              </td>
+  {isEditing ? (
+    <input
+      type="number"
+      value={editingTaskData.duration || ""}
+      onChange={(e) =>
+        setEditingTaskData({ ...editingTaskData, duration: e.target.value })
+      }
+    />
+  ) : (
+    `${task.duration} ${task.duration === 1 ? "day" : "days"}` // This will display "1 day" or "X days"
+  )}
+</td>
+
               <td>
                 {isEditing ? (
                   <input
@@ -464,7 +429,7 @@ function App() {
                     }
                   />
                 ) : (
-                  formatDateTime(task.completionDate)
+                  <td>⏳ {formatDateTime(task.completionDate)}</td>
                 )}
               </td>
               <td>
@@ -477,43 +442,42 @@ function App() {
                     }
                   />
                 ) : (
-                  formatDateTime(task.createdDate)
+                  <td>📅 {formatDateTime(task.createdDate)}</td>
                 )}
               </td>
               <td>
                 {isEditing ? (
                   <select
-                  value={editingTaskData.parentTaskId || ''}
-                  onChange={(e) =>
-                    setEditingTaskData({ ...editingTaskData, parentTaskId: e.target.value })
-                  }
-                >
-                  <option value="">Main Task</option> {/* Updated label */}
-                  {tasks
-                    .filter((t) => t.id !== task.id) // Prevent a task from being its own parent
-                    .map((t) => (
-                      <option key={t.id} value={t.id}>
-                        {t.title}
-                      </option>
-                    ))}
-                </select>
+                    value={editingTaskData.parentTaskId || ''}
+                    onChange={(e) =>
+                      setEditingTaskData({ ...editingTaskData, parentTaskId: e.target.value })
+                    }
+                  >
+                    <option value="">Main Task</option>
+                    {tasks
+                      .filter((t) => t.id !== task.id && !isDescendant(t.id, task.id, tasks))
+                      .map((t) => (
+                        <option key={t.id} value={t.id}>
+                          {t.title}
+                        </option>
+                      ))}
+                  </select>
                 ) : (
                   <select
-  value={task.parentTaskId || ''}
-  onChange={(e) => handleParentChange(e, task.id)}
->
-  <option value="">Main Task</option> {/* Updated label */}
-  {tasks
-    .filter((t) => t.id !== task.id) // Prevent a task from being its own parent
-    .map((t) => (
-      <option key={t.id} value={t.id}>
-        {t.title}
-      </option>
-    ))}
-</select>
+                    value={task.parentTaskId || ''}
+                    onChange={(e) => handleParentChange(e, task.id)}
+                  >
+                    <option value="">Main Task</option>
+                    {tasks
+                      .filter((t) => t.id !== task.id && !isDescendant(t.id, task.id, tasks))
+                      .map((t) => (
+                        <option key={t.id} value={t.id}>
+                          {t.title}
+                        </option>
+                      ))}
+                  </select>
                 )}
               </td>
-              {/* Conditionally render the "Actions" column */}
               {isEditing && (
                 <td>
                   <button onClick={() => handleSaveTask(task.id)}>Save</button>
@@ -521,32 +485,42 @@ function App() {
                 </td>
               )}
             </tr>
-            {isExpanded && renderTasks(tasks, task.id, level + 1)} {/* Render subtasks if expanded */}
+            {isExpanded && renderTasks(tasks, task.id, level + 1)}
           </React.Fragment>
         );
       });
   };
 
-  // Render the table body without extra whitespace
   const renderTableBody = () => {
     const rows = renderTasks(tasks);
     return <tbody>{rows}</tbody>;
   };
 
+  const formatDuration = (days) => `${days} day${days !== 1 ? "s" : ""}`;
+
+
   useEffect(() => {
     if (showForm) {
-      console.log('Adding event listener for click outside.'); // Debugging
       document.addEventListener('mousedown', handleClickOutside);
     } else {
-      console.log('Removing event listener for click outside.'); // Debugging
       document.removeEventListener('mousedown', handleClickOutside);
     }
-  
+
     return () => {
-      console.log('Cleaning up event listener for click outside.'); // Debugging
       document.removeEventListener('mousedown', handleClickOutside);
     };
   }, [showForm, task]);
+
+  useEffect(() => {
+    if (task.createdDate && task.completionDate) {
+      setTask((prevTask) => ({
+        ...prevTask,
+        duration: calculateDurationInDays(prevTask.createdDate, task.completionDate),
+      }));
+    }
+  }, [task.createdDate, task.completionDate]);
+  
+  
 
   useEffect(() => {
     const handleClickOutside = (e) => {
@@ -563,6 +537,7 @@ function App() {
 
   return (
     <div className="App">
+      <div className="page-container">
       <h4>PHASED TASKS TABLE</h4>
 
       <h5>Task List</h5>
@@ -573,20 +548,19 @@ function App() {
               <th>Task Title</th>
               <th>Description</th>
               <th>Assigned To</th>
-              <th>Duration</th>
-              <th>Created Date</th>
-              <th>Completion Date</th>              
-              <th>Parent Task</th>    
-              {editingTaskId !== null && <th>Actions</th>}                 
+              <th>Duration (Days)</th> {/* Updated column header */}
+              <th>Created On</th>
+              <th>Due By</th>
+              <th>Parent Task</th>
+              {editingTaskId !== null && <th>Actions</th>}
             </tr>
           </thead>
-          {renderTableBody()} {/* Render the table body without extra whitespace */}
+          {renderTableBody()}
         </table>
       ) : (
         <p>No tasks available.</p>
       )}
 
-      {/* Context Menu */}
       <ContextMenu
         visible={contextMenu.visible}
         x={contextMenu.x}
@@ -595,7 +569,6 @@ function App() {
         onClose={handleCloseContextMenu}
       />
 
-      {/* Add Task Form */}
       <div className="add-task-container">
         {!showForm ? (
           <button className="add-task-button" onClick={handleAddTaskClick}>
@@ -638,48 +611,61 @@ function App() {
                 </ul>
               )}
             </div>
+            <div>
             <input
-              type="number"
-              name="duration"
-              placeholder="Duration"
-              value={task.duration}
-              onChange={handleChange}
-              min="0"
-              autoComplete="off"
-            />
+  type="number"
+  name="duration"
+  placeholder="Duration (days)"
+  value={task.duration || ""}  // Use raw value
+  onChange={handleChange}
+/>
+
+  {task.duration !== "" && (
+    <span>{task.duration === "1" ? "day" : "days"}</span>
+  )}
+</div>
+
+            <label title="This is the date the task was created." htmlFor="createdDate">Created On:</label>
             <input
               type="datetime-local"
-              name="completionDate"
-              value={task.completionDate}
-              onChange={handleDateTimeChange}
-            />
-            <input
-              type="datetime-local"
+              id="createdDate"
               name="createdDate"
               value={task.createdDate}
               onChange={handleDateTimeChange}
+              title="Date when the task was created."
             />
+
+            <label title="This is the expected completion date." htmlFor="completionDate">Due By:</label>
+            <input
+              type="datetime-local"
+              id="completionDate"
+              name="completionDate"
+              value={task.completionDate}
+              onChange={handleDateTimeChange}
+              title="Estimated or actual completion date."
+            />
+
             <label>Parent Task:</label>
             <select
-  name="parentTaskId"
-  value={task.parentTaskId}
-  onChange={handleChange}
-  disabled // Disable the dropdown since the parent task is automatically set
->
-  <option value="">Main Task</option> {/* Updated label */}
-  {tasks
-    .filter((t) => t.id === task.parentTaskId) // Only show the parent task
-    .map((t) => (
-      <option key={t.id} value={t.id}>
-        {t.title}
-      </option>
-    ))}
-</select>
+              name="parentTaskId"
+              value={task.parentTaskId}
+              onChange={handleChange}
+            >
+              <option value="">Main Task</option>
+              {tasks
+                .filter((t) => t.id !== task.id) // Exclude the current task from the list
+                .map((t) => (
+                  <option key={t.id} value={t.id}>
+                    {t.title}
+                  </option>
+                ))}
+            </select>
             <button type="submit" className="add-task-button">
               Add Task
             </button>
           </form>
         )}
+      </div>
       </div>
     </div>
   );
