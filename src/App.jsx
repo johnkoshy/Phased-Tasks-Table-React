@@ -668,6 +668,7 @@ function App() {
                   />
                 </div>
                 <div className="autocomplete">
+                <label>Assigned To:</label>
                   <input
                     type="text"
                     name="assignedTo"

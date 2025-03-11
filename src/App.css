@@ -17,6 +17,7 @@
 .autocomplete {
   position: relative;
   width: 100%;
+  font-weight: bold;
 }
 
 
@@ -112,7 +113,7 @@ input:focus, select:focus, textarea:focus {
 /* Default Light Mode Placeholder */
 input::placeholder,
 textarea::placeholder {
-  color: #faf8f8; /* Light gray placeholder text */
+  color: black; /* Light gray placeholder text */
 }
 
 /* Dark Mode Styles */
@@ -154,6 +155,12 @@ input, textarea, select {
 .dark-mode input:focus, .dark-mode select:focus, .dark-mode textarea:focus {
   border-color: #007bff;
   box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
+}
+
+/* Dark Mode Placeholder */
+.dark-mode input::placeholder,
+.dark-mode textarea::placeholder {
+  color: white; /* White placeholder text in dark mode */
 }
 
 /* Context Menu */
