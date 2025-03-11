@@ -1,66 +1,76 @@
-/* Ensure the table wrapper takes full width and centers the content */
+/* Table Wrapper */
 .table-wrapper {
+  max-height: 60vh;
+  overflow-y: auto;
+  margin-bottom: 80px;
+}
+
+/* Add Task Button */
+.add-task-container {
+  position: fixed;
+  bottom: 20px;
+  left: 20px;
+  z-index: 1000;
+}
+
+/* Autocomplete Container */
+.autocomplete {
+  position: relative;
   width: 100%;
-  max-width: 1200px;
-  margin: 50px auto; /* Adjust margin to push it down */
-  padding: 20px;
-  box-sizing: border-box;
 }
 
 
-/* Style for the headings */
+.add-task-btn {
+  background-color: transparent;
+  border: none;
+  padding: 10px;
+  font-size: 16px;
+  cursor: pointer;
+  color: white; /* Always white text */
+}
+
+.dark-mode .add-task-btn {
+  background-color: #333; /* Optional: Dark background for the button in dark mode */
+}
+
+/* Footer Clock */
+.footer-clock {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  z-index: 1000;
+  padding: 10px;
+  background-color: rgba(255, 255, 255, 0.8);
+  border-radius: 8px;
+}
+
+/* Headings */
 h4, h5 {
-  text-align: center; /* Center the headings */
-  margin: 10px 0; /* Add some margin for spacing */
+  text-align: center;
+  margin: 10px 0;
 }
 
+/* Container */
 .container {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  min-height: 100vh; /* Center vertically */
+  min-height: 100vh;
   width: 100%;
 }
 
-
-/* Ensure the table takes up the full width of its container */
+/* Table Styles */
 table {
-  border-collapse: separate; /* Ensures border effects work */
+  border-collapse: separate;
   border-spacing: 0;
   background: white;
   border-radius: 10px;
-  box-shadow: 5px 5px 15px rgba(0, 0, 0, 0.2), 
-              inset -2px -2px 5px rgba(0, 0, 0, 0.1), 
-              inset 2px 2px 5px rgba(255, 255, 255, 0.5); /* Soft inner and outer shadows */
+  box-shadow: 5px 5px 15px rgba(0, 0, 0, 0.2),
+              inset -2px -2px 5px rgba(0, 0, 0, 0.1),
+              inset 2px 2px 5px rgba(255, 255, 255, 0.5);
   overflow: hidden;
 }
-
-th {
-  background: linear-gradient(to bottom, #007bff, #0056b3); /* 3D effect gradient */
-  color: white;
-  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
-  padding: 12px;
-  border-bottom: 3px solid #003d80; /* Makes the header look "raised" */
-}
-
-
-/* Add this to your CSS file (e.g., App.css) */
-table select {
-  width: 100%;
-  padding: 4px;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-  background-color: white;
-  font-size: 14px;
-  color: black;
-}
-
-/* Add left padding specifically to the Task Title column */
-td.task-title, th.task-title {
-  padding-left: 12px; /* Adjust the value as needed */
-}
-
 
 th, td {
   padding: 12px;
@@ -69,16 +79,16 @@ th, td {
 }
 
 th {
-  background-color: #007bff;
+  background: linear-gradient(to bottom, #007bff, #0056b3);
   color: white;
-  font-weight: bold;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
+  border-bottom: 3px solid #003d80;
 }
 
 tr:hover {
-  background-color: rgba(0, 123, 255, 0.1); /* Light blue hover effect */
+  background-color: rgba(0, 123, 255, 0.1);
 }
 
-/* Alternating row colors for better readability */
 tr:nth-child(even) {
   background-color: #f9f9f9;
 }
@@ -99,290 +109,140 @@ input:focus, select:focus, textarea:focus {
   box-shadow: 0px 0px 5px rgba(0, 123, 255, 0.5);
 }
 
-.task-card {
-  background: white;
-  border-radius: 10px;
-  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
-  padding: 15px;
-  margin-bottom: 10px;
-  transition: transform 0.3s ease-in-out;
-}
-
-.task-card:hover {
-  transform: translateY(-3px);
-}
-
-
-:root {
-  --bg-color: white;
-  --text-color: black;
-}
-
-.dark-mode {
-  --bg-color: #121212;
-  --text-color: white;
-}
-@keyframes fall {
-  0% {
-    top: -100px; /* Start above the screen */
-    opacity: 1;
-  }
-  100% {
-    top: 100vh; /* Fall to the bottom of the screen */
-    opacity: 0; /* Optional: Make it fade as it falls */
-  }
-}
-
-.falling-leaf {
-  position: absolute;
-  left: 50%; /* Optional: Center the leaf horizontally */
-  animation: fall 10s linear infinite; /* Increased duration to 10s for slower fall */
-}
-
-
-
-/* .leaf {
-  position: absolute;
-  top: -100;
-  left: 50%;
-  width: 30px;
-  height: 30px;
-  background-image: url('/snow.png'); /* Replace with your leaf image */
-  /* background-size: contain;
-  background-repeat: no-repeat;
-  animation: fall 10s linear infinite;
-  transform-origin: center center;
-  
-} */ */
-
-
-body {
-  background: var(--bg-color);
-  color: var(--text-color);
-}
-
-/* Default Light Mode */
-body {
-  background-color: white;
-  color: black;
-}
-
-/* Dark Mode */
-body.dark-mode {
-  background-color: #121212;
-  color: white;
-}
-
-/* Dark mode styles */
-body.dark-mode select {
-  background-color: #333; /* Dark background */
-  color: white; /* White text for visibility */
-  border: 1px solid #555; /* Slightly darker border */
-}
-
-/* Style dropdown options (if applicable) */
-body.dark-mode select option {
-  background-color: #444; /* Darker dropdown background */
-  color: white; /* White text */
-}
-
-body.dark-mode .custom-dropdown {
-  background-color: #333;
-  color: white;
-  border: 1px solid #555;
-}
-
-body.dark-mode .custom-dropdown .dropdown-item {
-  background-color: #444;
-  color: white;
-}
-
-body.dark-mode .custom-dropdown .dropdown-item:hover {
-  background-color: #555;
-}
-
-.dark-mode-toggle {
-  position: absolute;
-  top: 10px;
-  right: 10px;
-  background-color: #333;
-  color: white;
-  border: none;
-  padding: 8px 16px;
-  cursor: pointer;
-  border-radius: 5px;
-  font-size: 14px;
-}
-
-.dark-mode-toggle:hover {
-  background-color: #555;
-}
-
-
-
-
-/* Button Styling */
-button {
-  background: linear-gradient(to bottom, #007bff, #0056b3);
-  color: white;
-  padding: 10px 16px;
-  border-radius: 6px;
-  border: none;
-  box-shadow: 3px 3px 6px rgba(0, 0, 0, 0.2), 
-              inset -2px -2px 5px rgba(255, 255, 255, 0.2);
-  transition: all 0.2s ease-in-out;
-}
-
-button:active {
-  box-shadow: inset 3px 3px 6px rgba(0, 0, 0, 0.3); /* Pressed effect */
-  transform: translateY(2px);
-}
-
-button:hover {
-  background: linear-gradient(to right, #0056b3, #003d80);
-  transform: scale(1.05);
-}
-
-/* Dark Mode Context Menu */
-.dark-mode .context-menu {
-  background-color: #2a2a2a; /* Dark background for the context menu */
-  color: white; /* White text */
-  border: 1px solid #444; /* Darker border for the menu */
-}
-
-.dark-mode .context-menu div {
-  padding: 10px;
-  cursor: pointer;
-}
-
-.dark-mode .context-menu div:hover {
-  background-color: #444; /* Darker background on hover */
-}
-
-/* Input Fields for Dark Mode */
-.dark-mode input, .dark-mode select, .dark-mode textarea {
-  background-color: #333; /* Dark background for inputs */
-  color: white; /* White text */
-  border: 1px solid #444; /* Dark borders */
-}
-
-/* Focused input or select elements in dark mode */
-.dark-mode input:focus, .dark-mode select:focus, .dark-mode textarea:focus {
-  border-color: #007bff;
-  box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
-}
-
-/* Dark Mode for Input Fields (like Duration) */
-.dark-mode input {
-  background-color: #333; /* Dark background */
-  color: white; /* White text */
-  border: 1px solid #444; /* Dark border */
-}
-
-/* Dark Mode for Select Fields (if any) */
-.dark-mode select {
-  background-color: #333;
-  color: white; /* White text */
-  border: 1px solid #444;
-}
-
-/* Dark Mode for Textarea (if any) */
-.dark-mode textarea {
-  background-color: #333;
-  color: white; /* White text */
-  border: 1px solid #444;
-}
-
-/* Focused Input/Select/Textarea in Dark Mode */
-.dark-mode input:focus, .dark-mode select:focus, .dark-mode textarea:focus {
-  border-color: #007bff;
-  box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
-}
-
-
-/* Dark Mode for Placeholder Text */
-.dark-mode input::placeholder,
-.dark-mode textarea::placeholder,
-.dark-mode select::placeholder {
-  color: #ccc; /* Light gray for placeholder text */
-}
-
-/* For both light and dark mode, set placeholder text color to black */
+/* Default Light Mode Placeholder */
 input::placeholder,
-textarea::placeholder,
-select::placeholder {
-  color: black; /* Set placeholder text color to black */
+textarea::placeholder {
+  color: #faf8f8; /* Light gray placeholder text */
 }
 
+/* Dark Mode Styles */
+.dark-mode {
+  background: #121212 !important;
+  color: white !important;
+}
 
-/* Context menu styles for light mode */
+.dark-mode table {
+  background: linear-gradient(to bottom, #1e1e1e, #151515);
+  border: 1px solid #444;
+  box-shadow: 5px 5px 15px rgba(0, 0, 0, 0.5);
+}
+
+.dark-mode th, .dark-mode td {
+  background: #333 !important;
+  color: white !important;
+  border-color: #444 !important;
+}
+
+.dark-mode tr:hover {
+  background-color: #444;
+}
+
+.dark-mode input, .dark-mode textarea, .dark-mode select {
+  color: #fff; /* White text in dark mode */
+  background-color: #222; /* Dark background */
+  border: 1px solid #444;
+}
+
+input, textarea, select {
+  color: #000; /* Black text for visibility */
+  background-color: #fff; /* White background */
+  border: 1px solid #ccc; /* Light gray border */
+  padding: 8px;
+  width: 100%;
+}
+
+.dark-mode input:focus, .dark-mode select:focus, .dark-mode textarea:focus {
+  border-color: #007bff;
+  box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
+}
+
+/* Context Menu */
 .context-menu {
   position: fixed;
-  background-color: white; /* White background for light mode */
-  color: black; /* Black text for light mode */
+  background-color: white;
+  color: black;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
   z-index: 1000;
   padding: 8px;
-  border-radius: 6px; /* Optional: rounded corners */
+  border-radius: 6px;
+}
+
+.dark-mode .context-menu {
+  background-color: #222 !important;
+  color: white !important;
 }
 
 .context-menu div {
   padding: 8px;
   cursor: pointer;
-  color: black; /* Ensure text is black in light mode */
 }
 
-/* Hover effect for light mode */
 .context-menu div:hover {
-  background-color: #f1f1f1; /* Light gray on hover */
-  color: black; /* Ensure text remains black on hover */
+  background-color: #f1f1f1;
 }
 
-/* Ensure context menu is visible in dark mode */
-.dark-mode .context-menu {
-  background-color: #222 !important; /* Dark background */
-  color: white !important; /* White text */
-  border: 1px solid #444; /* Darker border */
+.dark-mode .context-menu div:hover {
+  background-color: #333 !important;
 }
 
-.dark-mode .context-menu div {
-  color: white !important;
+/* Suggestions Dropdown */
+.suggestions {
+  position: absolute;
+  top: 100%; /* Position below the input */
+  left: 0;
+  right: 0;
+  background-color: white;
+  border: 1px solid #ccc;
+  border-top: none;
+  z-index: 1000; /* Ensure it appears above other elements */
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  max-height: 150px; /* Limit height and enable scrolling */
+  overflow-y: auto;
+}
+
+.dark-mode .suggestions {
+  background-color: #333;
+  border: 1px solid #444;
+}
+
+/* Suggestion Items */
+.suggestions li {
   padding: 8px;
   cursor: pointer;
 }
 
-.dark-mode .context-menu div:hover {
-  background-color: #333 !important; /* Slightly lighter background on hover */
-  color: white !important; /* Ensure text remains white */
-}
-
-
-/* Dark Mode for Suggestions Dropdown */
-.dark-mode .suggestions {
-  background-color: #333; /* Dark background */
-  border: 1px solid #444; /* Dark border */
-}
-
-.dark-mode .suggestions li {
-  color: white; /* White text */
+.suggestions li:hover {
+  background-color: #f0f0f0;
 }
 
 .dark-mode .suggestions li:hover {
-  background-color: #555; /* Darker hover effect */
+  background-color: #555;
 }
 
-/* Form Styling */
+.task-form-container {
+  max-height: 400px; /* Adjust height based on your design */
+  overflow-y: auto; /* Enables vertical scrolling */
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 10px;
+  background-color: #fff;
+}
+
+
 .task-form {
-  display: flex;
-  flex-wrap: wrap; /* Allows wrapping to the next line if the screen is too small */
-  gap: 10px; /* Adds space between input fields */
-  align-items: center; /* Aligns items vertically in the center */
+  background-color: white;
+  color: black;
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
 .task-form input,
 .task-form textarea,
 .task-form select {
-  flex: 1; /* Allows inputs to grow and fill available space */
+  flex: 1;
   padding: 8px;
   border: 1px solid #ccc;
   border-radius: 4px;
@@ -390,7 +250,7 @@ select::placeholder {
 }
 
 .task-form textarea {
-  resize: vertical; /* Allows vertical resizing of the textarea */
+  resize: vertical;
 }
 
 .task-form button {
@@ -406,150 +266,7 @@ select::placeholder {
   background-color: #0056b3;
 }
 
-.autocomplete {
-  position: relative;
-}
-
-.suggestions {
-  position: absolute;
-  top: 100%;
-  left: 0;
-  right: 0;
-  background-color: white;
-  border: 1px solid #ccc;
-  border-top: none;
-  z-index: 1000;
-  list-style: none;
-  padding: 0;
-  margin: 0;
-}
-
-.suggestions li {
-  padding: 8px;
-  cursor: pointer;
-}
-
-.suggestions li:hover {
-  background-color: #f0f0f0;
-}
-
-/* App.css */
-body {
-  margin: 0;
-  padding: 0;
-  font-family: Arial, sans-serif;
-  background-image: url('/wallpaper.jpg'); /* Path to your wallpaper */
-  background-size: cover; /* Ensures the image covers the entire background */
-  background-position: center; /* Centers the image */
-  background-repeat: no-repeat; /* Prevents the image from repeating */
-  background-attachment: fixed; /* Keeps the background fixed while scrolling */
-  min-height: 100vh; /* Ensures the background covers the full viewport height */
-}
-
-/* Default light mode */
-body {
-  background: rgb(230, 169, 169);
-  color: black;
-}
-
-.App {
-  background: url('/wallpaper.jpg') no-repeat center center fixed;
-  background-size: cover;
-  min-height: 100vh;
-  width: 100%;
-}
-
-
-/* Dark mode styles */
-.dark-mode {
-  background: #121212 !important;
-  color: white !important;
-  min-height: 100vh; /* Ensure full height */
-  width: 100vw;
-}
-
-body.dark-mode, .App.dark-mode {
-  background: #121212 !important;
-  color: white !important;
-  min-height: 100vh;
-  width: 100vw;
-}
-
-.dark-mode table {
-  background: linear-gradient(to bottom, #1e1e1e, #151515);
-  color: white !important;
-  border-collapse: collapse !important; /* Ensures rounded corners work */
-  border-spacing: 0;
-  border-radius: 10px; /* Adjust to smooth corners */
-  overflow: hidden;
-  border: 1px solid #444; /* Add a visible border */
-  border-color: #555;
-  box-shadow: 5px 5px 15px rgba(0, 0, 0, 0.5);
-}
-
-.dark-mode th, 
-.dark-mode td {
-  border: 1px solid #444; /* Ensure consistent borders */
-}
-
-html, body {
-  overflow: hidden; /* Completely removes scrollbars */
-  height: 100%; /* Ensures full viewport coverage */
-  margin: 0;
-  padding: 0;
-}
-
-/* Dark Mode for Hovering Rows */
-.dark-mode tr:hover {
-  background-color: #444; /* Highlight row with a different shade on hover */
-}
-
-/* Light mode override for text color in light mode */
-body:not(.dark-mode) td {
-  color: black;
-}
-
-.dark-mode tr:last-child td:first-child {
-  border-bottom-left-radius: 10px;
-}
-
-.dark-mode tr:last-child td:last-child {
-  border-bottom-right-radius: 10px;
-}
-
-.dark-mode th {
-  background: #333 !important;
-  color: white !important;
-}
-
-.dark-mode td {
-  background: #1e1e1e !important;
-  color: white !important;
-  border-color: #444 !important;;
-}
-.dark-mode {
-  background: #121212 !important;
-  color: white !important;
-}
-
-.dark-mode .App {
-  background: #121212 !important; /* Ensures App background is dark */
-  background-image: none !important; /* Removes the wallpaper */
-}
-
-.dark-mode th:first-child,
-.dark-mode td:first-child {
-  border-top-left-radius: 10px;
-  border-bottom-left-radius: 10px;
-}
-
-.dark-mode th:last-child,
-.dark-mode td:last-child {
-  border-top-right-radius: 10px;
-  border-bottom-right-radius: 10px;
-}
-
-
+/* Parent Task Dropdown */
 .parent-task-dropdown {
   position: absolute;
   background: white;
@@ -558,21 +275,129 @@ body:not(.dark-mode) td {
   padding: 8px;
 }
 
-/* Style for the task title input */
+/* Task Title Input */
 input[name="title"] {
-  width: 200px; /* Adjust width as needed */
+  width: 200px;
   padding: 6px;
-  font-size: 12px; /* Increase font size for better visibility */
+  font-size: 12px;
 }
 
-/* Style for the task description textarea */
-/* Style for the task description textarea */
+/* Task Description Textarea */
 textarea[name="description"] {
-  width: 100%; /* Make it fill the available space */
-  min-width: 300px; /* Set a reasonable minimum width */
-  height: 80px; /* Increase height */
-  min-height: 80px; /* Prevent it from being too small */
+  width: 100%;
+  min-width: 300px;
+  height: 80px;
+  min-height: 80px;
   padding: 8px;
-  font-size: 14px; /* Increase font size for better readability */
-  resize: vertical; /* Allow vertical resizing */
+  font-size: 14px;
+  resize: vertical;
+}
+
+/* Button Styling */
+button {
+  background: linear-gradient(to bottom, #007bff, #0056b3);
+  color: white;
+  padding: 10px 16px;
+  border-radius: 6px;
+  border: none;
+  box-shadow: 3px 3px 6px rgba(0, 0, 0, 0.2),
+              inset -2px -2px 5px rgba(255, 255, 255, 0.2);
+  transition: all 0.2s ease-in-out;
+}
+
+button:active {
+  box-shadow: inset 3px 3px 6px rgba(0, 0, 0, 0.3);
+  transform: translateY(2px);
+}
+
+button:hover {
+  background: linear-gradient(to right, #0056b3, #003d80);
+  transform: scale(1.05);
+}
+
+/* Dark Mode Button */
+.dark-mode-button {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  z-index: 1000;
+  padding: 10px;
+  background-color: transparent;
+  border: none;
+  font-size: 16px;
+  cursor: pointer;
+  color: inherit;
+}
+
+.dark-mode .dark-mode-button {
+  color: white;
+}
+
+/* Dark Mode Styles */
+.dark-mode .task-form {
+  background-color: #333; /* Dark background */
+  color: white; /* Light text */
+}
+
+/* Dark Mode Styles */
+.dark-mode .task-form-container {
+  background-color: #333; /* Dark background */
+  color: white; /* Light text */
+}
+
+.dark-mode .task-form input,
+.dark-mode .task-form textarea,
+.dark-mode .task-form select {
+  background-color: #444; /* Darker input background */
+  color: white; /* Light text */
+  border: 1px solid #555; /* Darker border */
+}
+
+.task-form {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  max-width: 500px;
+  margin: 0 auto;
+  padding: 20px;
+  background-color: #fff;
+  border-radius: 10px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+}
+
+.form-group label {
+  font-weight: bold;
+  margin-bottom: 5px;
+}
+
+.form-group input,
+.form-group textarea,
+.form-group select {
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  font-size: 14px;
+  outline: none;
+}
+
+/* Make sure Task Title input is visible */
+.form-group input[type="text"] {
+  display: block;
+  width: 100%;
+}
+
+/* Add some margin at the bottom */
+.add-task-button {
+  margin-top: 20px;
+}
+
+
+/* Add hover effect */
+.add-task-button:hover {
+  background-color: #45a049;
 }
