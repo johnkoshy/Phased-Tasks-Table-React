@@ -598,11 +598,13 @@ function App() {
         </button>
       </div>
 
-      <div className="table-wrapper">
+      <div className="table-container">
+      <div class="table-header">
         <h4>PHASED TASKS TABLE</h4>
-
         <h5>Task List</h5>
+        </div>
         {tasks.length > 0 ? (
+          <div class="table-wrapper">
           <table>
             <thead>
               <tr>
@@ -618,6 +620,7 @@ function App() {
             </thead>
             {renderTableBody()}
           </table>
+          </div>
         ) : (
           <p>No tasks available.</p>
         )}

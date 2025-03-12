@@ -1,8 +1,54 @@
 /* Table Wrapper */
 .table-wrapper {
-  max-height: 60vh;
+  max-height: 400px;
   overflow-y: auto;
-  margin-bottom: 80px;
+  border: 2px solid #ccc;
+  border-radius: 0 0 5px 5px;
+  background-color: white;
+  padding: 0;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+.table-wrapper table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.table-wrapper thead {
+  position: sticky;
+  top: 0;
+  background-color: #007bff;
+  color: white;
+  z-index: 2;
+}
+
+.table-wrapper th, .table-wrapper td {
+  border: 1px solid #ddd;
+  padding: 8px;
+  text-align: left;
+}
+
+.table-wrapper th {
+  background-color: #007bff;
+  color: white;
+}
+
+.table-wrapper tbody tr:hover {
+  background-color: #f1f1f1;
+}
+
+/* Scrollbar Design */
+.table-wrapper::-webkit-scrollbar {
+  width: 8px;
+}
+
+.table-wrapper::-webkit-scrollbar-thumb {
+  background-color: #888;
+  border-radius: 5px;
+}
+
+.table-wrapper::-webkit-scrollbar-thumb:hover {
+  background-color: #555;
 }
 
 /* Add Task Button */
@@ -13,12 +59,71 @@
   z-index: 1000;
 }
 
+.table-header {
+  text-align: center;
+  background-color: #fff;
+  border: 2px solid #ccc;
+  border-radius: 5px 5px 0 0;
+  padding: 10px;
+  margin-bottom: -1px; /* Remove the gap between the header and table */
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  color: #000; /* Text color in light mode */
+}
+
+body.dark-mode .table-header {
+  background-color: #333;  /* Dark background */
+  border-color: #444;
+  color: #fff;             /* White text in dark mode */
+  box-shadow: none;        /* Optional: remove the shadow in dark mode */
+}
+
+.table-header h4,
+.table-header h5 {
+  margin: 0;
+  color: inherit; /* Use the parent's color in light mode */
+}
+
+body.dark-mode .table-header h4,
+body.dark-mode .table-header h5 {
+  color: inherit; /* Use the parent's color in dark mode */
+}
+
+
+.table-header h4 {
+  margin: 0;
+  font-size: 18px;
+  font-weight: bold;
+}
+
+.table-header h5 {
+  margin: 0;
+  font-size: 14px;
+  color: #666;
+}
+
 /* Autocomplete Container */
 .autocomplete {
   position: relative;
   width: 100%;
   font-weight: bold;
 }
+
+body, html {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  background-image: url('/public/wallpaper.jpg'); /* Add your wallpaper image */
+  background-size: cover; /* Ensure the wallpaper covers the entire background */
+  background-position: center; /* Center the wallpaper */
+}
+
+.table-container {
+  max-width: 1100px;  
+  margin-left: 100px; /* Shift the table 100px from the left edge */
+  padding: 20px;
+}
+
+
 
 
 .add-task-btn {
@@ -71,10 +176,12 @@ table {
               inset -2px -2px 5px rgba(0, 0, 0, 0.1),
               inset 2px 2px 5px rgba(255, 255, 255, 0.5);
   overflow: hidden;
+  width: 100%;
+  border-collapse: collapse;
 }
 
 th, td {
-  padding: 12px;
+  padding: 8px;
   border: 1px solid #ddd;
   text-align: left;
 }
@@ -84,6 +191,10 @@ th {
   color: white;
   text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
   border-bottom: 3px solid #003d80;
+  background-color: #f0f0f0; /* Match header background */
+  position: sticky;
+  top: 0;
+  z-index: 1;
 }
 
 tr:hover {
@@ -207,6 +318,13 @@ input, textarea, select {
   margin: 0;
   max-height: 150px; /* Limit height and enable scrolling */
   overflow-y: auto;
+}
+
+.scrollable-table {
+  overflow-y: auto;
+  flex-grow: 1;
+  margin-left: 20px; /* Move the table to the right */
+  background-color: #ffffff; /* Set table background color */
 }
 
 .dark-mode .suggestions {
