@@ -24,6 +24,8 @@ function App() {
 
   const [editError, setEditError] = useState('');
 
+  const [dueDateError, setDueDateError] = useState(''); // State for error message
+
   // Function to calculate duration in days
   const calculateDurationInDays = (start, end) => {
     const startDate = new Date(start);
@@ -132,11 +134,13 @@ function App() {
         task.id === taskId ? { ...editingTaskData } : task
       )
     );
-    setEditingTaskId(null);
+    setEditingTaskId(null); // Exit edit mode
   };
 
   const handleCancelEdit = () => {
-    setEditingTaskId(null);
+    const originalTask = tasks.find((task) => task.id === editingTaskId);
+    setEditingTaskData({ ...originalTask }); // Reset to original data
+    setEditingTaskId(null); // Exit edit mode
   };
 
   const handleAddSubtask = () => {
@@ -256,6 +260,18 @@ function App() {
     setTask((prevTask) => {
       const updatedTask = { ...prevTask, [name]: value };
 
+      // Validate Due By date
+      if (name === 'completionDate' && updatedTask.createdDate) {
+        const createdDate = new Date(updatedTask.createdDate);
+        const completionDate = new Date(value);
+
+        if (completionDate < createdDate) {
+          setDueDateError('Due By date cannot be earlier than Created On date.');
+        } else {
+          setDueDateError(''); // Clear error if valid
+        }
+      }
+
       // Recalculate duration dynamically
       if (updatedTask.createdDate && updatedTask.completionDate) {
         updatedTask.duration = calculateDurationInDays(updatedTask.createdDate, updatedTask.completionDate);
@@ -295,12 +311,14 @@ function App() {
 
   const handleRowClick = (taskId, e) => {
     if (e.target.tagName.toLowerCase() === 'input' || e.target.tagName.toLowerCase() === 'select') {
-      return;
+      return; // Ignore clicks on input or select elements
     }
-
+  
     if (editingTaskId === taskId) {
-      handleSaveTask(taskId);
+      // If already in edit mode, do nothing (wait for explicit Save or Cancel)
+      return;
     } else {
+      // Enter edit mode
       handleEditTask(taskId);
     }
   };
@@ -325,26 +343,26 @@ function App() {
 
   const handleEditInputChange = (e) => {
     const { name, value } = e.target;
-
+  
     if (
-      (name === 'title' || name === 'description' || name === 'assignedTo') &&
-      !/^[a-zA-Z\s]*$/.test(value)
+      (name === 'title' || name === 'description') &&
+      !/^[a-zA-Z0-9\s]*$/.test(value) // Allow numbers
     ) {
       return;
     }
-
+  
     if (name === 'assignedTo') {
       const isValidAssignee = assignees.includes(value);
       if (!isValidAssignee && value.trim() !== '') {
         return;
       }
     }
-
+  
     setEditingTaskData((prevData) => ({
       ...prevData,
       [name]: value,
     }));
-
+  
     if (name === 'assignedTo') {
       const filteredSuggestions = assignees.filter((assignee) =>
         assignee.toLowerCase().includes(value.toLowerCase())
@@ -497,11 +515,11 @@ function App() {
                 )}
               </td>
               {isEditing && (
-                <td>
-                  <button onClick={() => handleSaveTask(task.id)}>Save</button>
-                  <button onClick={handleCancelEdit}>Cancel</button>
-                </td>
-              )}
+  <td>
+    <button onClick={() => handleSaveTask(task.id)}>Save</button>
+    <button onClick={handleCancelEdit}>Cancel</button>
+  </td>
+)}
             </tr>
             {isExpanded && renderTasks(tasks, task.id, level + 1)}
           </React.Fragment>
@@ -599,27 +617,27 @@ function App() {
       </div>
 
       <div className="table-container">
-      <div class="table-header">
-        <h4>PHASED TASKS TABLE</h4>
-        <h5>Task List</h5>
+        <div class="table-header">
+          <h4>PHASED TASKS TABLE</h4>
+          <h5>Task List</h5>
         </div>
         {tasks.length > 0 ? (
           <div class="table-wrapper">
-          <table>
-            <thead>
-              <tr>
-                <th>Task Title</th>
-                <th>Description</th>
-                <th>Assigned To</th>
-                <th>Duration (Days)</th> {/* Updated column header */}
-                <th>Created On</th>
-                <th>Due By</th>
-                <th>Parent Task</th>
-                {editingTaskId !== null && <th>Actions</th>}
-              </tr>
-            </thead>
-            {renderTableBody()}
-          </table>
+            <table>
+              <thead>
+                <tr>
+                  <th>Task Title</th>
+                  <th>Description</th>
+                  <th>Assigned To</th>
+                  <th>Duration (Days)</th> {/* Updated column header */}
+                  <th>Created On</th>
+                  <th>Due By</th>
+                  <th>Parent Task</th>
+                  {editingTaskId !== null && <th>Actions</th>}
+                </tr>
+              </thead>
+              {renderTableBody()}
+            </table>
           </div>
         ) : (
           <p>No tasks available.</p>
@@ -671,7 +689,7 @@ function App() {
                   />
                 </div>
                 <div className="autocomplete">
-                <label>Assigned To:</label>
+                  <label>Assigned To:</label>
                   <input
                     type="text"
                     name="assignedTo"
@@ -710,13 +728,10 @@ function App() {
                     name="createdDate"
                     value={task.createdDate}
                     ref={createdDateRef}
-                    onChange={(e) => {
-                      handleDateTimeChange(e);
-                      createdDateRef.current.blur();  // Force close the date picker
-                    }}
+                    onChange={handleDateTimeChange} // Handle date/time change
+                    onBlur={() => createdDateRef.current.blur()} // Close the date picker when losing focus
                     title="Date when the task was created."
                   />
-
                 </div>
                 <div className="form-group">
                   <label>Due By:</label>
@@ -726,13 +741,12 @@ function App() {
                     name="completionDate"
                     value={task.completionDate}
                     ref={completionDateRef}
-                    onChange={(e) => {
-                      handleDateTimeChange(e);
-                      completionDateRef.current.blur();  // Force close the date picker
-                    }}
+                    onChange={handleDateTimeChange}
+                    onBlur={() => completionDateRef.current.blur()}
                     title="Estimated or actual completion date."
+                    min={task.createdDate} // Set min date to Created On date
                   />
-
+                  {dueDateError && <p style={{ color: 'red', fontSize: '0.9em' }}>{dueDateError}</p>}
                 </div>
                 <div className="form-group">
                   <label>Parent Task:</label>
