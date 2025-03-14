@@ -76,6 +76,10 @@ body.dark-mode .table-header {
   box-shadow: none;        /* Optional: remove the shadow in dark mode */
 }
 
+.dark-mode .table-wrapper th {
+  border-right: 1px solid transparent !important; /* Remove white line between headers */
+}
+
 .table-header h4,
 .table-header h5 {
   margin: 0;
