@@ -32,11 +32,6 @@
   text-align: left;
 }
 
-.table-wrapper th {
-  background-color: #007bff;
-  color: white;
-}
-
 .table-wrapper tbody tr:hover {
   background-color: #f1f1f1;
 }
@@ -172,8 +167,8 @@ h4, h5 {
 
 /* Table Styles */
 table {
-  border-collapse: separate;
-  border-spacing: 0;
+  border-collapse: collapse !important;
+  border-spacing: 0px !important;
   background: white;
   border-radius: 10px;
   box-shadow: 5px 5px 15px rgba(0, 0, 0, 0.2),
@@ -194,12 +189,12 @@ th {
   background: linear-gradient(to bottom, #007bff, #0056b3);
   color: white;
   text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
-  border-bottom: 3px solid #003d80;
-  background-color: #f0f0f0; /* Match header background */
-  position: sticky;
-  top: 0;
-  z-index: 1;
+  border-bottom: 3px solid #003d80; /* Strong bottom border */
+  border-right: 1px solid white !important; /* White division line */
+  outline: none !important;
 }
+
+
 
 tr:hover {
   background-color: rgba(0, 123, 255, 0.1);
@@ -218,6 +213,20 @@ input, select, textarea {
   font-size: 14px;
   transition: border 0.3s ease-in-out;
 }
+
+th:not(:last-child) {
+  border-right: none !important;
+}
+
+th:focus, th:active {
+  outline: none !important;
+  box-shadow: none !important;
+}
+
+th, td {
+  border: 1px solid #444; /* Adjust color to match the table */
+}
+
 
 input:focus, select:focus, textarea:focus {
   border-color: #007bff;
@@ -542,4 +551,10 @@ button:hover {
 /* Add hover effect */
 .add-task-button:hover {
   background-color: #45a049;
+}
+.table-wrapper th {
+  border-bottom: 3px solid #003d80 !important; /* Bottom border */
+  border-right: 1px solid white !important; /* White right border */
+  outline: none !important;
+  box-shadow: none !important;
 }
