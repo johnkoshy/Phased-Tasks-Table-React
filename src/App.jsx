@@ -2,6 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import './App.css';
 import FooterClock from "./components/FooterClock";
 import AssigneeInput from './components/AssigneeInput';
+import styled from 'styled-components';
 
 function App() {
   const [tasks, setTasks] = useState([]);
@@ -127,6 +128,20 @@ function App() {
       </div>
     );
   };
+
+  
+
+const Button = styled.button`
+  background-color: #4CAF50;
+  color: white;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  &:hover {
+    background-color: #45a049;
+  }
+`;
 
   const handleSaveTask = (taskId) => {
     setTasks((prevTasks) =>
@@ -256,27 +271,40 @@ function App() {
 
   const handleDateTimeChange = (e) => {
     const { name, value } = e.target;
-
+  
     setTask((prevTask) => {
       const updatedTask = { ...prevTask, [name]: value };
-
+  
+      // Validate Created On date
+      if (name === 'createdDate') {
+        const selectedDate = new Date(value);
+        const currentDate = new Date();
+  
+        if (selectedDate < currentDate) {
+          setDueDateError('Created On date cannot be earlier than the current date.');
+          return prevTask; // Do not update the state if the date is invalid
+        } else {
+          setDueDateError(''); // Clear error if valid
+        }
+      }
+  
       // Validate Due By date
       if (name === 'completionDate' && updatedTask.createdDate) {
         const createdDate = new Date(updatedTask.createdDate);
         const completionDate = new Date(value);
-
+  
         if (completionDate < createdDate) {
           setDueDateError('Due By date cannot be earlier than Created On date.');
         } else {
           setDueDateError(''); // Clear error if valid
         }
       }
-
+  
       // Recalculate duration dynamically
       if (updatedTask.createdDate && updatedTask.completionDate) {
         updatedTask.duration = calculateDurationInDays(updatedTask.createdDate, updatedTask.completionDate);
       }
-
+  
       return updatedTask;
     });
   };

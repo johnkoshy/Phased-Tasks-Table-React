@@ -1,3 +1,7 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
 /* Table Wrapper */
 .table-wrapper {
   max-height: 400px;
@@ -362,6 +366,19 @@ input, textarea, select {
   padding: 20px;
   border-radius: 10px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.task-form {
+  animation: fadeIn 0.5s ease-in-out;
 }
 
 .task-form input,
