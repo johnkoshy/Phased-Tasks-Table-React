@@ -95,6 +95,8 @@ function App() {
     y: 0,
   });
 
+  const [showAssigneeSuggestions, setShowAssigneeSuggestions] = useState(false);
+
   const ContextMenu = ({ visible, x, y, onAddSubtask, onClose }) => {
     if (!visible) return null;
 
@@ -129,9 +131,9 @@ function App() {
     );
   };
 
-  
 
-const Button = styled.button`
+
+  const Button = styled.button`
   background-color: #4CAF50;
   color: white;
   padding: 10px 20px;
@@ -196,10 +198,12 @@ const Button = styled.button`
   const handleSuggestionClick = (suggestion) => {
     setTask((prev) => ({ ...prev, assignedTo: suggestion }));
     setAssigneeSuggestions([]);
+    setShowAssigneeSuggestions(false); // Hide suggestions
   };
 
   const handleAssignedToFocus = () => {
     setAssigneeSuggestions(assignees);
+    setShowAssigneeSuggestions(true); // Show suggestions
   };
 
   const handleSubmit = (e) => {
@@ -246,40 +250,39 @@ const Button = styled.button`
   };
 
   const handleClickOutside = (e) => {
+    // Check if clicked outside the form
     if (formRef.current && !formRef.current.contains(e.target)) {
-      const isAnyInputFilled = Object.values(task).some((value) => {
-        if (typeof value === 'string') {
-          return value.trim() !== '';
-        }
-        return value !== null && value !== undefined;
-      });
-
-      if (!isAnyInputFilled) {
-        setShowForm(false);
-        setTask({
-          title: '',
-          description: '',
-          assignedTo: '',
-          duration: '',
-          completionDate: '',
-          createdDate: '',
-          parentTaskId: '',
-        });
+      // Check if no input values are entered
+      if (!task.title.trim() && !task.description.trim()) {
+        setShowForm(false); // Close form if no data entered
       }
+    }
+
+    // Check if clicked outside the assignee suggestions
+    const assigneeInput = document.querySelector('input[name="assignedTo"]');
+    const suggestionsList = document.querySelector('.suggestions');
+
+    if (
+      assigneeInput &&
+      !assigneeInput.contains(e.target) &&
+      suggestionsList &&
+      !suggestionsList.contains(e.target)
+    ) {
+      setShowAssigneeSuggestions(false); // Hide suggestions
     }
   };
 
   const handleDateTimeChange = (e) => {
     const { name, value } = e.target;
-  
+
     setTask((prevTask) => {
       const updatedTask = { ...prevTask, [name]: value };
-  
+
       // Validate Created On date
       if (name === 'createdDate') {
         const selectedDate = new Date(value);
         const currentDate = new Date();
-  
+
         if (selectedDate < currentDate) {
           setDueDateError('Created On date cannot be earlier than the current date.');
           return prevTask; // Do not update the state if the date is invalid
@@ -287,24 +290,24 @@ const Button = styled.button`
           setDueDateError(''); // Clear error if valid
         }
       }
-  
+
       // Validate Due By date
       if (name === 'completionDate' && updatedTask.createdDate) {
         const createdDate = new Date(updatedTask.createdDate);
         const completionDate = new Date(value);
-  
+
         if (completionDate < createdDate) {
           setDueDateError('Due By date cannot be earlier than Created On date.');
         } else {
           setDueDateError(''); // Clear error if valid
         }
       }
-  
+
       // Recalculate duration dynamically
       if (updatedTask.createdDate && updatedTask.completionDate) {
         updatedTask.duration = calculateDurationInDays(updatedTask.createdDate, updatedTask.completionDate);
       }
-  
+
       return updatedTask;
     });
   };
@@ -341,7 +344,7 @@ const Button = styled.button`
     if (e.target.tagName.toLowerCase() === 'input' || e.target.tagName.toLowerCase() === 'select') {
       return; // Ignore clicks on input or select elements
     }
-  
+
     if (editingTaskId === taskId) {
       // If already in edit mode, do nothing (wait for explicit Save or Cancel)
       return;
@@ -371,26 +374,26 @@ const Button = styled.button`
 
   const handleEditInputChange = (e) => {
     const { name, value } = e.target;
-  
+
     if (
       (name === 'title' || name === 'description') &&
       !/^[a-zA-Z0-9\s]*$/.test(value) // Allow numbers
     ) {
       return;
     }
-  
+
     if (name === 'assignedTo') {
       const isValidAssignee = assignees.includes(value);
       if (!isValidAssignee && value.trim() !== '') {
         return;
       }
     }
-  
+
     setEditingTaskData((prevData) => ({
       ...prevData,
       [name]: value,
     }));
-  
+
     if (name === 'assignedTo') {
       const filteredSuggestions = assignees.filter((assignee) =>
         assignee.toLowerCase().includes(value.toLowerCase())
@@ -543,11 +546,11 @@ const Button = styled.button`
                 )}
               </td>
               {isEditing && (
-  <td>
-    <button onClick={() => handleSaveTask(task.id)}>Save</button>
-    <button onClick={handleCancelEdit}>Cancel</button>
-  </td>
-)}
+                <td>
+                  <button onClick={() => handleSaveTask(task.id)}>Save</button>
+                  <button onClick={handleCancelEdit}>Cancel</button>
+                </td>
+              )}
             </tr>
             {isExpanded && renderTasks(tasks, task.id, level + 1)}
           </React.Fragment>
@@ -585,12 +588,7 @@ const Button = styled.button`
 
 
   useEffect(() => {
-    if (showForm) {
-      document.addEventListener('mousedown', handleClickOutside);
-    } else {
-      document.removeEventListener('mousedown', handleClickOutside);
-    }
-
+    document.addEventListener('mousedown', handleClickOutside);
     return () => {
       document.removeEventListener('mousedown', handleClickOutside);
     };
@@ -609,16 +607,25 @@ const Button = styled.button`
 
   useEffect(() => {
     function handleClickOutside(event) {
-      if (assigneeRef.current && !assigneeRef.current.contains(event.target)) {
-        setAssigneeSuggestions([]);
+      if (
+        showForm && // Only check if the form is open
+        formRef.current &&
+        !formRef.current.contains(event.target) // If clicked outside the form
+      ) {
+        // Check if no input values are entered
+        if (!task.title.trim() && !task.description.trim()) {
+          setShowForm(false); // Close form if no data entered
+        }
       }
     }
 
-    document.addEventListener('mousedown', handleClickOutside);
+    document.addEventListener("mousedown", handleClickOutside);
     return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener("mousedown", handleClickOutside);
     };
-  }, []);
+  }, [showForm, task]); // Depend on `task` to detect changes in input
+
+
 
   return (
     <div className="App">
@@ -695,6 +702,7 @@ const Button = styled.button`
           ) : (
             <div className="task-form-container">
               <form onSubmit={handleSubmit} className="task-form" ref={formRef}>
+
                 <div className="form-group">
                   <label>Task Title:</label>
                   <input
@@ -727,8 +735,8 @@ const Button = styled.button`
                     onFocus={handleAssignedToFocus}
                     autoComplete="off"
                   />
-                  {assigneeSuggestions.length > 0 && (
-                    <ul className="suggestions" ref={assigneeRef}>
+                  {showAssigneeSuggestions && assigneeSuggestions.length > 0 && (
+                    <ul className="suggestions">
                       {assigneeSuggestions.map((suggestion, index) => (
                         <li key={index} onClick={() => handleSuggestionClick(suggestion)}>
                           {suggestion}
