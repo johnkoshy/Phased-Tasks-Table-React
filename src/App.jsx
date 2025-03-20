@@ -143,7 +143,19 @@ function App() {
   const handleSubmit = (e) => {
     e.preventDefault();
     if (!task.title.trim() || !task.description.trim()) return;
-    const durationInDays = task.duration || calculateDurationInDays(task.createdDate, task.completionDate);
+
+    // Get current date and time in "YYYY-MM-DDTHH:MM" format
+    const now = new Date();
+    const year = now.getFullYear();
+    const month = String(now.getMonth() + 1).padStart(2, '0');
+    const day = String(now.getDate()).padStart(2, '0');
+    const hours = String(now.getHours()).padStart(2, '0');
+    const minutes = String(now.getMinutes()).padStart(2, '0');
+    const formattedNow = `${year}-${month}-${day}T${hours}:${minutes}`;
+
+    // Use form's createdDate or default to formatted current time
+    const createdDate = task.createdDate || formattedNow;
+    const durationInDays = task.duration || calculateDurationInDays(createdDate, task.completionDate);
     const newTask = {
       id: Date.now().toString(),
       title: task.title,
@@ -151,7 +163,7 @@ function App() {
       assignedTo: task.assignedTo,
       duration: durationInDays,
       completionDate: task.completionDate,
-      createdDate: new Date().toISOString(),
+      createdDate: createdDate, // Store in "YYYY-MM-DDTHH:MM" format
       parentTaskId: task.parentTaskId || null,
       subtasks: [],
     };
@@ -162,7 +174,15 @@ function App() {
 
   // Show form for adding a new main task
   const handleAddTaskClick = () => {
-    setTask((prev) => ({ ...prev, parentTaskId: '' }));
+    // Set initial createdDate to current date and time in "YYYY-MM-DDTHH:MM"
+    const now = new Date();
+    const year = now.getFullYear();
+    const month = String(now.getMonth() + 1).padStart(2, '0');
+    const day = String(now.getDate()).padStart(2, '0');
+    const hours = String(now.getHours()).padStart(2, '0');
+    const minutes = String(now.getMinutes()).padStart(2, '0');
+    const createdDate = `${year}-${month}-${day}T${hours}:${minutes}`;
+    setTask({ title: '', description: '', assignedTo: '', duration: '', completionDate: '', createdDate, parentTaskId: '' });
     setShowForm(true);
   };
 
@@ -215,6 +235,16 @@ function App() {
       if (completionInput?.dataset.blurTimeout) clearTimeout(completionInput.dataset.blurTimeout);
     };
   }, []);
+
+  // Recalculate duration when dates change during task editing
+  useEffect(() => {
+    if (editingTaskId && editingTaskData.createdDate && editingTaskData.completionDate) {
+      const newDuration = calculateDurationInDays(editingTaskData.createdDate, editingTaskData.completionDate);
+      if (newDuration !== editingTaskData.duration) {
+        setEditingTaskData(prev => ({ ...prev, duration: newDuration }));
+      }
+    }
+  }, [editingTaskData.createdDate, editingTaskData.completionDate, editingTaskId, calculateDurationInDays]);
 
   // Update task parent with validation against circular references
   const handleParentChange = (e, taskId) => {
@@ -329,18 +359,6 @@ function App() {
       document.body.style.backgroundSize = 'cover';
     }
   }, [darkMode]);
-
-  // Recalculate duration when dates change during task editing
-  useEffect(() => {
-    // Only run if a task is being edited and both dates are provided
-    if (editingTaskId && editingTaskData.createdDate && editingTaskData.completionDate) {
-      const newDuration = calculateDurationInDays(editingTaskData.createdDate, editingTaskData.completionDate);
-      // Update duration only if it has changed to avoid unnecessary re-renders
-      if (newDuration !== editingTaskData.duration) {
-        setEditingTaskData(prev => ({ ...prev, duration: newDuration }));
-      }
-    }
-  }, [editingTaskData.createdDate, editingTaskData.completionDate, editingTaskId, calculateDurationInDays]);
 
   // Add event listener for outside clicks
   useEffect(() => {
