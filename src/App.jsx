@@ -40,6 +40,22 @@ function App() {
     return daysDiff > 0 ? daysDiff : 0; // Prevent negative values
   };
 
+  // Function to clear all form inputs
+  const handleClearForm = () => {
+    setTask({
+      title: '',
+      description: '',
+      assignedTo: '',
+      duration: '',
+      completionDate: '',
+      createdDate: '',
+      parentTaskId: '',
+    });
+    setDueDateError(''); // Clear any error messages too
+    setAssigneeSuggestions([]); // Reset assignee suggestions
+    setShowAssigneeSuggestions(false); // Hide suggestions dropdown
+  };
+
   const getParentTaskTitle = (parentTaskId) => {
     if (!parentTaskId) return "Main Task";
     const parentTask = tasks.find((task) => task.id === parentTaskId);
@@ -274,15 +290,15 @@ function App() {
 
   const handleDateTimeChange = (e) => {
     const { name, value } = e.target;
-
+  
     setTask((prevTask) => {
       const updatedTask = { ...prevTask, [name]: value };
-
+  
       // Validate Created On date
       if (name === 'createdDate') {
         const selectedDate = new Date(value);
         const currentDate = new Date();
-
+  
         if (selectedDate < currentDate) {
           setDueDateError('Created On date cannot be earlier than the current date.');
           return prevTask; // Do not update the state if the date is invalid
@@ -290,27 +306,56 @@ function App() {
           setDueDateError(''); // Clear error if valid
         }
       }
-
+  
       // Validate Due By date
       if (name === 'completionDate' && updatedTask.createdDate) {
         const createdDate = new Date(updatedTask.createdDate);
         const completionDate = new Date(value);
-
+  
         if (completionDate < createdDate) {
           setDueDateError('Due By date cannot be earlier than Created On date.');
         } else {
           setDueDateError(''); // Clear error if valid
         }
       }
-
+  
       // Recalculate duration dynamically
       if (updatedTask.createdDate && updatedTask.completionDate) {
         updatedTask.duration = calculateDurationInDays(updatedTask.createdDate, updatedTask.completionDate);
       }
-
+  
       return updatedTask;
     });
+  
+    // Clear any existing timeout to reset the delay
+    if (e.target.dataset.blurTimeout) {
+      clearTimeout(e.target.dataset.blurTimeout);
+    }
+  
+    // Set a new timeout to blur the input after a short delay (e.g., 500ms)
+    const timeoutId = setTimeout(() => {
+      e.target.blur(); // Blur the input to close the picker
+    }, 3000); // Adjust delay as needed (3000ms gives time to finish selection)
+  
+    // Store the timeout ID on the input element
+    e.target.dataset.blurTimeout = timeoutId;
   };
+  
+  // Clean up timeout on unmount or when input changes
+  useEffect(() => {
+    return () => {
+      const createdInput = document.getElementById('createdDate');
+      const completionInput = document.getElementById('completionDate');
+      if (createdInput?.dataset.blurTimeout) {
+        clearTimeout(createdInput.dataset.blurTimeout);
+      }
+      if (completionInput?.dataset.blurTimeout) {
+        clearTimeout(completionInput.dataset.blurTimeout);
+      }
+    };
+  }, []);
+  
+  // No need for e.target.blur() here
 
 
 
@@ -686,130 +731,130 @@ function App() {
           onClose={handleCloseContextMenu}
         />
 
-        <div className="add-task-container">
-          {!showForm ? (
-            <button
-              className="add-task-btn"
-              onClick={handleAddTaskClick}
-              style={{
-
-                backgroundColor: darkMode ? '#333' : '#f0f0f0', // Optional: Adjust background color
-              }}
-            >
-              Add Task
-            </button>
-
-          ) : (
-            <div className="task-form-container">
-              <form onSubmit={handleSubmit} className="task-form" ref={formRef}>
-
-                <div className="form-group">
-                  <label>Task Title:</label>
-                  <input
-                    type="text"
-                    name="title"
-                    placeholder="Task Title"
-                    value={task.title}
-                    onChange={handleChange}
-                    required
-                  />
-                </div>
-                <div className="form-group">
-                  <label>Task Description:</label>
-                  <textarea
-                    name="description"
-                    placeholder="Task Description"
-                    value={task.description}
-                    onChange={handleChange}
-                    required
-                  />
-                </div>
-                <div className="autocomplete">
-                  <label>Assigned To:</label>
-                  <input
-                    type="text"
-                    name="assignedTo"
-                    placeholder="Assigned To"
-                    value={task.assignedTo}
-                    onChange={handleChange}
-                    onFocus={handleAssignedToFocus}
-                    autoComplete="off"
-                  />
-                  {showAssigneeSuggestions && assigneeSuggestions.length > 0 && (
-                    <ul className="suggestions">
-                      {assigneeSuggestions.map((suggestion, index) => (
-                        <li key={index} onClick={() => handleSuggestionClick(suggestion)}>
-                          {suggestion}
-                        </li>
-                      ))}
-                    </ul>
-                  )}
-                </div>
-                <div className="form-group">
-                  <label>Duration (Days):</label>
-                  <input
-                    type="number"
-                    name="duration"
-                    placeholder="Duration (days)"
-                    value={task.duration || ""}
-                    disabled
-                    onChange={handleChange}
-                  />
-                </div>
-                <div className="form-group">
-                  <label>Created On:</label>
-                  <input
-                    type="datetime-local"
-                    id="createdDate"
-                    name="createdDate"
-                    value={task.createdDate}
-                    ref={createdDateRef}
-                    onChange={handleDateTimeChange} // Handle date/time change
-                    onBlur={() => createdDateRef.current.blur()} // Close the date picker when losing focus
-                    title="Date when the task was created."
-                  />
-                </div>
-                <div className="form-group">
-                  <label>Due By:</label>
-                  <input
-                    type="datetime-local"
-                    id="completionDate"
-                    name="completionDate"
-                    value={task.completionDate}
-                    ref={completionDateRef}
-                    onChange={handleDateTimeChange}
-                    onBlur={() => completionDateRef.current.blur()}
-                    title="Estimated or actual completion date."
-                    min={task.createdDate} // Set min date to Created On date
-                  />
-                  {dueDateError && <p style={{ color: 'red', fontSize: '0.9em' }}>{dueDateError}</p>}
-                </div>
-                <div className="form-group">
-                  <label>Parent Task:</label>
-                  <select
-                    name="parentTaskId"
-                    value={task.parentTaskId}
-                    onChange={handleChange}
-                  >
-                    <option value="">Main Task</option>
-                    {tasks
-                      .filter((t) => t.id !== task.id) // Exclude the current task from the list
-                      .map((t) => (
-                        <option key={t.id} value={t.id}>
-                          {t.title}
-                        </option>
-                      ))}
-                  </select>
-                </div>
+<div className="add-task-container">
+        {!showForm ? (
+          <button
+            className="add-task-btn"
+            onClick={handleAddTaskClick}
+            style={{
+              backgroundColor: darkMode ? '#333' : '#f0f0f0',
+            }}
+          >
+            Add Task
+          </button>
+        ) : (
+          <div className="task-form-container">
+            <form onSubmit={handleSubmit} className="task-form" ref={formRef}>
+              <div className="form-group">
+                <label>Task Title:</label>
+                <input
+                  type="text"
+                  name="title"
+                  placeholder="Task Title"
+                  value={task.title}
+                  onChange={handleChange}
+                  required
+                />
+              </div>
+              <div className="form-group">
+                <label>Task Description:</label>
+                <textarea
+                  name="description"
+                  placeholder="Task Description"
+                  value={task.description}
+                  onChange={handleChange}
+                  required
+                />
+              </div>
+              <div className="autocomplete">
+                <label>Assigned To:</label>
+                <input
+                  type="text"
+                  name="assignedTo"
+                  placeholder="Assigned To"
+                  value={task.assignedTo}
+                  onChange={handleChange}
+                  onFocus={handleAssignedToFocus}
+                  autoComplete="off"
+                />
+                {showAssigneeSuggestions && assigneeSuggestions.length > 0 && (
+                  <ul className="suggestions">
+                    {assigneeSuggestions.map((suggestion, index) => (
+                      <li key={index} onClick={() => handleSuggestionClick(suggestion)}>
+                        {suggestion}
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </div>
+              <div className="form-group">
+                <label>Duration (Days):</label>
+                <input
+                  type="number"
+                  name="duration"
+                  placeholder="Duration (days)"
+                  value={task.duration || ""}
+                  disabled
+                  onChange={handleChange}
+                />
+              </div>
+              <div className="form-group">
+                <label>Created On:</label>
+                <input
+                  type="datetime-local"
+                  id="createdDate"
+                  name="createdDate"
+                  value={task.createdDate}
+                  onChange={handleDateTimeChange}
+                  title="Date when the task was created."
+                />
+              </div>
+              <div className="form-group">
+                <label>Due By:</label>
+                <input
+                  type="datetime-local"
+                  id="completionDate"
+                  name="completionDate"
+                  value={task.completionDate}
+                  onChange={handleDateTimeChange}
+                  title="Estimated or actual completion date."
+                  min={task.createdDate}
+                />
+                {dueDateError && <p style={{ color: 'red', fontSize: '0.9em' }}>{dueDateError}</p>}
+              </div>
+              <div className="form-group">
+                <label>Parent Task:</label>
+                <select
+                  name="parentTaskId"
+                  value={task.parentTaskId}
+                  onChange={handleChange}
+                >
+                  <option value="">Main Task</option>
+                  {tasks
+                    .filter((t) => t.id !== task.id)
+                    .map((t) => (
+                      <option key={t.id} value={t.id}>
+                        {t.title}
+                      </option>
+                    ))}
+                </select>
+              </div>
+              <div className="form-buttons">
                 <button type="submit" className="add-task-button">
                   Add Task
                 </button>
-              </form>
-            </div>
-
-
-          )}
-        </div>
+                <button
+                  type="button" // Prevent form submission
+                  className="clear-button"
+                  onClick={handleClearForm}
+                >
+                  Clear
+                </button>
+              </div>
+            </form>
+          </div>
+        )}
+      </div>
       </div>
       <FooterClock />
     </div>
