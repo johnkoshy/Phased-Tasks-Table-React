@@ -330,6 +330,18 @@ function App() {
     }
   }, [darkMode]);
 
+  // Recalculate duration when dates change during task editing
+  useEffect(() => {
+    // Only run if a task is being edited and both dates are provided
+    if (editingTaskId && editingTaskData.createdDate && editingTaskData.completionDate) {
+      const newDuration = calculateDurationInDays(editingTaskData.createdDate, editingTaskData.completionDate);
+      // Update duration only if it has changed to avoid unnecessary re-renders
+      if (newDuration !== editingTaskData.duration) {
+        setEditingTaskData(prev => ({ ...prev, duration: newDuration }));
+      }
+    }
+  }, [editingTaskData.createdDate, editingTaskData.completionDate, editingTaskId, calculateDurationInDays]);
+
   // Add event listener for outside clicks
   useEffect(() => {
     document.addEventListener('mousedown', handleClickOutside);
