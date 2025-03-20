@@ -1,7 +1,9 @@
+/* Tailwind CSS imports */
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
+/* Scrollable table wrapper for task list */
 .table-wrapper {
   max-height: 400px;
   overflow-y: auto;
@@ -30,6 +32,7 @@
 .table-wrapper tbody tr:hover {
   background-color: #f1f1f1;
 }
+/* Custom scrollbar styling for table */
 .table-wrapper::-webkit-scrollbar {
   width: 8px;
 }
@@ -40,12 +43,16 @@
 .table-wrapper::-webkit-scrollbar-thumb:hover {
   background-color: #555;
 }
+
+/* Fixed container for Add Task button */
 .add-task-container {
   position: fixed;
   bottom: 20px;
   left: 20px;
   z-index: 1000;
 }
+
+/* Table header with title and subtitle */
 .table-header {
   text-align: center;
   background-color: #fff;
@@ -80,11 +87,15 @@ body.dark-mode .table-header h4, body.dark-mode .table-header h5 {
   font-size: 14px;
   color: #666;
 }
+
+/* Autocomplete container for assignee input */
 .autocomplete {
   position: relative;
   width: 100%;
   font-weight: bold;
 }
+
+/* Global body and html styles with background image */
 body, html {
   margin: 0;
   padding: 0;
@@ -93,11 +104,15 @@ body, html {
   background-size: cover;
   background-position: center;
 }
+
+/* Container for the task table */
 .table-container {
   max-width: 1100px;
   margin-left: 100px;
   padding: 20px;
 }
+
+/* Add Task button styling */
 .add-task-btn {
   background-color: transparent;
   border: none;
@@ -109,6 +124,8 @@ body, html {
 .dark-mode .add-task-btn {
   background-color: #333;
 }
+
+/* Footer clock positioning and styling */
 .footer-clock {
   position: fixed;
   bottom: 20px;
@@ -118,10 +135,14 @@ body, html {
   background-color: rgba(255, 255, 255, 0.8);
   border-radius: 8px;
 }
+
+/* Centered heading styles */
 h4, h5 {
   text-align: center;
   margin: 10px 0;
 }
+
+/* Main app container with flex layout */
 .container {
   display: flex;
   flex-direction: column;
@@ -130,6 +151,8 @@ h4, h5 {
   min-height: 100vh;
   width: 100%;
 }
+
+/* General table styling with shadows */
 table {
   border-collapse: collapse !important;
   border-spacing: 0px !important;
@@ -158,6 +181,8 @@ tr:hover {
 tr:nth-child(even) {
   background-color: #f9f9f9;
 }
+
+/* Form input, select, and textarea styles */
 input, select, textarea {
   width: 100%;
   padding: 10px;
@@ -184,6 +209,8 @@ input:focus, select:focus, textarea:focus {
 input::placeholder, textarea::placeholder {
   color: black;
 }
+
+/* Dark mode global overrides */
 .dark-mode {
   background: #121212 !important;
   color: white !important;
@@ -220,6 +247,8 @@ input, textarea, select {
 .dark-mode input::placeholder, .dark-mode textarea::placeholder {
   color: white;
 }
+
+/* Context menu for task actions */
 .context-menu {
   position: fixed;
   background-color: white;
@@ -243,6 +272,8 @@ input, textarea, select {
 .dark-mode .context-menu div:hover {
   background-color: #333 !important;
 }
+
+/* Assignee suggestions dropdown */
 .suggestions {
   position: absolute;
   top: 100%;
@@ -278,6 +309,8 @@ input, textarea, select {
 .dark-mode .suggestions li:hover {
   background-color: #555;
 }
+
+/* Task form container with scroll */
 .task-form-container {
   max-height: 400px;
   overflow-y: auto;
@@ -316,6 +349,8 @@ input, textarea, select {
 .task-form button:hover {
   background-color: #0056b3;
 }
+
+/* Parent task dropdown styling */
 .parent-task-dropdown {
   position: absolute;
   background: white;
@@ -323,6 +358,8 @@ input, textarea, select {
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
   padding: 8px;
 }
+
+/* Specific input and textarea overrides */
 input[name="title"] {
   width: 200px;
   padding: 6px;
@@ -337,6 +374,8 @@ textarea[name="description"] {
   font-size: 14px;
   resize: vertical;
 }
+
+/* General button styling */
 button {
   background: linear-gradient(to bottom, #007bff, #0056b3);
   color: white;
@@ -362,6 +401,8 @@ button:active:not(.add-task-button):not(.clear-button) {
   box-shadow: inset 3px 3px 6px rgba(0, 0, 0, 0.3);
   transform: translateY(2px);
 }
+
+/* Dark mode toggle button */
 .dark-mode-button {
   position: fixed;
   top: 20px;
@@ -377,6 +418,8 @@ button:active:not(.add-task-button):not(.clear-button) {
 .dark-mode .dark-mode-button {
   color: white;
 }
+
+/* Dark mode task form overrides */
 .dark-mode .task-form {
   background-color: #333;
   color: white;
@@ -390,6 +433,8 @@ button:active:not(.add-task-button):not(.clear-button) {
   color: white;
   border: 1px solid #555;
 }
+
+/* Form group layout */
 .form-group {
   display: flex;
   flex-direction: column;
@@ -409,20 +454,28 @@ button:active:not(.add-task-button):not(.clear-button) {
   display: block;
   width: 100%;
 }
+
+/* Specific button hover overrides */
 .add-task-button:hover {
   background-color: #45a049;
 }
+
+/* Table header specific overrides */
 .table-wrapper th {
   border-bottom: 3px solid #003d80 !important;
   border-right: 1px solid white !important;
   outline: none !important;
   box-shadow: none !important;
 }
+
+/* Form button container */
 .form-buttons {
   display: flex;
   gap: 10px;
   justify-content: center;
 }
+
+/* Specific button styles for Add Task and Clear */
 .add-task-button, .clear-button {
   padding: 10px 20px;
   border: none;
