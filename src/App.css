@@ -2,7 +2,6 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Table Wrapper */
 .table-wrapper {
   max-height: 400px;
   overflow-y: auto;
@@ -12,12 +11,10 @@
   padding: 0;
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
 }
-
 .table-wrapper table {
   width: 100%;
   border-collapse: collapse;
 }
-
 .table-wrapper thead {
   position: sticky;
   top: 0;
@@ -25,124 +22,93 @@
   color: white;
   z-index: 2;
 }
-
 .table-wrapper th, .table-wrapper td {
   border: 1px solid #ddd;
   padding: 8px;
   text-align: left;
 }
-
 .table-wrapper tbody tr:hover {
   background-color: #f1f1f1;
 }
-
-/* Scrollbar Design */
 .table-wrapper::-webkit-scrollbar {
   width: 8px;
 }
-
 .table-wrapper::-webkit-scrollbar-thumb {
   background-color: #888;
   border-radius: 5px;
 }
-
 .table-wrapper::-webkit-scrollbar-thumb:hover {
   background-color: #555;
 }
-
-/* Add Task Button */
 .add-task-container {
   position: fixed;
   bottom: 20px;
   left: 20px;
   z-index: 1000;
 }
-
 .table-header {
   text-align: center;
   background-color: #fff;
   border: 2px solid #ccc;
   border-radius: 5px 5px 0 0;
   padding: 10px;
-  margin-bottom: -1px; /* Remove the gap between the header and table */
+  margin-bottom: -1px;
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-  color: #000; /* Text color in light mode */
+  color: #000;
 }
-
 body.dark-mode .table-header {
-  background-color: #333;  /* Dark background */
+  background-color: #333;
   border-color: #444;
-  color: #fff;             /* White text in dark mode */
-  box-shadow: none;        /* Optional: remove the shadow in dark mode */
+  color: #fff;
+  box-shadow: none;
 }
-
 .dark-mode .table-wrapper th {
-  border-right: 1px solid transparent !important; /* Remove white line between headers */
+  border-right: 1px solid transparent !important;
 }
-
-.table-header h4,
-.table-header h5 {
+.table-header h4, .table-header h5 {
   margin: 0;
-  color: inherit; /* Use the parent's color in light mode */
+  color: inherit;
 }
-
-body.dark-mode .table-header h4,
-body.dark-mode .table-header h5 {
-  color: inherit; /* Use the parent's color in dark mode */
+body.dark-mode .table-header h4, body.dark-mode .table-header h5 {
+  color: inherit;
 }
-
-
 .table-header h4 {
-  margin: 0;
   font-size: 18px;
   font-weight: bold;
 }
-
 .table-header h5 {
-  margin: 0;
   font-size: 14px;
   color: #666;
 }
-
-/* Autocomplete Container */
 .autocomplete {
   position: relative;
   width: 100%;
   font-weight: bold;
 }
-
 body, html {
   margin: 0;
   padding: 0;
   height: 100%;
-  background-image: url('/public/wallpaper.jpg'); /* Add your wallpaper image */
-  background-size: cover; /* Ensure the wallpaper covers the entire background */
-  background-position: center; /* Center the wallpaper */
+  background-image: url('/public/wallpaper.jpg');
+  background-size: cover;
+  background-position: center;
 }
-
 .table-container {
-  max-width: 1100px;  
-  margin-left: 100px; /* Shift the table 100px from the left edge */
+  max-width: 1100px;
+  margin-left: 100px;
   padding: 20px;
 }
-
-
-
-
 .add-task-btn {
   background-color: transparent;
   border: none;
   padding: 10px;
   font-size: 16px;
   cursor: pointer;
-  color: white; /* Always white text */
+  color: white;
 }
-
 .dark-mode .add-task-btn {
-  background-color: #333; /* Optional: Dark background for the button in dark mode */
+  background-color: #333;
 }
-
-/* Footer Clock */
 .footer-clock {
   position: fixed;
   bottom: 20px;
@@ -152,14 +118,10 @@ body, html {
   background-color: rgba(255, 255, 255, 0.8);
   border-radius: 8px;
 }
-
-/* Headings */
 h4, h5 {
   text-align: center;
   margin: 10px 0;
 }
-
-/* Container */
 .container {
   display: flex;
   flex-direction: column;
@@ -168,47 +130,34 @@ h4, h5 {
   min-height: 100vh;
   width: 100%;
 }
-
-/* Table Styles */
 table {
   border-collapse: collapse !important;
   border-spacing: 0px !important;
   background: white;
   border-radius: 10px;
-  box-shadow: 5px 5px 15px rgba(0, 0, 0, 0.2),
-              inset -2px -2px 5px rgba(0, 0, 0, 0.1),
-              inset 2px 2px 5px rgba(255, 255, 255, 0.5);
+  box-shadow: 5px 5px 15px rgba(0, 0, 0, 0.2), inset -2px -2px 5px rgba(0, 0, 0, 0.1), inset 2px 2px 5px rgba(255, 255, 255, 0.5);
   overflow: hidden;
   width: 100%;
-  border-collapse: collapse;
 }
-
 th, td {
   padding: 8px;
   border: 1px solid #ddd;
   text-align: left;
 }
-
 th {
   background: linear-gradient(to bottom, #007bff, #0056b3);
   color: white;
   text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
-  border-bottom: 3px solid #003d80; /* Strong bottom border */
-  border-right: 1px solid white !important; /* White division line */
+  border-bottom: 3px solid #003d80;
+  border-right: 1px solid white !important;
   outline: none !important;
 }
-
-
-
 tr:hover {
   background-color: rgba(0, 123, 255, 0.1);
 }
-
 tr:nth-child(even) {
   background-color: #f9f9f9;
 }
-
-/* Input and Select Styling */
 input, select, textarea {
   width: 100%;
   padding: 10px;
@@ -217,81 +166,60 @@ input, select, textarea {
   font-size: 14px;
   transition: border 0.3s ease-in-out;
 }
-
 th:not(:last-child) {
   border-right: none !important;
 }
-
 th:focus, th:active {
   outline: none !important;
   box-shadow: none !important;
 }
-
 th, td {
-  border: 1px solid #444; /* Adjust color to match the table */
+  border: 1px solid #444;
 }
-
-
 input:focus, select:focus, textarea:focus {
   border-color: #007bff;
   outline: none;
   box-shadow: 0px 0px 5px rgba(0, 123, 255, 0.5);
 }
-
-/* Default Light Mode Placeholder */
-input::placeholder,
-textarea::placeholder {
-  color: black; /* Light gray placeholder text */
+input::placeholder, textarea::placeholder {
+  color: black;
 }
-
-/* Dark Mode Styles */
 .dark-mode {
   background: #121212 !important;
   color: white !important;
 }
-
 .dark-mode table {
   background: linear-gradient(to bottom, #1e1e1e, #151515);
   border: 1px solid #444;
   box-shadow: 5px 5px 15px rgba(0, 0, 0, 0.5);
 }
-
 .dark-mode th, .dark-mode td {
   background: #333 !important;
   color: white !important;
   border-color: #444 !important;
 }
-
 .dark-mode tr:hover {
   background-color: #444;
 }
-
 .dark-mode input, .dark-mode textarea, .dark-mode select {
-  color: #fff; /* White text in dark mode */
-  background-color: #222; /* Dark background */
+  color: #fff;
+  background-color: #222;
   border: 1px solid #444;
 }
-
 input, textarea, select {
-  color: #000; /* Black text for visibility */
-  background-color: #fff; /* White background */
-  border: 1px solid #ccc; /* Light gray border */
+  color: #000;
+  background-color: #fff;
+  border: 1px solid #ccc;
   padding: 8px;
   width: 100%;
 }
-
 .dark-mode input:focus, .dark-mode select:focus, .dark-mode textarea:focus {
   border-color: #007bff;
   box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
 }
-
-/* Dark Mode Placeholder */
-.dark-mode input::placeholder,
-.dark-mode textarea::placeholder {
-  color: white; /* White placeholder text in dark mode */
+.dark-mode input::placeholder, .dark-mode textarea::placeholder {
+  color: white;
 }
-
-/* Context Menu */
 .context-menu {
   position: fixed;
   background-color: white;
@@ -301,127 +229,93 @@ input, textarea, select {
   padding: 8px;
   border-radius: 6px;
 }
-
 .dark-mode .context-menu {
   background-color: #222 !important;
   color: white !important;
 }
-
 .context-menu div {
   padding: 8px;
   cursor: pointer;
 }
-
 .context-menu div:hover {
   background-color: #f1f1f1;
 }
-
 .dark-mode .context-menu div:hover {
   background-color: #333 !important;
 }
-
-/* Suggestions Dropdown */
 .suggestions {
   position: absolute;
-  top: 100%; /* Position below the input */
+  top: 100%;
   left: 0;
   right: 0;
   background-color: white;
   border: 1px solid #ccc;
   border-top: none;
-  z-index: 1000; /* Ensure it appears above other elements */
+  z-index: 1000;
   list-style: none;
   padding: 0;
   margin: 0;
-  max-height: 150px; /* Limit height and enable scrolling */
+  max-height: 150px;
   overflow-y: auto;
 }
-
 .scrollable-table {
   overflow-y: auto;
   flex-grow: 1;
-  margin-left: 20px; /* Move the table to the right */
-  background-color: #ffffff; /* Set table background color */
+  margin-left: 20px;
+  background-color: #ffffff;
 }
-
 .dark-mode .suggestions {
   background-color: #333;
   border: 1px solid #444;
 }
-
-/* Suggestion Items */
 .suggestions li {
   padding: 8px;
   cursor: pointer;
 }
-
 .suggestions li:hover {
   background-color: #f0f0f0;
 }
-
 .dark-mode .suggestions li:hover {
   background-color: #555;
 }
-
 .task-form-container {
-  max-height: 400px; /* Adjust height based on your design */
-  overflow-y: auto; /* Enables vertical scrolling */
+  max-height: 400px;
+  overflow-y: auto;
   padding: 10px;
   border: 1px solid #ddd;
   border-radius: 10px;
   background-color: #fff;
 }
-
-
 .task-form {
   background-color: white;
   color: black;
   padding: 20px;
   border-radius: 10px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-}
-
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
-}
-
-.task-form {
   animation: fadeIn 0.5s ease-in-out;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  max-width: 500px;
+  margin: 0 auto;
 }
-
-.task-form input,
-.task-form textarea,
-.task-form select {
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+.task-form input, .task-form textarea, .task-form select {
   flex: 1;
   padding: 8px;
   border: 1px solid #ccc;
   border-radius: 4px;
   box-sizing: border-box;
 }
-
 .task-form textarea {
   resize: vertical;
 }
-
-.task-form button {
-  padding: 8px 16px;
-  background-color: #007bff;
-  color: white;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-}
-
 .task-form button:hover {
   background-color: #0056b3;
 }
-
-/* Parent Task Dropdown */
 .parent-task-dropdown {
   position: absolute;
   background: white;
@@ -429,15 +323,11 @@ input, textarea, select {
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
   padding: 8px;
 }
-
-/* Task Title Input */
 input[name="title"] {
   width: 200px;
   padding: 6px;
   font-size: 12px;
 }
-
-/* Task Description Textarea */
 textarea[name="description"] {
   width: 100%;
   min-width: 300px;
@@ -447,30 +337,31 @@ textarea[name="description"] {
   font-size: 14px;
   resize: vertical;
 }
-
-/* Button Styling */
 button {
   background: linear-gradient(to bottom, #007bff, #0056b3);
   color: white;
   padding: 10px 16px;
   border-radius: 6px;
   border: none;
-  box-shadow: 3px 3px 6px rgba(0, 0, 0, 0.2),
-              inset -2px -2px 5px rgba(255, 255, 255, 0.2);
+  box-shadow: 3px 3px 6px rgba(0, 0, 0, 0.2), inset -2px -2px 5px rgba(255, 255, 255, 0.2);
   transition: all 0.2s ease-in-out;
 }
-
 button:active {
   box-shadow: inset 3px 3px 6px rgba(0, 0, 0, 0.3);
   transform: translateY(2px);
 }
-
 button:hover {
   background: linear-gradient(to right, #0056b3, #003d80);
   transform: scale(1.05);
 }
-
-/* Dark Mode Button */
+button:hover:not(.add-task-button):not(.clear-button) {
+  background: linear-gradient(to right, #0056b3, #003d80);
+  transform: scale(1.05);
+}
+button:active:not(.add-task-button):not(.clear-button) {
+  box-shadow: inset 3px 3px 6px rgba(0, 0, 0, 0.3);
+  transform: translateY(2px);
+}
 .dark-mode-button {
   position: fixed;
   top: 20px;
@@ -483,82 +374,74 @@ button:hover {
   cursor: pointer;
   color: inherit;
 }
-
 .dark-mode .dark-mode-button {
   color: white;
 }
-
-/* Dark Mode Styles */
 .dark-mode .task-form {
-  background-color: #333; /* Dark background */
-  color: white; /* Light text */
+  background-color: #333;
+  color: white;
 }
-
-/* Dark Mode Styles */
 .dark-mode .task-form-container {
-  background-color: #333; /* Dark background */
-  color: white; /* Light text */
+  background-color: #333;
+  color: white;
 }
-
-.dark-mode .task-form input,
-.dark-mode .task-form textarea,
-.dark-mode .task-form select {
-  background-color: #444; /* Darker input background */
-  color: white; /* Light text */
-  border: 1px solid #555; /* Darker border */
+.dark-mode .task-form input, .dark-mode .task-form textarea, .dark-mode .task-form select {
+  background-color: #444;
+  color: white;
+  border: 1px solid #555;
 }
-
-.task-form {
-  display: flex;
-  flex-direction: column;
-  gap: 15px;
-  max-width: 500px;
-  margin: 0 auto;
-  padding: 20px;
-  background-color: #fff;
-  border-radius: 10px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-}
-
 .form-group {
   display: flex;
   flex-direction: column;
 }
-
 .form-group label {
   font-weight: bold;
   margin-bottom: 5px;
 }
-
-.form-group input,
-.form-group textarea,
-.form-group select {
+.form-group input, .form-group textarea, .form-group select {
   padding: 10px;
   border: 1px solid #ccc;
   border-radius: 5px;
   font-size: 14px;
   outline: none;
 }
-
-/* Make sure Task Title input is visible */
 .form-group input[type="text"] {
   display: block;
   width: 100%;
 }
-
-/* Add some margin at the bottom */
-.add-task-button {
-  margin-top: 20px;
-}
-
-
-/* Add hover effect */
 .add-task-button:hover {
   background-color: #45a049;
 }
 .table-wrapper th {
-  border-bottom: 3px solid #003d80 !important; /* Bottom border */
-  border-right: 1px solid white !important; /* White right border */
+  border-bottom: 3px solid #003d80 !important;
+  border-right: 1px solid white !important;
   outline: none !important;
   box-shadow: none !important;
+}
+.form-buttons {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+}
+.add-task-button, .clear-button {
+  padding: 10px 20px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+  width: 120px;
+  text-align: center;
+  box-shadow: none !important;
+  transition: background-color 0.2s ease-in-out;
+}
+.add-task-button {
+  background-color: #4CAF50;
+  color: white;
+}
+.clear-button {
+  background-color: #f44336;
+  color: white;
+}
+.clear-button:hover {
+  background-color: #da190b;
 }
