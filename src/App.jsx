@@ -67,7 +67,7 @@ function App() {
     const hours = date.getHours() % 12 || 12;
     const minutes = String(date.getMinutes()).padStart(2, '0');
     const ampm = date.getHours() >= 12 ? 'PM' : 'AM';
-    return `${year}-${month}-${day}, ${hours}:${minutes} ${ampm}`;
+    return `${day}-${month}-${year}, ${hours}:${minutes} ${ampm}`;
   };
 
   // Enter edit mode for a specific task
