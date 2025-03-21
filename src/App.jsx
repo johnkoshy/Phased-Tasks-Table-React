@@ -17,21 +17,16 @@ function App() {
   const formRef = useRef(null);
   const [isCursorActive, setIsCursorActive] = useState(true);
 
+  // Cursor activity detection
   useEffect(() => {
     let cursorTimeout;
-
     const handleCursorMove = () => {
       setIsCursorActive(true);
       clearTimeout(cursorTimeout);
-
-      cursorTimeout = setTimeout(() => {
-        setIsCursorActive(false);
-      }, 2000);
+      cursorTimeout = setTimeout(() => setIsCursorActive(false), 2000);
     };
-
     window.addEventListener('mousemove', handleCursorMove);
     window.addEventListener('touchmove', handleCursorMove);
-
     return () => {
       window.removeEventListener('mousemove', handleCursorMove);
       window.removeEventListener('touchmove', handleCursorMove);
@@ -451,15 +446,16 @@ function App() {
 
   const renderTableBody = () => <tbody>{renderTasks(tasks)}</tbody>;
 
+  // Dark mode toggle effect
   useEffect(() => {
     if (darkMode) {
       document.body.classList.add('dark-mode');
-      document.body.style.background = 'none';
+      localStorage.setItem('darkMode', 'true');
     } else {
       document.body.classList.remove('dark-mode');
-      document.body.style.background = "url('/wallpaper.jpg') no-repeat center center fixed";
-      document.body.style.backgroundSize = 'cover';
+      localStorage.setItem('darkMode', 'false');
     }
+    // Remove direct background manipulation from body
   }, [darkMode]);
 
   useEffect(() => {
@@ -475,7 +471,7 @@ function App() {
 
   return (
     <div className="App">
-      <div className="wallpaper"></div>
+      <div className={`wallpaper ${darkMode ? 'dark-mode' : ''}`}></div>
       <div className={isCursorActive ? 'cursor-active' : 'no-cursor'}>
         <div id="falling-leaf-container" style={{ background: darkMode ? 'none' : "url('/wallpaper.jpg') no-repeat center center fixed", backgroundSize: 'cover' }}>
           <button
