@@ -142,23 +142,20 @@ function App() {
   // Submit new task and reset form
   const handleSubmit = (e) => {
     e.preventDefault();
+    if (!task.title.trim() || !task.description.trim()) return;
 
-    // Prevent submission if title, description, or date is invalid
-    if (!task.title.trim() || !task.description.trim() || dueDateError) {
-      return; // Stops the function here if there’s an error
-    }
+    // Get current date and time in "YYYY-MM-DDTHH:MM" format
+    const now = new Date();
+    const year = now.getFullYear();
+    const month = String(now.getMonth() + 1).padStart(2, '0');
+    const day = String(now.getDate()).padStart(2, '0');
+    const hours = String(now.getHours()).padStart(2, '0');
+    const minutes = String(now.getMinutes()).padStart(2, '0');
+    const formattedNow = `${year}-${month}-${day}T${hours}:${minutes}`;
 
-    // Additional validation for dates
-    const currentDate = new Date();
-    const createdDate = new Date(task.createdDate);
-    const completionDate = new Date(task.completionDate);
-
-    if (createdDate < currentDate || completionDate < currentDate) {
-      setDueDateError('Dates cannot be in the past.');
-      return;
-    }
-
-    const durationInDays = task.duration || calculateDurationInDays(task.createdDate, task.completionDate);
+    // Use form's createdDate or default to formatted current time
+    const createdDate = task.createdDate || formattedNow;
+    const durationInDays = task.duration || calculateDurationInDays(createdDate, task.completionDate);
     const newTask = {
       id: Date.now().toString(),
       title: task.title,
@@ -166,11 +163,10 @@ function App() {
       assignedTo: task.assignedTo,
       duration: durationInDays,
       completionDate: task.completionDate,
-      createdDate: task.createdDate,
+      createdDate: createdDate, // Store in "YYYY-MM-DDTHH:MM" format
       parentTaskId: task.parentTaskId || null,
       subtasks: [],
     };
-
     setTasks([...tasks, newTask]);
     setTask({ title: '', description: '', assignedTo: '', duration: '', completionDate: '', createdDate: '', parentTaskId: '' });
     setShowForm(false);
@@ -223,11 +219,10 @@ function App() {
       }
 
       // Handle "Due By" date changes
-      if (name === 'completionDate') {
-        const selectedDate = new Date(value);
-        if (selectedDate < currentDate) {
-          setDueDateError('Due By date cannot be earlier than the current date.');
-        } else if (updatedTask.createdDate && selectedDate < new Date(updatedTask.createdDate)) {
+      if (name === 'completionDate' && updatedTask.createdDate) {
+        const createdDate = new Date(updatedTask.createdDate);
+        const completionDate = new Date(value);
+        if (completionDate < createdDate) {
           setDueDateError('Due By date cannot be earlier than Created On date.');
         } else {
           setDueDateError(''); // Clear the error when a valid date is selected
@@ -263,10 +258,10 @@ function App() {
     if (editingTaskId && editingTaskData.createdDate && editingTaskData.completionDate) {
       const newDuration = calculateDurationInDays(editingTaskData.createdDate, editingTaskData.completionDate);
       if (newDuration !== editingTaskData.duration) {
-        setEditingTaskData(prev => ({ ...prev, duration: newDuration }));
+        setEditingTaskData((prev) => ({ ...prev, duration: newDuration }));
       }
     }
-  }, [editingTaskData.createdDate, editingTaskData.completionDate, editingTaskId, calculateDurationInDays]);
+  }, [editingTaskData.createdDate, editingTaskData.completionDate, editingTaskId]);
 
   // Update task parent with validation against circular references
   const handleParentChange = (e, taskId) => {
@@ -304,17 +299,43 @@ function App() {
   // Handle input changes during editing with validation
   const handleEditInputChange = (e) => {
     const { name, value } = e.target;
-    const currentDate = new Date();
 
-    if (name === 'createdDate' || name === 'completionDate') {
+    // Validate "Created On" date and time
+    if (name === 'createdDate') {
+      const currentDate = new Date();
       const selectedDate = new Date(value);
+
+      // Check if the selected date and time are in the past
       if (selectedDate < currentDate) {
-        setDueDateError('Dates cannot be in the past.');
+        setDueDateError('Created On date and time cannot be in the past.');
         return;
+      } else {
+        setDueDateError(''); // Clear the error if the date is valid
       }
     }
 
+    // Validate "Due By" date and time
+    if (name === 'completionDate' && editingTaskData.createdDate) {
+      const createdDate = new Date(editingTaskData.createdDate);
+      const completionDate = new Date(value);
+
+      // Check if "Due By" is before "Created On"
+      if (completionDate < createdDate) {
+        setDueDateError('Due By date and time cannot be earlier than Created On.');
+        return;
+      } else {
+        setDueDateError(''); // Clear the error if the date is valid
+      }
+    }
+
+    // Update the editing task data
     setEditingTaskData((prev) => ({ ...prev, [name]: value }));
+
+    // Handle assignee suggestions
+    if (name === 'assignedTo') {
+      const filteredSuggestions = assignees.filter((a) => a.toLowerCase().includes(value.toLowerCase()));
+      setAssigneeSuggestions(filteredSuggestions);
+    }
   };
 
   // Show context menu on right-click
@@ -348,22 +369,32 @@ function App() {
               </select>
             ) : task.assignedTo}</td>
             <td>{isEditing ? <input type="number" value={editingTaskData.duration || ''} disabled /> : `${task.duration} ${task.duration === 1 ? 'day' : 'days'}`}</td>
-            <td>{isEditing ? (
-              <input
-                type="datetime-local"
-                value={editingTaskData.createdDate}
-                onChange={(e) => setEditingTaskData({ ...editingTaskData, createdDate: e.target.value })}
-                min={new Date().toISOString().slice(0, 16)} // Prevent past dates
-              />
-            ) : `📅 ${formatDateTime(task.createdDate)}`}</td>
-            <td>{isEditing ? (
-              <input
-                type="datetime-local"
-                value={editingTaskData.completionDate}
-                onChange={(e) => setEditingTaskData({ ...editingTaskData, completionDate: e.target.value })}
-                min={editingTaskData.createdDate || new Date().toISOString().slice(0, 16)} // Prevent past dates
-              />
-            ) : `⏳ ${formatDateTime(task.completionDate)}`}</td>
+            <td>
+              {isEditing ? (
+                <input
+                  type="datetime-local"
+                  value={editingTaskData.createdDate}
+                  onChange={handleEditInputChange}
+                  name="createdDate"
+                  min={new Date().toISOString().slice(0, 16)} // Restrict to current date and time
+                />
+              ) : (
+                `📅 ${formatDateTime(task.createdDate)}`
+              )}
+            </td>
+            <td>
+              {isEditing ? (
+                <input
+                  type="datetime-local"
+                  value={editingTaskData.completionDate}
+                  onChange={handleEditInputChange}
+                  name="completionDate"
+                  min={editingTaskData.createdDate || new Date().toISOString().slice(0, 16)} // Restrict to "Created On" date or current date
+                />
+              ) : (
+                `⏳ ${formatDateTime(task.completionDate)}`
+              )}
+            </td>
             <td>{task.parentTaskId ? (
               <>
                 {tasks.find((t) => t.id === task.parentTaskId)?.title || 'Main Task'}
@@ -481,27 +512,11 @@ function App() {
                 </div>
                 <div className="form-group">
                   <label>Created On:</label>
-                  <input
-                    type="datetime-local"
-                    id="createdDate"
-                    name="createdDate"
-                    value={task.createdDate}
-                    onChange={handleDateTimeChange}
-                    min={new Date().toISOString().slice(0, 16)} // Prevent past dates
-                    title="Date when the task was created."
-                  />
+                  <input type="datetime-local" id="createdDate" name="createdDate" value={task.createdDate} onChange={handleDateTimeChange} title="Date when the task was created." />
                 </div>
                 <div className="form-group">
                   <label>Due By:</label>
-                  <input
-                    type="datetime-local"
-                    id="completionDate"
-                    name="completionDate"
-                    value={task.completionDate}
-                    onChange={handleDateTimeChange}
-                    min={task.createdDate || new Date().toISOString().slice(0, 16)} // Prevent past dates
-                    title="Estimated or actual completion date."
-                  />
+                  <input type="datetime-local" id="completionDate" name="completionDate" value={task.completionDate} onChange={handleDateTimeChange} title="Estimated or actual completion date." min={task.createdDate} />
                   {dueDateError && <p style={{ color: 'red', fontSize: '0.9em' }}>{dueDateError}</p>}
                 </div>
                 <div className="form-group">
