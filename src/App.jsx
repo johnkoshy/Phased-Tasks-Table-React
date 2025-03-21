@@ -172,17 +172,18 @@ function App() {
     setShowForm(false);
   };
 
-  // Show form for adding a new main task
+  // Show form for adding a new task and reset form state
   const handleAddTaskClick = () => {
-    // Set initial createdDate to current date and time in "YYYY-MM-DDTHH:MM"
-    const now = new Date();
-    const year = now.getFullYear();
-    const month = String(now.getMonth() + 1).padStart(2, '0');
-    const day = String(now.getDate()).padStart(2, '0');
-    const hours = String(now.getHours()).padStart(2, '0');
-    const minutes = String(now.getMinutes()).padStart(2, '0');
-    const createdDate = `${year}-${month}-${day}T${hours}:${minutes}`;
-    setTask({ title: '', description: '', assignedTo: '', duration: '', completionDate: '', createdDate, parentTaskId: '' });
+    setTask({
+      title: '',
+      description: '',
+      assignedTo: '',
+      duration: '',
+      completionDate: '',
+      createdDate: '',
+      parentTaskId: ''
+    });
+    setDueDateError(''); // Clear any previous error message
     setShowForm(true);
   };
 
@@ -205,24 +206,38 @@ function App() {
     const { name, value } = e.target;
     setTask((prevTask) => {
       const updatedTask = { ...prevTask, [name]: value };
+      const currentDate = new Date();
+
+      // Handle "Created On" date changes
       if (name === 'createdDate') {
         const selectedDate = new Date(value);
-        if (selectedDate < new Date()) {
+        if (selectedDate < currentDate) {
           setDueDateError('Created On date cannot be earlier than the current date.');
-          return prevTask;
+        } else {
+          setDueDateError(''); // Clear the error when a valid date is selected
         }
-        setDueDateError('');
       }
+
+      // Handle "Due By" date changes
       if (name === 'completionDate' && updatedTask.createdDate) {
         const createdDate = new Date(updatedTask.createdDate);
         const completionDate = new Date(value);
-        setDueDateError(completionDate < createdDate ? 'Due By date cannot be earlier than Created On date.' : '');
+        if (completionDate < createdDate) {
+          setDueDateError('Due By date cannot be earlier than Created On date.');
+        } else {
+          setDueDateError(''); // Clear the error when a valid date is selected
+        }
       }
+
+      // Calculate duration if both dates are set
       if (updatedTask.createdDate && updatedTask.completionDate) {
         updatedTask.duration = calculateDurationInDays(updatedTask.createdDate, updatedTask.completionDate);
       }
+
       return updatedTask;
     });
+
+    // Optional: Blur timeout logic (unrelated to the error fix)
     if (e.target.dataset.blurTimeout) clearTimeout(e.target.dataset.blurTimeout);
     const timeoutId = setTimeout(() => e.target.blur(), 3000);
     e.target.dataset.blurTimeout = timeoutId;
