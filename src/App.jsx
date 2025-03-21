@@ -1,25 +1,44 @@
 import React, { useState, useRef, useEffect } from 'react';
 import './App.css';
 import FooterClock from './components/FooterClock';
-import styled from 'styled-components';
 
-// Main App component for task management
 function App() {
-  // State for managing tasks and form data
-  const [tasks, setTasks] = useState([]); // List of all tasks
-  const [task, setTask] = useState({ title: '', description: '', assignedTo: '', duration: '', completionDate: '', createdDate: '', parentTaskId: '' }); // New task form data
-  const [showForm, setShowForm] = useState(false); // Toggle task form visibility
-  const [assigneeSuggestions, setAssigneeSuggestions] = useState([]); // Autocomplete suggestions for assignees
-  const [expandedTasks, setExpandedTasks] = useState({}); // Tracks expanded subtasks
-  const [editingTaskId, setEditingTaskId] = useState(null); // ID of task being edited
-  const [editingTaskData, setEditingTaskData] = useState({}); // Data of task being edited
-  const [dueDateError, setDueDateError] = useState(''); // Error message for date validation
-  const [contextMenu, setContextMenu] = useState({ visible: false, taskId: null, x: 0, y: 0 }); // Context menu state
-  const [showAssigneeSuggestions, setShowAssigneeSuggestions] = useState(false); // Toggle assignee suggestions visibility
-  const [darkMode, setDarkMode] = useState(() => localStorage.getItem('darkMode') === 'true'); // Dark mode state from localStorage
-  const formRef = useRef(null); // Reference to task form for outside click detection
+  const [tasks, setTasks] = useState([]);
+  const [task, setTask] = useState({ title: '', description: '', assignedTo: '', duration: '', completionDate: '', createdDate: '', parentTaskId: '' });
+  const [showForm, setShowForm] = useState(false);
+  const [assigneeSuggestions, setAssigneeSuggestions] = useState([]);
+  const [expandedTasks, setExpandedTasks] = useState({});
+  const [editingTaskId, setEditingTaskId] = useState(null);
+  const [editingTaskData, setEditingTaskData] = useState({});
+  const [dueDateError, setDueDateError] = useState('');
+  const [contextMenu, setContextMenu] = useState({ visible: false, taskId: null, x: 0, y: 0 });
+  const [showAssigneeSuggestions, setShowAssigneeSuggestions] = useState(false);
+  const [darkMode, setDarkMode] = useState(() => localStorage.getItem('darkMode') === 'true');
+  const formRef = useRef(null);
+  const [isCursorActive, setIsCursorActive] = useState(true);
 
-  // Calculate duration between two dates in days
+  useEffect(() => {
+    let cursorTimeout;
+
+    const handleCursorMove = () => {
+      setIsCursorActive(true);
+      clearTimeout(cursorTimeout);
+
+      cursorTimeout = setTimeout(() => {
+        setIsCursorActive(false);
+      }, 2000);
+    };
+
+    window.addEventListener('mousemove', handleCursorMove);
+    window.addEventListener('touchmove', handleCursorMove);
+
+    return () => {
+      window.removeEventListener('mousemove', handleCursorMove);
+      window.removeEventListener('touchmove', handleCursorMove);
+      clearTimeout(cursorTimeout);
+    };
+  }, []);
+
   const calculateDurationInDays = (start, end) => {
     const startDate = new Date(start);
     const endDate = new Date(end);
@@ -29,7 +48,6 @@ function App() {
     return daysDiff > 0 ? daysDiff : 0;
   };
 
-  // Clear form inputs with confirmation
   const handleClearForm = () => {
     if (window.confirm('Are you sure you want to clear all fields?')) {
       setTask({ title: '', description: '', assignedTo: '', duration: '', completionDate: '', createdDate: '', parentTaskId: '' });
@@ -39,14 +57,12 @@ function App() {
     }
   };
 
-  // Get title of parent task or return 'Main Task' if none
   const getParentTaskTitle = (parentTaskId) => {
     if (!parentTaskId) return 'Main Task';
     const parentTask = tasks.find((t) => t.id === parentTaskId);
     return parentTask ? parentTask.title : 'Main Task';
   };
 
-  // Check if a task is a descendant of another to prevent circular references
   const isDescendant = (taskId, potentialParentId, tasks) => {
     let currentTaskId = potentialParentId;
     while (currentTaskId) {
@@ -57,7 +73,6 @@ function App() {
     return false;
   };
 
-  // Format ISO date to a readable string
   const formatDateTime = (isoDate) => {
     if (!isoDate) return 'N/A';
     const date = new Date(isoDate);
@@ -70,14 +85,12 @@ function App() {
     return `${day}-${month}-${year}, ${hours}:${minutes} ${ampm}`;
   };
 
-  // Enter edit mode for a specific task
   const handleEditTask = (taskId) => {
     const taskToEdit = tasks.find((t) => t.id === taskId);
     setEditingTaskId(taskId);
     setEditingTaskData({ ...taskToEdit });
   };
 
-  // Context menu component for adding subtasks
   const ContextMenu = ({ visible, x, y, onAddSubtask, onClose }) => {
     if (!visible) return null;
     return (
@@ -88,42 +101,36 @@ function App() {
     );
   };
 
-  // Save edited task and exit edit mode
   const handleSaveTask = (taskId) => {
     const currentDate = new Date();
     const createdDate = new Date(editingTaskData.createdDate);
     const completionDate = new Date(editingTaskData.completionDate);
-  
-    // Validate "Created On" date
+
     if (createdDate < currentDate) {
       setDueDateError('Created On date and time cannot be in the past.');
       return;
     }
-  
-    // Validate "Due By" date
+
     if (completionDate < createdDate) {
       setDueDateError('Due By date and time cannot be earlier than Created On.');
       return;
     }
-  
+
     if (completionDate < currentDate) {
       setDueDateError('Due By date and time cannot be in the past.');
       return;
     }
-  
-    // If validation passes, save the task
+
     setTasks((prevTasks) => prevTasks.map((t) => (t.id === taskId ? { ...editingTaskData } : t)));
     setEditingTaskId(null);
   };
 
-  // Cancel editing and revert to original task data
   const handleCancelEdit = () => {
     const originalTask = tasks.find((t) => t.id === editingTaskId);
     setEditingTaskData({ ...originalTask });
     setEditingTaskId(null);
   };
 
-  // Open form to add a subtask under the selected task
   const handleAddSubtask = () => {
     if (contextMenu.taskId) {
       setTask((prev) => ({ ...prev, parentTaskId: contextMenu.taskId }));
@@ -132,13 +139,10 @@ function App() {
     setContextMenu({ visible: false, taskId: null, x: 0, y: 0 });
   };
 
-  // Close context menu
   const handleCloseContextMenu = () => setContextMenu({ visible: false, taskId: null, x: 0, y: 0 });
 
-  // List of possible assignees
   const assignees = ['John Doe', 'Jane Smith', 'Alice Johnson', 'Bob Brown', 'Charlie Davis'];
 
-  // Handle form input changes and update assignee suggestions
   const handleChange = (e) => {
     const { name, value } = e.target;
     setTask((prev) => ({ ...prev, [name]: value }));
@@ -148,46 +152,40 @@ function App() {
     }
   };
 
-  // Set task assignee from suggestion and hide suggestions
   const handleSuggestionClick = (suggestion) => {
     setTask((prev) => ({ ...prev, assignedTo: suggestion }));
     setAssigneeSuggestions([]);
     setShowAssigneeSuggestions(false);
   };
 
-  // Show all assignee suggestions on input focus
   const handleAssignedToFocus = () => {
     setAssigneeSuggestions(assignees);
     setShowAssigneeSuggestions(true);
   };
 
-  // Submit new task and reset form
   const handleSubmit = (e) => {
     e.preventDefault();
     if (!task.title.trim() || !task.description.trim()) return;
-  
+
     const currentDate = new Date();
     const createdDate = new Date(task.createdDate);
     const completionDate = new Date(task.completionDate);
-  
-    // Validate "Created On" date
+
     if (createdDate < currentDate) {
       setDueDateError('Created On date and time cannot be in the past.');
       return;
     }
-  
-    // Validate "Due By" date
+
     if (completionDate < createdDate) {
       setDueDateError('Due By date and time cannot be earlier than Created On.');
       return;
     }
-  
+
     if (completionDate < currentDate) {
       setDueDateError('Due By date and time cannot be in the past.');
       return;
     }
-  
-    // Get current date and time in "YYYY-MM-DDTHH:MM" format
+
     const now = new Date();
     const year = now.getFullYear();
     const month = String(now.getMonth() + 1).padStart(2, '0');
@@ -195,11 +193,10 @@ function App() {
     const hours = String(now.getHours()).padStart(2, '0');
     const minutes = String(now.getMinutes()).padStart(2, '0');
     const formattedNow = `${year}-${month}-${day}T${hours}:${minutes}`;
-  
-    // Use form's createdDate or default to formatted current time
+
     const createdDateFinal = task.createdDate || formattedNow;
     const durationInDays = task.duration || calculateDurationInDays(createdDateFinal, task.completionDate);
-  
+
     const newTask = {
       id: Date.now().toString(),
       title: task.title,
@@ -207,17 +204,16 @@ function App() {
       assignedTo: task.assignedTo,
       duration: durationInDays,
       completionDate: task.completionDate,
-      createdDate: createdDateFinal, // Store in "YYYY-MM-DDTHH:MM" format
+      createdDate: createdDateFinal,
       parentTaskId: task.parentTaskId || null,
       subtasks: [],
     };
-  
+
     setTasks([...tasks, newTask]);
     setTask({ title: '', description: '', assignedTo: '', duration: '', completionDate: '', createdDate: '', parentTaskId: '' });
     setShowForm(false);
   };
 
-  // Show form for adding a new task and reset form state
   const handleAddTaskClick = () => {
     setTask({
       title: '',
@@ -228,11 +224,10 @@ function App() {
       createdDate: '',
       parentTaskId: ''
     });
-    setDueDateError(''); // Clear any previous error message
+    setDueDateError('');
     setShowForm(true);
   };
 
-  // Close form or hide suggestions if clicked outside
   const handleClickOutside = (e) => {
     if (formRef.current && !formRef.current.contains(e.target) && !task.title.trim() && !task.description.trim()) {
       if (!e.target.closest('.mode-toggle')) {
@@ -246,55 +241,45 @@ function App() {
     }
   };
 
-  // Handle date input changes with validation and duration calculation
   const handleDateTimeChange = (e) => {
     const { name, value } = e.target;
     setTask((prevTask) => {
       const updatedTask = { ...prevTask, [name]: value };
       const currentDate = new Date();
-  
-      // Handle "Created On" date changes
+
       if (name === 'createdDate') {
         const selectedDate = new Date(value);
-  
-        // Check if the selected date and time are in the past
         if (selectedDate < currentDate) {
           setDueDateError('Created On date and time cannot be in the past.');
         } else {
-          setDueDateError(''); // Clear the error if the date is valid
+          setDueDateError('');
         }
       }
-  
-      // Handle "Due By" date changes
+
       if (name === 'completionDate' && updatedTask.createdDate) {
         const createdDate = new Date(updatedTask.createdDate);
         const completionDate = new Date(value);
-  
-        // Check if "Due By" is before "Created On"
         if (completionDate < createdDate) {
           setDueDateError('Due By date and time cannot be earlier than Created On.');
         } else if (completionDate < currentDate) {
           setDueDateError('Due By date and time cannot be in the past.');
         } else {
-          setDueDateError(''); // Clear the error if the date is valid
+          setDueDateError('');
         }
       }
-  
-      // Calculate duration if both dates are set
+
       if (updatedTask.createdDate && updatedTask.completionDate) {
         updatedTask.duration = calculateDurationInDays(updatedTask.createdDate, updatedTask.completionDate);
       }
-  
+
       return updatedTask;
     });
-  
-    // Optional: Blur timeout logic (unrelated to the error fix)
+
     if (e.target.dataset.blurTimeout) clearTimeout(e.target.dataset.blurTimeout);
     const timeoutId = setTimeout(() => e.target.blur(), 3000);
     e.target.dataset.blurTimeout = timeoutId;
   };
 
-  // Cleanup timeouts on component unmount
   useEffect(() => {
     return () => {
       const createdInput = document.getElementById('createdDate');
@@ -304,7 +289,6 @@ function App() {
     };
   }, []);
 
-  // Recalculate duration when dates change during task editing
   useEffect(() => {
     if (editingTaskId && editingTaskData.createdDate && editingTaskData.completionDate) {
       const newDuration = calculateDurationInDays(editingTaskData.createdDate, editingTaskData.completionDate);
@@ -314,7 +298,6 @@ function App() {
     }
   }, [editingTaskData.createdDate, editingTaskData.completionDate, editingTaskId]);
 
-  // Update task parent with validation against circular references
   const handleParentChange = (e, taskId) => {
     const newParentId = e.target.value || null;
     if (isDescendant(newParentId, taskId, tasks)) {
@@ -324,16 +307,13 @@ function App() {
     setTasks((prev) => prev.map((t) => (t.id === taskId ? { ...t, parentTaskId: newParentId } : t)));
   };
 
-  // Toggle subtask expansion
   const toggleExpand = (taskId) => setExpandedTasks((prev) => ({ ...prev, [taskId]: !prev[taskId] }));
 
-  // Handle row click to enter edit mode
   const handleRowClick = (taskId, e) => {
     if (e.target.tagName.toLowerCase() === 'input' || e.target.tagName.toLowerCase() === 'select') return;
     if (editingTaskId !== taskId) handleEditTask(taskId);
   };
 
-  // Create falling leaf animations on mount
   useEffect(() => {
     const numLeaves = 20;
     const leafContainer = document.getElementById('falling-leaf-container');
@@ -347,69 +327,57 @@ function App() {
     }
   }, []);
 
-  // Handle input changes during editing with validation
   const handleEditInputChange = (e) => {
     const { name, value } = e.target;
-  
-    // Validate "Created On" date and time
+
     if (name === 'createdDate') {
       const currentDate = new Date();
       const selectedDate = new Date(value);
-  
-      // Check if the selected date and time are in the past
+
       if (selectedDate < currentDate) {
         setDueDateError('Created On date and time cannot be in the past.');
         return;
       } else {
-        setDueDateError(''); // Clear the error if the date is valid
+        setDueDateError('');
       }
-  
-      // If "Created On" is updated, ensure "Due By" is still valid
+
       if (editingTaskData.completionDate && new Date(editingTaskData.completionDate) < selectedDate) {
         setDueDateError('Due By date and time cannot be earlier than Created On.');
         return;
       }
     }
-  
-    // Validate "Due By" date and time
+
     if (name === 'completionDate' && editingTaskData.createdDate) {
       const createdDate = new Date(editingTaskData.createdDate);
       const completionDate = new Date(value);
       const currentDate = new Date();
-  
-      // Check if "Due By" is before "Created On"
+
       if (completionDate < createdDate) {
         setDueDateError('Due By date and time cannot be earlier than Created On.');
         return;
       }
-  
-      // Check if "Due By" is before the current date
+
       if (completionDate < currentDate) {
         setDueDateError('Due By date and time cannot be in the past.');
         return;
       }
-  
-      // Clear the error if the date is valid
+
       setDueDateError('');
     }
-  
-    // Update the editing task data
+
     setEditingTaskData((prev) => ({ ...prev, [name]: value }));
-  
-    // Handle assignee suggestions
+
     if (name === 'assignedTo') {
       const filteredSuggestions = assignees.filter((a) => a.toLowerCase().includes(value.toLowerCase()));
       setAssigneeSuggestions(filteredSuggestions);
     }
   };
 
-  // Show context menu on right-click
   const handleRowRightClick = (e, taskId) => {
     e.preventDefault();
     setContextMenu({ visible: true, taskId, x: e.clientX, y: e.clientY });
   };
 
-  // Recursively render tasks and subtasks
   const renderTasks = (tasks, parentId = null, level = 0) =>
     tasks.filter((t) => t.parentTaskId === parentId).map((task) => {
       const hasSubtasks = tasks.some((t) => t.parentTaskId === task.id);
@@ -417,7 +385,7 @@ function App() {
       const isEditing = editingTaskId === task.id;
       return (
         <React.Fragment key={task.id}>
-          <tr onClick={(e) => handleRowClick(task.id, e)} onContextMenu={(e) => handleRowRightClick(e, task.id)}>
+          <tr className="task-item" onClick={(e) => handleRowClick(task.id, e)} onContextMenu={(e) => handleRowRightClick(e, task.id)}>
             <td className="task-title" style={{ paddingLeft: `${level * 20 + 10}px` }}>
               {hasSubtasks && (
                 <span onClick={(e) => { e.stopPropagation(); toggleExpand(task.id); }} style={{ cursor: 'pointer', marginRight: '8px' }}>
@@ -435,31 +403,31 @@ function App() {
             ) : task.assignedTo}</td>
             <td>{isEditing ? <input type="number" value={editingTaskData.duration || ''} disabled /> : `${task.duration} ${task.duration === 1 ? 'day' : 'days'}`}</td>
             <td>
-  {isEditing ? (
-    <input
-      type="datetime-local"
-      value={editingTaskData.createdDate}
-      onChange={handleEditInputChange}
-      name="createdDate"
-      min={new Date().toISOString().slice(0, 16)} // Restrict to current date and time
-    />
-  ) : (
-    `📅 ${formatDateTime(task.createdDate)}`
-  )}
-</td>
-<td>
-  {isEditing ? (
-    <input
-      type="datetime-local"
-      value={editingTaskData.completionDate}
-      onChange={handleEditInputChange}
-      name="completionDate"
-      min={editingTaskData.createdDate || new Date().toISOString().slice(0, 16)} // Restrict to "Created On" date or current date
-    />
-  ) : (
-    `⏳ ${formatDateTime(task.completionDate)}`
-  )}
-</td>
+              {isEditing ? (
+                <input
+                  type="datetime-local"
+                  value={editingTaskData.createdDate}
+                  onChange={handleEditInputChange}
+                  name="createdDate"
+                  min={new Date().toISOString().slice(0, 16)}
+                />
+              ) : (
+                `📅 ${formatDateTime(task.createdDate)}`
+              )}
+            </td>
+            <td>
+              {isEditing ? (
+                <input
+                  type="datetime-local"
+                  value={editingTaskData.completionDate}
+                  onChange={handleEditInputChange}
+                  name="completionDate"
+                  min={editingTaskData.createdDate || new Date().toISOString().slice(0, 16)}
+                />
+              ) : (
+                `⏳ ${formatDateTime(task.completionDate)}`
+              )}
+            </td>
             <td>{task.parentTaskId ? (
               <>
                 {tasks.find((t) => t.id === task.parentTaskId)?.title || 'Main Task'}
@@ -481,10 +449,8 @@ function App() {
       );
     });
 
-  // Render table body with tasks
   const renderTableBody = () => <tbody>{renderTasks(tasks)}</tbody>;
 
-  // Apply dark mode and background styles
   useEffect(() => {
     if (darkMode) {
       document.body.classList.add('dark-mode');
@@ -496,127 +462,127 @@ function App() {
     }
   }, [darkMode]);
 
-  // Add event listener for outside clicks
   useEffect(() => {
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, [showForm, task]);
 
-  // Update task duration when dates change
   useEffect(() => {
     if (task.createdDate && task.completionDate) {
       setTask((prev) => ({ ...prev, duration: calculateDurationInDays(prev.createdDate, task.completionDate) }));
     }
   }, [task.createdDate, task.completionDate]);
 
-  // Render the app UI
   return (
     <div className="App">
-      <div id="falling-leaf-container" style={{ background: darkMode ? 'none' : "url('/wallpaper.jpg') no-repeat center center fixed", backgroundSize: 'cover' }}>
-        <button
-          className="mode-toggle"
-          onClick={() => setDarkMode((prev) => !prev)}
-          style={{ position: 'absolute', top: '10px', right: '10px', padding: '10px' }}
-        >
-          {darkMode ? 'Light Mode' : 'Dark Mode'}
-        </button>
-      </div>
-      <div className="table-container">
-        <div className="table-header">
-          <h4>PHASED TASKS TABLE</h4>
-          <h5>Task List</h5>
+      <div className="wallpaper"></div>
+      <div className={isCursorActive ? 'cursor-active' : 'no-cursor'}>
+        <div id="falling-leaf-container" style={{ background: darkMode ? 'none' : "url('/wallpaper.jpg') no-repeat center center fixed", backgroundSize: 'cover' }}>
+          <button
+            className="mode-toggle"
+            onClick={() => setDarkMode((prev) => !prev)}
+            style={{ position: 'absolute', top: '10px', right: '10px', padding: '10px' }}
+          >
+            {darkMode ? 'Light Mode' : 'Dark Mode'}
+          </button>
         </div>
-        {tasks.length > 0 ? (
-          <div className="table-wrapper">
-            <table>
-              <thead>
-                <tr>
-                  <th>Task Title</th>
-                  <th>Description</th>
-                  <th>Assigned To</th>
-                  <th>Duration (Days)</th>
-                  <th>Created On</th>
-                  <th>Due By</th>
-                  <th>Parent Task</th>
-                  {editingTaskId !== null && <th>Actions</th>}
-                </tr>
-              </thead>
-              {renderTableBody()}
-            </table>
+        <div className="table-container">
+          <div className="table-header">
+            <h4>PHASED TASKS TABLE</h4>
+            <h5>Task List</h5>
           </div>
-        ) : <p>No tasks available.</p>}
-        <ContextMenu visible={contextMenu.visible} x={contextMenu.x} y={contextMenu.y} onAddSubtask={handleAddSubtask} onClose={handleCloseContextMenu} />
-        <div className="add-task-container">
-          {!showForm ? (
-            <button className="add-task-btn" onClick={handleAddTaskClick} style={{ backgroundColor: darkMode ? '#333' : '#f0f0f0' }}>Add Task</button>
-          ) : (
-            <div className="task-form-container">
-              <form onSubmit={handleSubmit} className="task-form" ref={formRef}>
-                <div className="form-group">
-                  <label>Task Title:</label>
-                  <input type="text" name="title" placeholder="Task Title" value={task.title} onChange={handleChange} required />
-                </div>
-                <div className="form-group">
-                  <label>Task Description:</label>
-                  <textarea name="description" placeholder="Task Description" value={task.description} onChange={handleChange} required />
-                </div>
-                <div className="autocomplete">
-                  <label>Assigned To:</label>
-                  <input type="text" name="assignedTo" placeholder="Assigned To" value={task.assignedTo} onChange={handleChange} onFocus={handleAssignedToFocus} autoComplete="off" />
-                  {showAssigneeSuggestions && assigneeSuggestions.length > 0 && (
-                    <ul className="suggestions">
-                      {assigneeSuggestions.map((suggestion, index) => (
-                        <li key={index} onClick={() => handleSuggestionClick(suggestion)}>{suggestion}</li>
-                      ))}
-                    </ul>
-                  )}
-                </div>
-                <div className="form-group">
-                  <label>Duration (Days):</label>
-                  <input type="number" name="duration" placeholder="Duration (days)" value={task.duration || ''} disabled onChange={handleChange} />
-                </div>
-                <div className="form-group">
-  <label>Created On:</label>
-  <input
-    type="datetime-local"
-    id="createdDate"
-    name="createdDate"
-    value={task.createdDate}
-    onChange={handleDateTimeChange}
-    min={new Date().toISOString().slice(0, 16)} // Restrict to current date and time
-    title="Date when the task was created."
-  />
-</div>
-<div className="form-group">
-  <label>Due By:</label>
-  <input
-    type="datetime-local"
-    id="completionDate"
-    name="completionDate"
-    value={task.completionDate}
-    onChange={handleDateTimeChange}
-    min={task.createdDate || new Date().toISOString().slice(0, 16)} // Restrict to "Created On" date or current date
-    title="Estimated or actual completion date."
-  />
-  {dueDateError && <p style={{ color: 'red', fontSize: '0.9em' }}>{dueDateError}</p>}
-</div>
-                <div className="form-group">
-                  <label>Parent Task:</label>
-                  <select name="parentTaskId" value={task.parentTaskId} onChange={handleChange}>
-                    <option value="">Main Task</option>
-                    {tasks.filter((t) => t.id !== task.id).map((t) => <option key={t.id} value={t.id}>{t.title}</option>)}
-                  </select>
-                </div>
-                <div className="form-buttons">
-                  <button type="submit" className="add-task-button">Add Task</button>
-                  <button type="button" className="clear-button" onClick={handleClearForm}>Clear</button>
-                </div>
-              </form>
+          {tasks.length > 0 ? (
+            <div className="table-wrapper">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Task Title</th>
+                    <th>Description</th>
+                    <th>Assigned To</th>
+                    <th>Duration (Days)</th>
+                    <th>Created On</th>
+                    <th>Due By</th>
+                    <th>Parent Task</th>
+                    {editingTaskId !== null && <th>Actions</th>}
+                  </tr>
+                </thead>
+                {renderTableBody()}
+              </table>
             </div>
-          )}
+          ) : <p>No tasks available.</p>}
+          <ContextMenu visible={contextMenu.visible} x={contextMenu.x} y={contextMenu.y} onAddSubtask={handleAddSubtask} onClose={handleCloseContextMenu} />
+          <div className="add-task-container">
+            {!showForm ? (
+              <button className="add-task-btn" onClick={handleAddTaskClick} style={{ backgroundColor: darkMode ? '#333' : '#f0f0f0' }}>Add Task</button>
+            ) : (
+              <div className="task-form-container">
+                <form onSubmit={handleSubmit} className="task-form" ref={formRef}>
+                  <div className="form-group">
+                    <label>Task Title:</label>
+                    <input type="text" name="title" placeholder="Task Title" value={task.title} onChange={handleChange} required />
+                  </div>
+                  <div className="form-group">
+                    <label>Task Description:</label>
+                    <textarea name="description" placeholder="Task Description" value={task.description} onChange={handleChange} required />
+                  </div>
+                  <div className="autocomplete">
+                    <label>Assigned To:</label>
+                    <input type="text" name="assignedTo" placeholder="Assigned To" value={task.assignedTo} onChange={handleChange} onFocus={handleAssignedToFocus} autoComplete="off" />
+                    {showAssigneeSuggestions && assigneeSuggestions.length > 0 && (
+                      <ul className="suggestions">
+                        {assigneeSuggestions.map((suggestion, index) => (
+                          <li key={index} onClick={() => handleSuggestionClick(suggestion)}>{suggestion}</li>
+                        ))}
+                      </ul>
+                    )}
+                  </div>
+                  <div className="form-group">
+                    <label>Duration (Days):</label>
+                    <input type="number" name="duration" placeholder="Duration (days)" value={task.duration || ''} disabled onChange={handleChange} />
+                  </div>
+                  <div className="form-group">
+                    <label>Created On:</label>
+                    <input
+                      type="datetime-local"
+                      id="createdDate"
+                      name="createdDate"
+                      value={task.createdDate}
+                      onChange={handleDateTimeChange}
+                      min={new Date().toISOString().slice(0, 16)}
+                      title="Date when the task was created."
+                    />
+                  </div>
+                  <div className="form-group">
+                    <label>Due By:</label>
+                    <input
+                      type="datetime-local"
+                      id="completionDate"
+                      name="completionDate"
+                      value={task.completionDate}
+                      onChange={handleDateTimeChange}
+                      min={task.createdDate || new Date().toISOString().slice(0, 16)}
+                      title="Estimated or actual completion date."
+                    />
+                    {dueDateError && <p style={{ color: 'red', fontSize: '0.9em' }}>{dueDateError}</p>}
+                  </div>
+                  <div className="form-group">
+                    <label>Parent Task:</label>
+                    <select name="parentTaskId" value={task.parentTaskId} onChange={handleChange}>
+                      <option value="">Main Task</option>
+                      {tasks.filter((t) => t.id !== task.id).map((t) => <option key={t.id} value={t.id}>{t.title}</option>)}
+                    </select>
+                  </div>
+                  <div className="form-buttons">
+                    <button type="submit" className="add-task-button">Add Task</button>
+                    <button type="button" className="clear-button" onClick={handleClearForm}>Clear</button>
+                  </div>
+                </form>
+              </div>
+            )}
+          </div>
         </div>
+        <FooterClock />
       </div>
-      <FooterClock />
     </div>
   );
 }
