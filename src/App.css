@@ -5,16 +5,18 @@
 
 /* Immersive and floating styles for task items */
 .task-item {
-  background: rgba(255, 255, 255, 0.15); /* Slightly more transparent for glassmorphism */
-  backdrop-filter: blur(12px); /* Enhanced blur for immersive feel */
+  background: rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(12px);
   border-radius: 12px;
-  border: 1px solid rgba(255, 255, 255, 0.3); /* Softer border */
-  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15); /* Deeper shadow for floating effect */
-  padding: 12px;
-  margin: 10px 0;
-  transition: transform 0.3s ease, box-shadow 0.3s ease, background 0.3s ease;
-  position: relative; /* For z-index control */
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+  padding: 8px;
+  margin: 4px 0;
+  transition: transform 0.3s ease, box-shadow 0.3s ease, background 0.3s ease, backdrop-filter 0.3s ease;
+  position: relative;
   z-index: 1;
+  height: 48px;
+  display: table-row;
 }
 
 /* Floating animation when cursor is not active */
@@ -23,7 +25,7 @@
     transform: translateY(0);
   }
   50% {
-    transform: translateY(-5px); /* Subtle wave motion */
+    transform: translateY(-5px);
   }
 }
 
@@ -34,58 +36,146 @@
 
 /* Hover effect when cursor is active */
 .cursor-active .task-item:hover {
-  transform: scale(1.05) translateY(-5px); /* Scale and lift on hover */
-  box-shadow: 0 12px 20px rgba(0, 0, 0, 0.25); /* Enhanced shadow */
-  background: rgba(255, 255, 255, 0.25); /* Slightly brighter on hover */
-  animation: none; /* Stop wave animation on hover */
-  z-index: 2; /* Bring forward on hover */
+  transform: scale(1.02) translateY(-5px);
+  box-shadow: 0 12px 20px rgba(0, 0, 0, 0.25);
+  background: rgba(255, 255, 255, 0.25);
+  animation: none;
+  z-index: 2;
+  backdrop-filter: none;
 }
 
 /* Dark mode adjustments for task items */
 .dark-mode .task-item {
-  background: rgba(50, 50, 50, 0.2); /* Darker glass effect */
+  background: rgba(50, 50, 50, 0.2);
   border: 1px solid rgba(255, 255, 255, 0.1);
   box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
 }
 
 .dark-mode .cursor-active .task-item:hover {
-  background: rgba(80, 80, 80, 0.3); /* Brighter on hover in dark mode */
+  background: rgba(80, 80, 80, 0.3);
   box-shadow: 0 12px 20px rgba(0, 0, 0, 0.4);
+  backdrop-filter: none;
 }
 
-/* Table wrapper adjustments for immersive feel */
+/* Ensure inputs in edit mode are clear */
+.task-item input,
+.task-item select,
+.task-item textarea {
+  background: rgba(255, 255, 255, 0.9);
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  border-radius: 4px;
+  padding: 4px;
+  color: #333;
+  width: 100%;
+  box-sizing: border-box;
+  position: relative;
+  z-index: 3;
+  backdrop-filter: none;
+  height: 32px;
+  font-size: 14px;
+}
+
+.dark-mode .task-item input,
+.dark-mode .task-item select,
+.dark-mode .task-item textarea {
+  background: rgba(40, 40, 40, 0.9);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  color: #fff;
+  backdrop-filter: none;
+}
+
+/* Disabled inputs */
+.task-item input[type="number"]:disabled {
+  background: rgba(200, 200, 200, 0.7);
+  color: #666;
+}
+
+.dark-mode .task-item input[type="number"]:disabled {
+  background: rgba(80, 80, 80, 0.7);
+  color: #ccc;
+}
+
+/* Style the expand/collapse arrow */
+.task-title span {
+  display: inline-block;
+  width: 16px;
+  text-align: center;
+  position: relative;
+  z-index: 3;
+  transition: transform 0.3s ease;
+  line-height: 32px;
+}
+
+.cursor-active .task-item:hover .task-title span {
+  transform: none;
+}
+
+/* Table wrapper adjustments */
 .table-wrapper {
   max-height: 400px;
   overflow-y: auto;
-  border: none; /* Remove border for cleaner look */
+  border: none;
   border-radius: 10px;
-  background: transparent; /* Transparent background for immersion */
+  background: transparent;
   padding: 0;
-  box-shadow: none; /* Remove shadow to let task items stand out */
+  box-shadow: none;
 }
 
 .table-wrapper table {
   width: 100%;
-  border-collapse: separate; /* Allow spacing between rows */
-  border-spacing: 0 8px; /* Space between task items */
+  border-collapse: separate;
+  border-spacing: 0 4px;
 }
 
-/* Remove default table borders for immersive effect */
+/* Table cells */
 .table-wrapper th,
 .table-wrapper td {
   border: none;
   padding: 8px;
   text-align: left;
+  position: relative;
+  vertical-align: middle;
+  height: 48px;
+  font-size: 14px;
 }
 
-/* Header styling for contrast */
+/* Header styling */
 .table-wrapper thead {
   position: sticky;
   top: 0;
   background: linear-gradient(to bottom, #007bff, #0056b3);
   color: white;
-  z-index: 3; /* Ensure header stays above task items */
+  z-index: 3;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+/* Center and style the table header with glass effect */
+.table-header {
+  background: rgba(255, 255, 255, 0.15); /* Glass background */
+  backdrop-filter: blur(12px); /* Stronger blur for glass effect */
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 12px 12px 0 0;
+  padding: 10px;
+  margin-bottom: -1px;
+  text-align: center; /* Center the text */
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15); /* Subtle shadow */
+}
+
+.dark-mode .table-header {
+  background: rgba(50, 50, 50, 0.25); /* Darker glass for dark mode */
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* Ensure header text is centered and styled */
+.table-header h4,
+.table-header h5 {
+  margin: 5px 0; /* Consistent spacing */
+  color: #333; /* Dark text for contrast in light mode */
+}
+
+.dark-mode .table-header h4,
+.dark-mode .table-header h5 {
+  color: #fff; /* White text for dark mode */
 }
 
 /* Background and container enhancements */
@@ -95,7 +185,6 @@
   min-height: 100vh;
 }
 
-/* Wallpaper styles */
 .wallpaper {
   position: fixed;
   top: 0;
@@ -105,15 +194,14 @@
   background: url('/wallpaper.jpg') no-repeat center center fixed;
   background-size: cover;
   z-index: -2;
-  transition: filter 0.3s ease; /* Smooth transition for dark mode */
+  transition: filter 0.3s ease;
   animation: floatingBackground 15s ease-in-out infinite;
 }
 
 .wallpaper.dark-mode {
-  filter: brightness(0.5); /* Darken the wallpaper in dark mode */
+  filter: brightness(0.5);
 }
 
-/* Floating background animation */
 @keyframes floatingBackground {
   0%, 100% {
     transform: translateY(0);
@@ -123,7 +211,6 @@
   }
 }
 
-/* Overlay for immersive depth */
 .App::before {
   content: '';
   position: absolute;
@@ -136,7 +223,6 @@
   animation: floatingBackground 15s ease-in-out infinite;
 }
 
-/* Ensure other elements stay above the background */
 .table-container {
   position: relative;
   z-index: 1;
@@ -145,12 +231,11 @@
   padding: 20px;
 }
 
-/* Adjust other components for consistency */
 .add-task-container {
   position: fixed;
   bottom: 20px;
   left: 20px;
-  z-index: 10; /* Above task items */
+  z-index: 10;
 }
 
 .task-form-container {
@@ -167,7 +252,46 @@
   border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
-/* Mode toggle button */
+.task-form-container input,
+.task-form-container textarea,
+.task-form-container select {
+  background: rgba(255, 255, 255, 0.9);
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  border-radius: 4px;
+  padding: 6px;
+  color: #333;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.task-form-container input[type="number"]:disabled {
+  background: rgba(200, 200, 200, 0.7);
+  color: #666;
+}
+
+.dark-mode .task-form-container input,
+.dark-mode .task-form-container textarea,
+.dark-mode .task-form-container select {
+  background: rgba(40, 40, 40, 0.9);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  color: #fff;
+}
+
+.dark-mode .task-form-container input[type="number"]:disabled {
+  background: rgba(80, 80, 80, 0.7);
+  color: #ccc;
+}
+
+.task-form-container input[type="datetime-local"]::-webkit-calendar-picker-indicator {
+  filter: invert(0.8);
+  cursor: pointer;
+  padding: 4px;
+}
+
+.dark-mode .task-form-container input[type="datetime-local"]::-webkit-calendar-picker-indicator {
+  filter: invert(1);
+}
+
 .mode-toggle {
   z-index: 10;
   background: rgba(255, 255, 255, 0.2);
