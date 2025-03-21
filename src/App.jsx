@@ -189,7 +189,9 @@ function App() {
   // Close form or hide suggestions if clicked outside
   const handleClickOutside = (e) => {
     if (formRef.current && !formRef.current.contains(e.target) && !task.title.trim() && !task.description.trim()) {
-      setShowForm(false);
+      if (!e.target.closest('.mode-toggle')) {
+        setShowForm(false);
+      }
     }
     const assigneeInput = document.querySelector('input[name="assignedTo"]');
     const suggestionsList = document.querySelector('.suggestions');
@@ -377,7 +379,11 @@ function App() {
   return (
     <div className="App">
       <div id="falling-leaf-container" style={{ background: darkMode ? 'none' : "url('/wallpaper.jpg') no-repeat center center fixed", backgroundSize: 'cover' }}>
-        <button onClick={() => setDarkMode((prev) => !prev)} style={{ position: 'absolute', top: '10px', right: '10px', padding: '10px' }}>
+        <button
+          className="mode-toggle"
+          onClick={() => setDarkMode((prev) => !prev)}
+          style={{ position: 'absolute', top: '10px', right: '10px', padding: '10px' }}
+        >
           {darkMode ? 'Light Mode' : 'Dark Mode'}
         </button>
       </div>

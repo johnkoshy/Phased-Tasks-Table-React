@@ -13,10 +13,12 @@
   padding: 0;
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
 }
+
 .table-wrapper table {
   width: 100%;
   border-collapse: collapse;
 }
+
 .table-wrapper thead {
   position: sticky;
   top: 0;
@@ -24,22 +26,28 @@
   color: white;
   z-index: 2;
 }
-.table-wrapper th, .table-wrapper td {
+
+.table-wrapper th,
+.table-wrapper td {
   border: 1px solid #ddd;
   padding: 8px;
   text-align: left;
 }
+
 .table-wrapper tbody tr:hover {
   background-color: #f1f1f1;
 }
+
 /* Custom scrollbar styling for table */
 .table-wrapper::-webkit-scrollbar {
   width: 8px;
 }
+
 .table-wrapper::-webkit-scrollbar-thumb {
   background-color: #888;
   border-radius: 5px;
 }
+
 .table-wrapper::-webkit-scrollbar-thumb:hover {
   background-color: #555;
 }
@@ -63,26 +71,34 @@
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
   color: #000;
 }
+
 body.dark-mode .table-header {
   background-color: #333;
   border-color: #444;
   color: #fff;
   box-shadow: none;
 }
+
 .dark-mode .table-wrapper th {
   border-right: 1px solid transparent !important;
 }
-.table-header h4, .table-header h5 {
+
+.table-header h4,
+.table-header h5 {
   margin: 0;
   color: inherit;
 }
-body.dark-mode .table-header h4, body.dark-mode .table-header h5 {
+
+body.dark-mode .table-header h4,
+body.dark-mode .table-header h5 {
   color: inherit;
 }
+
 .table-header h4 {
   font-size: 18px;
   font-weight: bold;
 }
+
 .table-header h5 {
   font-size: 14px;
   color: #666;
@@ -96,7 +112,8 @@ body.dark-mode .table-header h4, body.dark-mode .table-header h5 {
 }
 
 /* Global body and html styles with background image */
-body, html {
+body,
+html {
   margin: 0;
   padding: 0;
   height: 100%;
@@ -121,6 +138,7 @@ body, html {
   cursor: pointer;
   color: white;
 }
+
 .dark-mode .add-task-btn {
   background-color: #333;
 }
@@ -137,7 +155,8 @@ body, html {
 }
 
 /* Centered heading styles */
-h4, h5 {
+h4,
+h5 {
   text-align: center;
   margin: 10px 0;
 }
@@ -162,11 +181,14 @@ table {
   overflow: hidden;
   width: 100%;
 }
-th, td {
+
+th,
+td {
   padding: 8px;
   border: 1px solid #ddd;
   text-align: left;
 }
+
 th {
   background: linear-gradient(to bottom, #007bff, #0056b3);
   color: white;
@@ -175,15 +197,19 @@ th {
   border-right: 1px solid white !important;
   outline: none !important;
 }
+
 tr:hover {
   background-color: rgba(0, 123, 255, 0.1);
 }
+
 tr:nth-child(even) {
   background-color: #f9f9f9;
 }
 
 /* Form input, select, and textarea styles */
-input, select, textarea {
+input,
+select,
+textarea {
   width: 100%;
   padding: 10px;
   border: 2px solid #ccc;
@@ -191,22 +217,32 @@ input, select, textarea {
   font-size: 14px;
   transition: border 0.3s ease-in-out;
 }
+
 th:not(:last-child) {
   border-right: none !important;
 }
-th:focus, th:active {
+
+th:focus,
+th:active {
   outline: none !important;
   box-shadow: none !important;
 }
-th, td {
+
+th,
+td {
   border: 1px solid #444;
 }
-input:focus, select:focus, textarea:focus {
+
+input:focus,
+select:focus,
+textarea:focus {
   border-color: #007bff;
   outline: none;
   box-shadow: 0px 0px 5px rgba(0, 123, 255, 0.5);
 }
-input::placeholder, textarea::placeholder {
+
+input::placeholder,
+textarea::placeholder {
   color: black;
 }
 
@@ -215,36 +251,51 @@ input::placeholder, textarea::placeholder {
   background: #121212 !important;
   color: white !important;
 }
+
 .dark-mode table {
   background: linear-gradient(to bottom, #1e1e1e, #151515);
   border: 1px solid #444;
   box-shadow: 5px 5px 15px rgba(0, 0, 0, 0.5);
 }
-.dark-mode th, .dark-mode td {
+
+.dark-mode th,
+.dark-mode td {
   background: #333 !important;
   color: white !important;
   border-color: #444 !important;
 }
+
 .dark-mode tr:hover {
   background-color: #444;
 }
-.dark-mode input, .dark-mode textarea, .dark-mode select {
+
+.dark-mode input,
+.dark-mode textarea,
+.dark-mode select {
   color: #fff;
   background-color: #222;
   border: 1px solid #444;
 }
-input, textarea, select {
+
+input,
+textarea,
+select {
   color: #000;
   background-color: #fff;
   border: 1px solid #ccc;
   padding: 8px;
   width: 100%;
 }
-.dark-mode input:focus, .dark-mode select:focus, .dark-mode textarea:focus {
+
+.dark-mode input:focus,
+.dark-mode select:focus,
+.dark-mode textarea:focus {
   border-color: #007bff;
   box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
 }
-.dark-mode input::placeholder, .dark-mode textarea::placeholder {
+
+.dark-mode input::placeholder,
+.dark-mode textarea::placeholder {
   color: white;
 }
 
@@ -258,17 +309,21 @@ input, textarea, select {
   padding: 8px;
   border-radius: 6px;
 }
+
 .dark-mode .context-menu {
   background-color: #222 !important;
   color: white !important;
 }
+
 .context-menu div {
   padding: 8px;
   cursor: pointer;
 }
+
 .context-menu div:hover {
   background-color: #f1f1f1;
 }
+
 .dark-mode .context-menu div:hover {
   background-color: #333 !important;
 }
@@ -289,23 +344,28 @@ input, textarea, select {
   max-height: 150px;
   overflow-y: auto;
 }
+
 .scrollable-table {
   overflow-y: auto;
   flex-grow: 1;
   margin-left: 20px;
   background-color: #ffffff;
 }
+
 .dark-mode .suggestions {
   background-color: #333;
   border: 1px solid #444;
 }
+
 .suggestions li {
   padding: 8px;
   cursor: pointer;
 }
+
 .suggestions li:hover {
   background-color: #f0f0f0;
 }
+
 .dark-mode .suggestions li:hover {
   background-color: #555;
 }
@@ -319,6 +379,7 @@ input, textarea, select {
   border-radius: 10px;
   background-color: #fff;
 }
+
 .task-form {
   background-color: white;
   color: black;
@@ -332,20 +393,31 @@ input, textarea, select {
   max-width: 500px;
   margin: 0 auto;
 }
+
 @keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
 }
-.task-form input, .task-form textarea, .task-form select {
+
+.task-form input,
+.task-form textarea,
+.task-form select {
   flex: 1;
   padding: 8px;
   border: 1px solid #ccc;
   border-radius: 4px;
   box-sizing: border-box;
 }
+
 .task-form textarea {
   resize: vertical;
 }
+
 .task-form button:hover {
   background-color: #0056b3;
 }
@@ -365,6 +437,7 @@ input[name="title"] {
   padding: 6px;
   font-size: 12px;
 }
+
 textarea[name="description"] {
   width: 100%;
   min-width: 300px;
@@ -385,18 +458,22 @@ button {
   box-shadow: 3px 3px 6px rgba(0, 0, 0, 0.2), inset -2px -2px 5px rgba(255, 255, 255, 0.2);
   transition: all 0.2s ease-in-out;
 }
+
 button:active {
   box-shadow: inset 3px 3px 6px rgba(0, 0, 0, 0.3);
   transform: translateY(2px);
 }
+
 button:hover {
   background: linear-gradient(to right, #0056b3, #003d80);
   transform: scale(1.05);
 }
+
 button:hover:not(.add-task-button):not(.clear-button) {
   background: linear-gradient(to right, #0056b3, #003d80);
   transform: scale(1.05);
 }
+
 button:active:not(.add-task-button):not(.clear-button) {
   box-shadow: inset 3px 3px 6px rgba(0, 0, 0, 0.3);
   transform: translateY(2px);
@@ -415,6 +492,7 @@ button:active:not(.add-task-button):not(.clear-button) {
   cursor: pointer;
   color: inherit;
 }
+
 .dark-mode .dark-mode-button {
   color: white;
 }
@@ -424,11 +502,15 @@ button:active:not(.add-task-button):not(.clear-button) {
   background-color: #333;
   color: white;
 }
+
 .dark-mode .task-form-container {
   background-color: #333;
   color: white;
 }
-.dark-mode .task-form input, .dark-mode .task-form textarea, .dark-mode .task-form select {
+
+.dark-mode .task-form input,
+.dark-mode .task-form textarea,
+.dark-mode .task-form select {
   background-color: #444;
   color: white;
   border: 1px solid #555;
@@ -439,17 +521,22 @@ button:active:not(.add-task-button):not(.clear-button) {
   display: flex;
   flex-direction: column;
 }
+
 .form-group label {
   font-weight: bold;
   margin-bottom: 5px;
 }
-.form-group input, .form-group textarea, .form-group select {
+
+.form-group input,
+.form-group textarea,
+.form-group select {
   padding: 10px;
   border: 1px solid #ccc;
   border-radius: 5px;
   font-size: 14px;
   outline: none;
 }
+
 .form-group input[type="text"] {
   display: block;
   width: 100%;
@@ -476,7 +563,8 @@ button:active:not(.add-task-button):not(.clear-button) {
 }
 
 /* Specific button styles for Add Task and Clear */
-.add-task-button, .clear-button {
+.add-task-button,
+.clear-button {
   padding: 10px 20px;
   border: none;
   border-radius: 4px;
@@ -487,14 +575,17 @@ button:active:not(.add-task-button):not(.clear-button) {
   box-shadow: none !important;
   transition: background-color 0.2s ease-in-out;
 }
+
 .add-task-button {
   background-color: #4CAF50;
   color: white;
 }
+
 .clear-button {
   background-color: #f44336;
   color: white;
 }
+
 .clear-button:hover {
   background-color: #da190b;
 }
