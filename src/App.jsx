@@ -477,7 +477,7 @@ function App() {
           <button
             className="mode-toggle"
             onClick={() => setDarkMode((prev) => !prev)}
-            style={{ position: 'absolute', top: '10px', right: '10px', padding: '10px' }}
+            style={{ position: 'absolute', top: '2px', right: '20px', padding: '10px', zIndex: 10 }}
           >
             {darkMode ? 'Light Mode' : 'Dark Mode'}
           </button>

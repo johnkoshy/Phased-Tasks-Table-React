@@ -19,6 +19,17 @@
   display: table-row;
 }
 
+/* Add Task button styles in dark mode */
+.dark-mode .add-task-btn {
+  background-color: #007bff; /* Blue background for the button */
+  color: #ffffff; /* White text */
+  border: 1px solid #0056b3; /* Darker border for contrast */
+}
+
+.dark-mode .add-task-btn:hover {
+  background-color: #0056b3; /* Darker blue on hover */
+}
+
 /* Floating animation when cursor is not active */
 @keyframes wave {
 
@@ -179,23 +190,21 @@ body {
 
 /* Center and style the table header with glass effect */
 .table-header {
-  background: rgba(255, 255, 255, 0.15);
-  /* Glass background */
+  background: rgba(255, 255, 255, 0.15); /* Keep glass effect */
   backdrop-filter: blur(12px);
-  /* Stronger blur for glass effect */
   border: 1px solid rgba(255, 255, 255, 0.3);
   border-radius: 12px 12px 0 0;
   padding: 10px;
   margin-bottom: -1px;
   text-align: center;
-  /* Center the text */
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
-  /* Subtle shadow */
+  position: relative;
+  z-index: 5; /* Lower than mode-toggle to allow overlap */
+  min-height: 50px; /* Ensure space for text */
 }
 
 .dark-mode .table-header {
   background: rgba(50, 50, 50, 0.25);
-  /* Darker glass for dark mode */
   border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
@@ -203,15 +212,15 @@ body {
 .table-header h4,
 .table-header h5 {
   margin: 5px 0;
-  /* Consistent spacing */
-  color: #333;
-  /* Dark text for contrast in light mode */
+  color: #333; /* Default light mode color */
+  text-shadow: 0 0 4px rgba(255, 255, 255, 0.8); /* Subtle glow for contrast */
+  font-weight: 600; /* Slightly bolder text */
 }
 
 .dark-mode .table-header h4,
 .dark-mode .table-header h5 {
-  color: #fff;
-  /* White text for dark mode */
+  color: #fff; /* White text in dark mode */
+  text-shadow: 0 0 4px rgba(0, 0, 0, 0.8); /* Dark glow for dark mode */
 }
 
 /* Background and container enhancements */
@@ -264,12 +273,70 @@ body {
 
 .table-container {
   max-width: 1300px;
-  /* Adjust as needed */
-  margin-left: 50px;
-  /* Reduced from 150px to 50px */
+  margin-left: 45px;
   padding: 20px;
   width: calc(100% - 70px);
-  /* Ensure it doesn't exceed the viewport */
+  margin-top: 10px; /* Add space above to shift the table down */
+  position: relative; /* Ensure positioning context for the button */
+}
+
+/* No-tasks message spacing */
+.table-container p {
+  margin-top: 20px; /* Space below header */
+}
+
+/* Table header with improved readability */
+.table-container .table-header {
+  background: rgba(255, 255, 255, 0.25); /* Slightly more opaque for better contrast */
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 12px 12px 0 0;
+  padding: 10px;
+  margin-bottom: -1px;
+  text-align: center;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+  position: relative;
+  z-index: 5; /* Lower than mode-toggle to allow overlap */
+  min-height: 50px;
+}
+
+/* Enhance text readability */
+.table-container .table-header h4,
+.table-container .table-header h5 {
+  margin: 5px 0;
+  color: #333;
+  text-shadow: 0 0 6px rgba(255, 255, 255, 1), 0 0 3px rgba(255, 255, 255, 0.8); /* Stronger white glow */
+  font-weight: 700; /* Bolder text */
+}
+
+.dark-mode .table-container .table-header {
+  background: rgba(50, 50, 50, 0.35); /* Slightly more opaque in dark mode */
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.dark-mode .table-container .table-header h4,
+.dark-mode .table-container .table-header h5 {
+  color: #fff;
+  text-shadow: 0 0 6px rgba(0, 0, 0, 1), 0 0 3px rgba(0, 0, 0, 0.8); /* Stronger dark glow */
+}
+
+/* Move mode-toggle higher and ensure overlap */
+.table-container .mode-toggle {
+  z-index: 10; /* Higher than table-header to overlap */
+  background: rgba(255, 255, 255, 0.2);
+  backdrop-filter: blur(5px);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 8px;
+  position: absolute;
+  top: 2px !important;
+  right: 10px;
+  padding: 10px;
+  color: #000000;
+}
+
+.dark-mode .table-container .mode-toggle {
+  background: rgba(50, 50, 50, 0.3);
+  color: #ffffff;
 }
 
 /* Ensure the Actions column has enough space */
@@ -347,6 +414,25 @@ body {
   color: #ccc;
 }
 
+/* Dark mode styles */
+.dark-mode {
+  color: #ffffff; /* Light text */
+}
+
+/* Placeholder text in dark mode */
+.dark-mode ::placeholder {
+  color: #ffffff; /* White placeholder text */
+  opacity: 0.7; /* Slightly transparent for better readability */
+}
+
+/* Specific placeholder styles for task title, description, and assigned to */
+.dark-mode input[name="title"]::placeholder,
+.dark-mode textarea[name="description"]::placeholder,
+.dark-mode input[name="assignedTo"]::placeholder {
+  color: #ffffff; /* White placeholder text */
+  opacity: 0.7; /* Slightly transparent for better readability */
+}
+
 .task-form-container input[type="datetime-local"]::-webkit-calendar-picker-indicator {
   filter: invert(0.8);
   cursor: pointer;
@@ -358,13 +444,19 @@ body {
 }
 
 .mode-toggle {
-  z-index: 10;
+  z-index: 10; /* Higher than table-header to overlap */
   background: rgba(255, 255, 255, 0.2);
   backdrop-filter: blur(5px);
   border: 1px solid rgba(255, 255, 255, 0.3);
   border-radius: 8px;
+  position: absolute;
+  top: 5px; /* Moved up from 10px to 5px */
+  right: 10px;
+  padding: 10px;
+  color: #000000; /* Light mode text */
 }
 
 .dark-mode .mode-toggle {
   background: rgba(50, 50, 50, 0.3);
+  color: #ffffff; /* Explicitly set text color to white in dark mode */
 }
