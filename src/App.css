@@ -149,6 +149,18 @@
   /* Ensure columns have a minimum width */
 }
 
+/* Allow text wrapping in table cells */
+.table-wrapper td {
+  white-space: normal; /* Allow text to wrap */
+  word-wrap: break-word; /* Break long words if necessary */
+  overflow-wrap: break-word; /* Modern alternative to word-wrap */
+}
+
+/* Set a maximum width for the description column */
+.table-wrapper td:nth-child(2) { /* Adjust the nth-child value for the description column */
+  max-width: 200px; /* Adjust as needed */
+}
+
 /* Prevent horizontal scrolling on the entire page */
 html,
 body {
