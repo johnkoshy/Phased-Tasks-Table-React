@@ -381,7 +381,7 @@ function App() {
       return (
         <React.Fragment key={task.id}>
           <tr className="task-item" onClick={(e) => handleRowClick(task.id, e)} onContextMenu={(e) => handleRowRightClick(e, task.id)}>
-            <td className="task-title" style={{ paddingLeft: `${level * 20 + 10}px` }}>
+            <td className="task-title" style={{ paddingLeft: `${level * 20 + 20}px` }}>
               {hasSubtasks && (
                 <span onClick={(e) => { e.stopPropagation(); toggleExpand(task.id); }} style={{ cursor: 'pointer', marginRight: '8px' }}>
                   {isExpanded ? '▼' : '▶'}
