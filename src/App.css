@@ -136,6 +136,7 @@
   padding: 0;
   box-shadow: none;
   width: 100%;
+  position: relative; /* Ensure positioning context */
 }
 
 .table-wrapper table {
@@ -144,6 +145,7 @@
   /* Adjust this value as needed */
   border-collapse: separate;
   border-spacing: 0 4px;
+  
 }
 
 /* Table cells */
@@ -157,6 +159,7 @@
   height: 48px;
   font-size: 14px;
   min-width: 150px;
+  box-sizing: border-box; /* Ensure padding is included in width */
   /* Ensure columns have a minimum width */
 }
 
