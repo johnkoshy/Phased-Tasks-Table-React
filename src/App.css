@@ -235,7 +235,7 @@ body {
   top: 0;
   left: 0;
   width: 100%;
-  height: 100%;
+  height: calc(100% + 15px); /* Add extra height to cover the upward movement */
   background: url('/wallpaper.jpg') no-repeat center center fixed;
   background-size: cover;
   z-index: -2;
@@ -279,7 +279,7 @@ body {
   margin-top: 10px; /* Add space above to shift the table down */
   position: relative; /* Ensure positioning context for the button */
 }
-
+wallpaper
 /* No-tasks message spacing */
 .table-container p {
   margin-top: 20px; /* Space below header */
