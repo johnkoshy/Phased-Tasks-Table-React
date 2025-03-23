@@ -2,22 +2,24 @@ import React, { useState, useRef, useEffect } from 'react';
 import './App.css';
 import FooterClock from './components/FooterClock';
 
+// Main App component for task management
 function App() {
-  const [tasks, setTasks] = useState([]);
-  const [task, setTask] = useState({ title: '', description: '', assignedTo: '', duration: '', completionDate: '', createdDate: '', parentTaskId: '' });
-  const [showForm, setShowForm] = useState(false);
-  const [assigneeSuggestions, setAssigneeSuggestions] = useState([]);
-  const [expandedTasks, setExpandedTasks] = useState({});
-  const [editingTaskId, setEditingTaskId] = useState(null);
-  const [editingTaskData, setEditingTaskData] = useState({});
-  const [dueDateError, setDueDateError] = useState('');
-  const [contextMenu, setContextMenu] = useState({ visible: false, taskId: null, x: 0, y: 0 });
-  const [showAssigneeSuggestions, setShowAssigneeSuggestions] = useState(false);
-  const [darkMode, setDarkMode] = useState(() => localStorage.getItem('darkMode') === 'true');
-  const formRef = useRef(null);
-  const [isCursorActive, setIsCursorActive] = useState(true);
+  // State for managing tasks and form data
+  const [tasks, setTasks] = useState([]); // List of tasks
+  const [task, setTask] = useState({ title: '', description: '', assignedTo: '', duration: '', completionDate: '', createdDate: '', parentTaskId: '' }); // Form data for new task
+  const [showForm, setShowForm] = useState(false); // Toggle for showing/hiding the task form
+  const [assigneeSuggestions, setAssigneeSuggestions] = useState([]); // Suggestions for assignee input
+  const [expandedTasks, setExpandedTasks] = useState({}); // Track expanded state of tasks with subtasks
+  const [editingTaskId, setEditingTaskId] = useState(null); // ID of task being edited
+  const [editingTaskData, setEditingTaskData] = useState({}); // Data of task being edited
+  const [dueDateError, setDueDateError] = useState(''); // Error message for invalid dates
+  const [contextMenu, setContextMenu] = useState({ visible: false, taskId: null, x: 0, y: 0 }); // Context menu state for right-click actions
+  const [showAssigneeSuggestions, setShowAssigneeSuggestions] = useState(false); // Toggle for assignee suggestions dropdown
+  const [darkMode, setDarkMode] = useState(() => localStorage.getItem('darkMode') === 'true'); // Dark mode state, persisted in localStorage
+  const [isCursorActive, setIsCursorActive] = useState(true); // Track cursor activity for animations
+  const formRef = useRef(null); // Reference to the task form for click-outside detection
 
-  // Cursor activity detection
+  // Effect to detect cursor activity for animations
   useEffect(() => {
     let cursorTimeout;
     const handleCursorMove = () => {
@@ -34,6 +36,7 @@ function App() {
     };
   }, []);
 
+  // Calculate duration between two dates in days
   const calculateDurationInDays = (start, end) => {
     const startDate = new Date(start);
     const endDate = new Date(end);
@@ -43,6 +46,7 @@ function App() {
     return daysDiff > 0 ? daysDiff : 0;
   };
 
+  // Clear the task form with confirmation
   const handleClearForm = () => {
     if (window.confirm('Are you sure you want to clear all fields?')) {
       setTask({ title: '', description: '', assignedTo: '', duration: '', completionDate: '', createdDate: '', parentTaskId: '' });
@@ -52,12 +56,14 @@ function App() {
     }
   };
 
+  // Get the title of a parent task by its ID
   const getParentTaskTitle = (parentTaskId) => {
     if (!parentTaskId) return 'Main Task';
     const parentTask = tasks.find((t) => t.id === parentTaskId);
     return parentTask ? parentTask.title : 'Main Task';
   };
 
+  // Check if a task is a descendant of another to prevent circular dependencies
   const isDescendant = (taskId, potentialParentId, tasks) => {
     let currentTaskId = potentialParentId;
     while (currentTaskId) {
@@ -68,6 +74,7 @@ function App() {
     return false;
   };
 
+  // Format a date string into a readable format (DD-MM-YYYY, HH:MM AM/PM)
   const formatDateTime = (isoDate) => {
     if (!isoDate) return 'N/A';
     const date = new Date(isoDate);
@@ -80,12 +87,14 @@ function App() {
     return `${day}-${month}-${year}, ${hours}:${minutes} ${ampm}`;
   };
 
+  // Start editing a task by setting its ID and data
   const handleEditTask = (taskId) => {
     const taskToEdit = tasks.find((t) => t.id === taskId);
     setEditingTaskId(taskId);
     setEditingTaskData({ ...taskToEdit });
   };
 
+  // Context menu component for right-click actions
   const ContextMenu = ({ visible, x, y, onAddSubtask, onClose }) => {
     if (!visible) return null;
     return (
@@ -96,6 +105,7 @@ function App() {
     );
   };
 
+  // Save edited task after validation
   const handleSaveTask = (taskId) => {
     const currentDate = new Date();
     const createdDate = new Date(editingTaskData.createdDate);
@@ -120,12 +130,14 @@ function App() {
     setEditingTaskId(null);
   };
 
+  // Cancel editing and revert changes
   const handleCancelEdit = () => {
     const originalTask = tasks.find((t) => t.id === editingTaskId);
     setEditingTaskData({ ...originalTask });
     setEditingTaskId(null);
   };
 
+  // Add a subtask by setting the parent task ID and showing the form
   const handleAddSubtask = () => {
     if (contextMenu.taskId) {
       setTask((prev) => ({ ...prev, parentTaskId: contextMenu.taskId }));
@@ -134,10 +146,13 @@ function App() {
     setContextMenu({ visible: false, taskId: null, x: 0, y: 0 });
   };
 
+  // Close the context menu
   const handleCloseContextMenu = () => setContextMenu({ visible: false, taskId: null, x: 0, y: 0 });
 
+  // List of available assignees for suggestions
   const assignees = ['John Doe', 'Jane Smith', 'Alice Johnson', 'Bob Brown', 'Charlie Davis'];
 
+  // Handle form input changes and update assignee suggestions
   const handleChange = (e) => {
     const { name, value } = e.target;
     setTask((prev) => ({ ...prev, [name]: value }));
@@ -147,17 +162,20 @@ function App() {
     }
   };
 
+  // Select an assignee from suggestions
   const handleSuggestionClick = (suggestion) => {
     setTask((prev) => ({ ...prev, assignedTo: suggestion }));
     setAssigneeSuggestions([]);
     setShowAssigneeSuggestions(false);
   };
 
+  // Show assignee suggestions when the input is focused
   const handleAssignedToFocus = () => {
     setAssigneeSuggestions(assignees);
     setShowAssigneeSuggestions(true);
   };
 
+  // Submit the form to add a new task
   const handleSubmit = (e) => {
     e.preventDefault();
     if (!task.title.trim() || !task.description.trim()) return;
@@ -209,6 +227,7 @@ function App() {
     setShowForm(false);
   };
 
+  // Show the form to add a new task
   const handleAddTaskClick = () => {
     setTask({
       title: '',
@@ -223,6 +242,7 @@ function App() {
     setShowForm(true);
   };
 
+  // Handle clicks outside the form to close it if empty
   const handleClickOutside = (e) => {
     if (formRef.current && !formRef.current.contains(e.target) && !task.title.trim() && !task.description.trim()) {
       if (!e.target.closest('.mode-toggle')) {
@@ -236,6 +256,7 @@ function App() {
     }
   };
 
+  // Handle date and time input changes with validation
   const handleDateTimeChange = (e) => {
     const { name, value } = e.target;
     setTask((prevTask) => {
@@ -275,6 +296,7 @@ function App() {
     e.target.dataset.blurTimeout = timeoutId;
   };
 
+  // Cleanup for date input blur timeouts
   useEffect(() => {
     return () => {
       const createdInput = document.getElementById('createdDate');
@@ -284,6 +306,7 @@ function App() {
     };
   }, []);
 
+  // Update duration when editing task dates change
   useEffect(() => {
     if (editingTaskId && editingTaskData.createdDate && editingTaskData.completionDate) {
       const newDuration = calculateDurationInDays(editingTaskData.createdDate, editingTaskData.completionDate);
@@ -293,6 +316,7 @@ function App() {
     }
   }, [editingTaskData.createdDate, editingTaskData.completionDate, editingTaskId]);
 
+  // Change the parent task of a task with validation
   const handleParentChange = (e, taskId) => {
     const newParentId = e.target.value || null;
     if (isDescendant(newParentId, taskId, tasks)) {
@@ -302,13 +326,16 @@ function App() {
     setTasks((prev) => prev.map((t) => (t.id === taskId ? { ...t, parentTaskId: newParentId } : t)));
   };
 
+  // Toggle the expanded state of a task with subtasks
   const toggleExpand = (taskId) => setExpandedTasks((prev) => ({ ...prev, [taskId]: !prev[taskId] }));
 
+  // Handle row click to start editing a task
   const handleRowClick = (taskId, e) => {
     if (e.target.tagName.toLowerCase() === 'input' || e.target.tagName.toLowerCase() === 'select') return;
     if (editingTaskId !== taskId) handleEditTask(taskId);
   };
 
+  // Create falling leaf animation effect
   useEffect(() => {
     const numLeaves = 20;
     const leafContainer = document.getElementById('falling-leaf-container');
@@ -322,6 +349,7 @@ function App() {
     }
   }, []);
 
+  // Handle input changes during task editing with validation
   const handleEditInputChange = (e) => {
     const { name, value } = e.target;
 
@@ -368,11 +396,13 @@ function App() {
     }
   };
 
+  // Handle right-click to show context menu
   const handleRowRightClick = (e, taskId) => {
     e.preventDefault();
     setContextMenu({ visible: true, taskId, x: e.clientX, y: e.clientY });
   };
 
+  // Recursively render tasks and their subtasks
   const renderTasks = (tasks, parentId = null, level = 0) =>
     tasks.filter((t) => t.parentTaskId === parentId).map((task) => {
       const hasSubtasks = tasks.some((t) => t.parentTaskId === task.id);
@@ -444,9 +474,10 @@ function App() {
       );
     });
 
+  // Render the table body with tasks
   const renderTableBody = () => <tbody>{renderTasks(tasks)}</tbody>;
 
-  // Dark mode toggle effect
+  // Apply dark mode and persist in localStorage
   useEffect(() => {
     if (darkMode) {
       document.body.classList.add('dark-mode');
@@ -455,20 +486,22 @@ function App() {
       document.body.classList.remove('dark-mode');
       localStorage.setItem('darkMode', 'false');
     }
-    // Remove direct background manipulation from body
   }, [darkMode]);
 
+  // Add event listener for click-outside detection
   useEffect(() => {
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, [showForm, task]);
 
+  // Update task duration when created/completion dates change
   useEffect(() => {
     if (task.createdDate && task.completionDate) {
       setTask((prev) => ({ ...prev, duration: calculateDurationInDays(prev.createdDate, task.completionDate) }));
     }
   }, [task.createdDate, task.completionDate]);
 
+  // Render the main UI
   return (
     <div className="App">
       <div className={`wallpaper ${darkMode ? 'dark-mode' : ''}`}></div>
