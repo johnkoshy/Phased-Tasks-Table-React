@@ -141,8 +141,22 @@ function App() {
   // Add a subtask by setting the parent task ID and showing the form
   const handleAddSubtask = () => {
     if (contextMenu.taskId) {
-      setTask((prev) => ({ ...prev, parentTaskId: contextMenu.taskId }));
+      setTask({
+        title: '',
+        description: '',
+        assignedTo: '',
+        duration: '',
+        completionDate: '',
+        createdDate: '',
+        parentTaskId: contextMenu.taskId // Set the parent task ID from context menu
+      });
+      setDueDateError('');
       setShowForm(true);
+      setTimeout(() => {
+        if (taskTitleRef.current) {
+          taskTitleRef.current.focus();
+        }
+      }, 0); // Ensure DOM is updated before focusing
     }
     setContextMenu({ visible: false, taskId: null, x: 0, y: 0 });
   };
@@ -265,6 +279,28 @@ function App() {
       }
     }, 0); // Timeout ensures the DOM is updated
   };
+
+  // Recursively delete a task and its subtasks
+const handleDeleteTask = (taskId, e) => {
+  e.stopPropagation(); // Prevent the row's onClick from firing
+  const deleteTaskAndSubtasks = (id) => {
+    // Find all subtasks of the current task
+    const subtasks = tasks.filter((t) => t.parentTaskId === id);
+    // Recursively delete each subtask
+    subtasks.forEach((subtask) => deleteTaskAndSubtasks(subtask.id));
+    // Remove the task itself
+    setTasks((prevTasks) => prevTasks.filter((t) => t.id !== id));
+  };
+
+  if (window.confirm('Are you sure you want to delete this task and its subtasks?')) {
+    deleteTaskAndSubtasks(taskId);
+    // If the deleted task was being edited, clear the editing state
+    if (editingTaskId === taskId) {
+      setEditingTaskId(null);
+      setEditingTaskData({});
+    }
+  }
+};
 
   // Handle clicks outside the form to close it if empty
   const handleClickOutside = (e) => {
@@ -486,12 +522,16 @@ function App() {
                 </select>
               </>
             ) : 'Main Task'}</td>
-            {isEditing && (
-              <td>
-                <button onClick={() => handleSaveTask(task.id)}>Save</button>
-                <button onClick={handleCancelEdit}>Cancel</button>
-              </td>
-            )}
+            <td>
+              {isEditing ? (
+                <>
+                  <button onClick={() => handleSaveTask(task.id)}>Save</button>
+                  <button onClick={handleCancelEdit}>Cancel</button>
+                </>
+              ) : (
+                <button onClick={(e) => handleDeleteTask(task.id, e)} style={{ color: 'red' }}>Delete</button>
+              )}
+            </td>
           </tr>
           {isExpanded && renderTasks(tasks, task.id, level + 1)}
         </React.Fragment>
@@ -556,7 +596,8 @@ function App() {
                     <th>Created On</th>
                     <th>Due By</th>
                     <th>Parent Task</th>
-                    {editingTaskId !== null && <th>Actions</th>}
+                    <th>Actions</th>
+                    
                   </tr>
                 </thead>
                 {renderTableBody()}
