@@ -15,7 +15,7 @@ function App() {
   const [dueDateError, setDueDateError] = useState(''); // Error message for invalid dates
   const [contextMenu, setContextMenu] = useState({ visible: false, taskId: null, x: 0, y: 0 }); // Context menu state for right-click actions
   const [showAssigneeSuggestions, setShowAssigneeSuggestions] = useState(false); // Toggle for assignee suggestions dropdown
-  const [darkMode, setDarkMode] = useState(() => localStorage.getItem('darkMode') === 'true'); // Dark mode state, persisted in localStorage
+  const [darkMode, setDarkMode] = useState(false); // Always start in light mode
   const [isCursorActive, setIsCursorActive] = useState(true); // Track cursor activity for animations
   const formRef = useRef(null); // Reference to the task form for click-outside detection
 
