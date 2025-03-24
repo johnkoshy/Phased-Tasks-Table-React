@@ -18,6 +18,7 @@ function App() {
   const [darkMode, setDarkMode] = useState(false); // Always start in light mode
   const [isCursorActive, setIsCursorActive] = useState(true); // Track cursor activity for animations
   const formRef = useRef(null); // Reference to the task form for click-outside detection
+  const taskTitleRef = useRef(null); // Reference for focus on the "Task Title" input field
 
   // Effect to detect cursor activity for animations
   useEffect(() => {
@@ -257,6 +258,12 @@ function App() {
     });
     setDueDateError('');
     setShowForm(true);
+    // Focus the Task Title input after the form is shown
+    setTimeout(() => {
+      if (taskTitleRef.current) {
+        taskTitleRef.current.focus();
+      }
+    }, 0); // Timeout ensures the DOM is updated
   };
 
   // Handle clicks outside the form to close it if empty
@@ -565,7 +572,7 @@ function App() {
                 <form onSubmit={handleSubmit} className="task-form" ref={formRef}>
                   <div className="form-group">
                     <label>Task Title:</label>
-                    <input type="text" name="title" placeholder="Task Title" value={task.title} onChange={handleChange} required />
+                    <input type="text" name="title" placeholder="Task Title" value={task.title} onChange={handleChange} required ref={taskTitleRef} />
                   </div>
                   <div className="form-group">
                     <label>Task Description:</label>
