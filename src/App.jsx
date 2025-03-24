@@ -178,7 +178,24 @@ function App() {
   // Submit the form to add a new task
   const handleSubmit = (e) => {
     e.preventDefault();
-    if (!task.title.trim() || !task.description.trim()) return;
+
+    // Check if required fields are filled
+    if (!task.title.trim() || !task.description.trim()) {
+      alert('Please fill in Task Title and Description.');
+      return;
+    }
+    if (!task.assignedTo.trim()) {
+      alert('Please select an assignee for the task.');
+      return;
+    }
+    if (!task.createdDate) {
+      alert('Please specify the Created On date and time.');
+      return;
+    }
+    if (!task.completionDate) {
+      alert('Please specify the Due By date and time.');
+      return;
+    }
 
     const currentDate = new Date();
     const createdDate = new Date(task.createdDate);
