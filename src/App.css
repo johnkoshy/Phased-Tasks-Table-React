@@ -3,482 +3,725 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Styles for task items with a glass effect */
+/* Glass effect for task items */
 .task-item {
-  background: rgba(255, 255, 255, 0.15); /* Semi-transparent white background */
-  backdrop-filter: blur(12px); /* Blur effect for glass-like appearance */
-  border-radius: 12px; /* Rounded corners */
-  border: 1px solid rgba(255, 255, 255, 0.3); /* Subtle border */
-  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15); /* Soft shadow for depth */
-  padding: 8px; /* Inner spacing */
-  margin: 4px 0; /* Vertical spacing between items */
-  transition: transform 0.3s ease, box-shadow 0.3s ease, background 0.3s ease, backdrop-filter 0.3s ease; /* Smooth transitions for hover effects */
-  position: relative; /* For z-index stacking */
-  z-index: 1; /* Base stacking level */
-  height: 48px; /* Fixed height for consistency */
-  display: table-row; /* Table row display for table layout */
+  background: rgba(255, 255, 255, 0.15);
+  /* Semi-transparent white for glass effect */
+  backdrop-filter: blur(12px);
+  /* Blur for glass-like appearance */
+  border-radius: 12px;
+  /* Rounded corners */
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  /* Subtle border */
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+  /* Soft shadow for depth */
+  padding: 8px;
+  /* Inner spacing */
+  margin: 4px 0;
+  /* Vertical spacing */
+  transition: transform 0.3s ease, box-shadow 0.3s ease, background 0.3s ease, backdrop-filter 0.3s ease;
+  /* Smooth hover transitions */
+  position: relative;
+  /* For z-index stacking */
+  z-index: 1;
+  /* Base stacking level */
+  height: 48px;
+  /* Fixed height */
+  display: table-row;
+  /* Table row layout */
 }
 
-/* Add Task button styles in dark mode */
+/* Add Task button in dark mode */
 .dark-mode .add-task-btn {
-  background-color: #007bff; /* Blue background for the button */
-  color: #ffffff; /* White text */
-  border: 1px solid #0056b3; /* Darker border for contrast */
+  background-color: #007bff;
+  /* Blue background */
+  color: #ffffff;
+  /* White text */
+  border: 1px solid #0056b3;
+  /* Darker border */
 }
 
 /* Hover effect for Add Task button in dark mode */
 .dark-mode .add-task-btn:hover {
-  background-color: #0056b3; /* Darker blue on hover */
+  background-color: #0056b3;
+  /* Darker blue on hover */
 }
 
-/* Animation for floating effect when cursor is inactive */
+/* Wave animation for floating effect */
 @keyframes wave {
+
   0%,
   100% {
-    transform: translateY(0); /* Start and end position */
+    transform: translateY(0);
+    /* Start/end position */
   }
+
   50% {
-    transform: translateY(-5px); /* Peak of the wave */
+    transform: translateY(-5px);
+    /* Peak position */
   }
 }
 
-/* Apply wave animation to task items when cursor is inactive */
+/* Apply wave animation when cursor is inactive */
 .no-cursor .task-item {
-  animation: wave 3s ease-in-out infinite; /* Continuous wave animation */
+  animation: wave 3s ease-in-out infinite;
+  /* Continuous wave effect */
 }
 
 /* Hover effect for task items when cursor is active */
 .cursor-active .task-item:hover {
-  transform: scale(1.02) translateY(-5px); /* Slight scale and lift */
-  box-shadow: 0 12px 20px rgba(0, 0, 0, 0.25); /* Deeper shadow for depth */
-  background: rgba(255, 255, 255, 0.25); /* Slightly more opaque background */
-  animation: none; /* Disable wave animation on hover */
-  z-index: 2; /* Bring to front */
-  backdrop-filter: none; /* Remove blur on hover */
+  transform: scale(1.02) translateY(-5px);
+  /* Scale and lift */
+  box-shadow: 0 12px 20px rgba(0, 0, 0, 0.25);
+  /* Deeper shadow */
+  background: rgba(255, 255, 255, 0.25);
+  /* More opaque background */
+  animation: none;
+  /* Disable wave on hover */
+  z-index: 2;
+  /* Bring to front */
+  backdrop-filter: none;
+  /* Remove blur */
 }
 
-/* Dark mode styles for task items */
+/* Dark mode adjustments for task items */
 .dark-mode .task-item {
-  background: rgba(50, 50, 50, 0.2); /* Darker semi-transparent background */
-  border: 1px solid rgba(255, 255, 255, 0.1); /* Subtle white border */
-  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3); /* Darker shadow */
+  background: rgba(50, 50, 50, 0.2);
+  /* Darker semi-transparent background */
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  /* Subtle white border */
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
+  /* Darker shadow */
 }
 
-/* Hover effect for task items in dark mode when cursor is active */
+/* Hover effect for task items in dark mode with active cursor */
 .dark-mode .cursor-active .task-item:hover {
-  background: rgba(80, 80, 80, 0.3); /* Slightly lighter background */
-  box-shadow: 0 12px 20px rgba(0, 0, 0, 0.4); /* Deeper shadow */
-  backdrop-filter: none; /* Remove blur on hover */
+  background: rgba(80, 80, 80, 0.3);
+  /* Lighter background */
+  box-shadow: 0 12px 20px rgba(0, 0, 0, 0.4);
+  /* Deeper shadow */
+  backdrop-filter: none;
+  /* Remove blur */
 }
 
-/* Styles for inputs, selects, and textareas within task items */
+/* Input, select, and textarea styles in task items */
 .task-item input,
 .task-item select,
 .task-item textarea {
-  background: rgba(255, 255, 255, 0.9); /* Near-opaque white background */
-  border: 1px solid rgba(255, 255, 255, 0.5); /* Subtle border */
-  border-radius: 4px; /* Rounded corners */
-  padding: 4px; /* Inner spacing */
-  color: #333; /* Dark text color */
-  width: 100%; /* Full width */
-  box-sizing: border-box; /* Include padding in width */
-  position: relative; /* For z-index stacking */
-  z-index: 3; /* Above task item */
-  backdrop-filter: none; /* No blur effect */
-  height: 32px; /* Fixed height */
-  font-size: 14px; /* Readable font size */
+  background: rgba(255, 255, 255, 0.9);
+  /* Near-opaque white */
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  /* Subtle border */
+  border-radius: 4px;
+  /* Rounded corners */
+  padding: 4px;
+  /* Inner spacing */
+  color: #333;
+  /* Dark text */
+  width: 100%;
+  /* Full width */
+  box-sizing: border-box;
+  /* Include padding in width */
+  position: relative;
+  /* For stacking */
+  z-index: 3;
+  /* Above task item */
+  backdrop-filter: none;
+  /* No blur */
+  height: 32px;
+  /* Fixed height */
+  font-size: 14px;
+  /* Readable size */
 }
 
 /* Dark mode styles for inputs, selects, and textareas in task items */
 .dark-mode .task-item input,
 .dark-mode .task-item select,
 .dark-mode .task-item textarea {
-  background: rgba(40, 40, 40, 0.9); /* Dark background */
-  border: 1px solid rgba(255, 255, 255, 0.3); /* Subtle white border */
-  color: #fff; /* White text */
-  backdrop-filter: none; /* No blur effect */
+  background: rgba(40, 40, 40, 0.9);
+  /* Dark background */
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  /* Subtle white border */
+  color: #fff;
+  /* White text */
+  backdrop-filter: none;
+  /* No blur */
 }
 
-/* Styles for disabled number inputs in task items */
+/* Disabled number input styles in task items */
 .task-item input[type="number"]:disabled {
-  background: rgba(200, 200, 200, 0.7); /* Grayed-out background */
-  color: #666; /* Muted text color */
+  background: rgba(200, 200, 200, 0.7);
+  /* Grayed-out background */
+  color: #666;
+  /* Muted text */
 }
 
 /* Dark mode styles for disabled number inputs in task items */
 .dark-mode .task-item input[type="number"]:disabled {
-  background: rgba(80, 80, 80, 0.7); /* Darker gray background */
-  color: #ccc; /* Light gray text */
+  background: rgba(80, 80, 80, 0.7);
+  /* Darker gray */
+  color: #ccc;
+  /* Light gray text */
 }
 
-/* Styles for the expand/collapse arrow in task titles */
+/* Expand/collapse arrow in task titles */
 .task-title span {
-  display: inline-block; /* Inline-block for proper spacing */
-  width: 16px; /* Fixed width for arrow */
-  text-align: center; /* Center the arrow */
-  position: relative; /* For z-index stacking */
-  z-index: 3; /* Above task item */
-  transition: transform 0.3s ease; /* Smooth transform transition */
-  line-height: 32px; /* Vertically center the arrow */
+  display: inline-block;
+  /* Inline-block for spacing */
+  width: 16px;
+  /* Fixed width */
+  text-align: center;
+  /* Center arrow */
+  position: relative;
+  /* For stacking */
+  z-index: 3;
+  /* Above task item */
+  transition: transform 0.3s ease;
+  /* Smooth transition */
+  line-height: 32px;
+  /* Vertical centering */
 }
 
-/* Prevent transform on expand/collapse arrow when task item is hovered */
+/* Prevent arrow transform on task item hover */
 .cursor-active .task-item:hover .task-title span {
-  transform: none; /* No transform on hover */
+  transform: none;
+  /* No transform */
 }
 
-/* Styles for the table wrapper to enable scrolling */
+/* Table wrapper for scrolling */
 .table-wrapper {
-  max-height: 400px; /* Limit height for vertical scrolling */
-  overflow-y: auto; /* Enable vertical scrolling */
-  overflow-x: auto; /* Enable horizontal scrolling */
-  border: none; /* No border */
-  border-radius: 10px; /* Rounded corners */
-  background: transparent; /* Transparent background */
-  padding: 0; /* No padding */
-  box-shadow: none; /* No shadow */
-  width: 100%; /* Full width */
-  position: relative; /* For positioning context */
+  max-height: 400px;
+  /* Height limit for vertical scroll */
+  overflow-y: auto;
+  /* Vertical scrolling */
+  overflow-x: auto;
+  /* Horizontal scrolling */
+  border: none;
+  /* No border */
+  border-radius: 10px;
+  /* Rounded corners */
+  background: transparent;
+  /* Transparent background */
+  padding: 0;
+  /* No padding */
+  box-shadow: none;
+  /* No shadow */
+  width: 100%;
+  /* Full width */
+  position: relative;
+  /* For positioning */
 }
 
-/* Styles for the table inside the wrapper */
+/* Table styles inside wrapper */
 .table-wrapper table {
-  width: 100%; /* Full width */
-  max-width: 1200px; /* Maximum width for larger screens */
-  border-collapse: separate; /* Separate borders for spacing */
-  border-spacing: 0 4px; /* Vertical spacing between rows */
+  width: 100%;
+  /* Full width */
+  max-width: none;
+  /* No max width constraint */
+  border-collapse: separate;
+  /* Separate borders */
+  border-spacing: 0 4px;
+  /* Vertical row spacing */
+  table-layout: fixed;
+  /* Fixed layout for consistent columns */
 }
 
-/* Styles for table headers and cells */
+/* Table headers and cells */
 .table-wrapper th,
 .table-wrapper td {
-  border: none; /* No border */
-  padding: 8px; /* Inner spacing */
-  text-align: left; /* Left-align text */
-  position: relative; /* For positioning context */
-  vertical-align: middle; /* Center content vertically */
-  height: 48px; /* Fixed height */
-  font-size: 14px; /* Readable font size */
-  min-width: 150px; /* Minimum width for columns */
-  box-sizing: border-box; /* Include padding in width */
+  border: none;
+  /* No border */
+  padding: 8px;
+  /* Inner spacing */
+  text-align: left;
+  /* Left-aligned text */
+  position: relative;
+  /* For positioning */
+  vertical-align: middle;
+  /* Vertical centering */
+  height: 48px;
+  /* Fixed height */
+  font-size: 14px;
+  /* Readable size */
+  min-width: 150px;
+  /* Minimum column width */
+  box-sizing: border-box;
+  /* Include padding in width */
 }
 
 /* Enable text wrapping in table cells */
 .table-wrapper td {
-  white-space: normal; /* Allow text to wrap */
-  word-wrap: break-word; /* Break long words */
-  overflow-wrap: break-word; /* Modern alternative to word-wrap */
+  white-space: normal;
+  /* Allow wrapping */
+  word-wrap: break-word;
+  /* Break long words */
+  overflow-wrap: break-word;
+  /* Modern word-wrap */
 }
 
-/* Limit the width of the description column */
+/* Limit description column width */
 .table-wrapper td:nth-child(2) {
-  max-width: 200px; /* Maximum width for description */
+  max-width: 200px;
+  /* Max width for description */
 }
 
-/* Prevent horizontal scrolling on the entire page */
+/* Prevent horizontal page scrolling */
 html,
 body {
-  overflow-x: hidden; /* Disable horizontal overflow */
+  overflow-x: hidden;
+  /* Disable horizontal overflow */
 }
 
-/* Styles for the table header to make it sticky */
+/* Sticky table header */
 .table-wrapper thead {
-  position: sticky; /* Stick to the top when scrolling */
-  top: 0; /* Stick at the top */
-  background: linear-gradient(to bottom, #007bff, #0056b3); /* Blue gradient background */
-  color: white; /* White text */
-  z-index: 3; /* Above table content */
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2); /* Subtle shadow */
+  position: sticky;
+  /* Stick to top */
+  top: 0;
+  /* Top position */
+  background: linear-gradient(to bottom, #007bff, #0056b3);
+  /* Blue gradient */
+  color: white;
+  /* White text */
+  z-index: 3;
+  /* Above table content */
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  /* Subtle shadow */
 }
 
-/* Styles for the table header container with glass effect */
+/* Glass effect for table header */
 .table-header {
-  background: rgba(255, 255, 255, 0.15); /* Semi-transparent white background */
-  backdrop-filter: blur(12px); /* Blur for glass effect */
-  border: 1px solid rgba(255, 255, 255, 0.3); /* Subtle border */
-  border-radius: 12px 12px 0 0; /* Rounded top corners */
-  padding: 10px; /* Inner spacing */
-  margin-bottom: -1px; /* Align with table */
-  text-align: center; /* Center text */
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15); /* Soft shadow */
-  position: relative; /* For z-index stacking */
-  z-index: 5; /* Above table content */
-  min-height: 50px; /* Ensure space for text */
+  background: rgba(255, 255, 255, 0.15);
+  /* Semi-transparent white */
+  backdrop-filter: blur(12px);
+  /* Blur effect */
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  /* Subtle border */
+  border-radius: 12px 12px 0 0;
+  /* Rounded top corners */
+  padding: 10px;
+  /* Inner spacing */
+  margin-bottom: -1px;
+  /* Align with table */
+  text-align: center;
+  /* Center text */
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+  /* Soft shadow */
+  position: relative;
+  /* For stacking */
+  z-index: 5;
+  /* Above table */
+  min-height: 50px;
+  /* Minimum height */
 }
 
-/* Dark mode styles for the table header */
+/* Dark mode table header */
 .dark-mode .table-header {
-  background: rgba(50, 50, 50, 0.25); /* Darker semi-transparent background */
-  border: 1px solid rgba(255, 255, 255, 0.1); /* Subtle white border */
+  background: rgba(50, 50, 50, 0.25);
+  /* Darker background */
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  /* Subtle white border */
 }
 
-/* Styles for table header text */
+/* Table header text */
 .table-header h4,
 .table-header h5 {
-  margin: 5px 0; /* Vertical spacing */
-  color: #333; /* Dark text color */
-  text-shadow: 0 0 4px rgba(255, 255, 255, 0.8); /* Subtle white glow for contrast */
-  font-weight: 600; /* Slightly bolder text */
+  margin: 5px 0;
+  /* Vertical spacing */
+  color: #333;
+  /* Dark text */
+  text-shadow: 0 0 4px rgba(255, 255, 255, 0.8);
+  /* White glow */
+  font-weight: 600;
+  /* Bold text */
 }
 
-/* Dark mode styles for table header text */
+/* Dark mode table header text */
 .dark-mode .table-header h4,
 .dark-mode .table-header h5 {
-  color: #fff; /* White text */
-  text-shadow: 0 0 4px rgba(0, 0, 0, 0.8); /* Dark glow for contrast */
+  color: #fff;
+  /* White text */
+  text-shadow: 0 0 4px rgba(0, 0, 0, 0.8);
+  /* Dark glow */
 }
 
-/* Main app container styles */
+/* Main app container */
 .App {
-  position: relative; /* For positioning children */
-  overflow: hidden; /* Prevent overflow */
-  min-height: 100vh; /* Full viewport height */
+  position: relative;
+  /* For child positioning */
+  overflow: hidden;
+  /* Prevent overflow */
+  min-height: 100vh;
+  /* Full viewport height */
 }
 
-/* Background wallpaper styles with floating animation */
+/* Background wallpaper with animation */
 .wallpaper {
-  position: fixed; /* Fixed position for background */
-  top: 0; /* Align to top */
-  left: 0; /* Align to left */
-  width: 100%; /* Full width */
-  height: calc(100% + 15px); /* Extra height for animation */
-  background: url('/wallpaper.jpg') no-repeat center center fixed; /* Background image */
-  background-size: cover; /* Cover the entire area */
-  z-index: -2; /* Behind all content */
-  transition: filter 0.3s ease; /* Smooth brightness transition */
-  animation: floatingBackground 15s ease-in-out infinite; /* Floating animation */
+  position: fixed;
+  /* Fixed background */
+  top: 0;
+  /* Top aligned */
+  left: 0;
+  /* Left aligned */
+  width: 100%;
+  /* Full width */
+  height: calc(100% + 15px);
+  /* Extra height for animation */
+  background: url('/wallpaper.jpg') no-repeat center center fixed;
+  /* Wallpaper image */
+  background-size: cover;
+  /* Cover full area */
+  z-index: -2;
+  /* Behind content */
+  transition: filter 0.3s ease;
+  /* Smooth brightness transition */
+  animation: floatingBackground 15s ease-in-out infinite;
+  /* Floating effect */
 }
 
-/* Dark mode filter for wallpaper */
+/* Dark mode wallpaper adjustment */
 .wallpaper.dark-mode {
-  filter: brightness(0.5); /* Reduce brightness in dark mode */
+  filter: brightness(0.5);
+  /* Dimmed brightness */
 }
 
-/* Animation for floating background effect */
+/* Floating background animation */
 @keyframes floatingBackground {
+
   0%,
   100% {
-    transform: translateY(0); /* Start and end position */
+    transform: translateY(0);
+    /* Start/end position */
   }
+
   50% {
-    transform: translateY(-15px); /* Peak of the float */
+    transform: translateY(-15px);
+    /* Peak position */
   }
 }
 
-/* Overlay gradient for the app background */
+/* Gradient overlay for app background */
 .App::before {
-  content: ''; /* Empty content for pseudo-element */
-  position: absolute; /* Absolute positioning */
-  top: 0; /* Align to top */
-  left: 0; /* Align to left */
-  width: 100%; /* Full width */
-  height: 100%; /* Full height */
-  background: linear-gradient(45deg, rgba(106, 17, 203, 0.1), rgba(37, 117, 252, 0.1)); /* Subtle gradient overlay */
-  z-index: -1; /* Behind content but above wallpaper */
-  animation: floatingBackground 15s ease-in-out infinite; /* Floating animation */
+  content: '';
+  /* Empty pseudo-element */
+  position: absolute;
+  /* Absolute positioning */
+  top: 0;
+  /* Top aligned */
+  left: 0;
+  /* Left aligned */
+  width: 100%;
+  /* Full width */
+  height: 100%;
+  /* Full height */
+  background: linear-gradient(45deg, rgba(106, 17, 203, 0.1), rgba(37, 117, 252, 0.1));
+  /* Subtle gradient */
+  z-index: -1;
+  /* Behind content */
+  animation: floatingBackground 15s ease-in-out infinite;
+  /* Floating effect */
 }
 
-/* Styles for the table container */
+/* Table container layout */
 .table-container {
-  max-width: 1300px; /* Maximum width for larger screens */
-  margin-left: 45px; /* Left margin for spacing */
-  padding: 20px; /* Inner spacing */
-  width: calc(100% - 70px); /* Adjust width for margins */
-  margin-top: 10px; /* Space above the table */
-  position: relative; /* For positioning children */
+  max-width: 1300px;
+  /* Max width for large screens */
+  margin-left: 45px;
+  /* Left spacing */
+  margin-right: 45px;
+  /* Right spacing */
+  padding: 20px;
+  /* Inner padding */
+  width: calc(100% - 90px);
+  /* Adjusted width */
+  margin-top: 10px;
+  /* Top spacing */
+  position: relative;
+  /* For child positioning */
+  overflow-x: hidden;
+  /* Prevent horizontal overflow */
 }
 
 /* Spacing for no-tasks message */
 .table-container p {
-  margin-top: 20px; /* Space below header */
+  margin-top: 20px;
+  /* Space below header */
 }
 
-/* Enhanced table header styles for better readability */
+/* Enhanced table header in container */
 .table-container .table-header {
-  background: rgba(255, 255, 255, 0.25); /* Slightly more opaque background */
-  backdrop-filter: blur(12px); /* Blur for glass effect */
-  border: 1px solid rgba(255, 255, 255, 0.3); /* Subtle border */
-  border-radius: 12px 12px 0 0; /* Rounded top corners */
-  padding: 10px; /* Inner spacing */
-  margin-bottom: -1px; /* Align with table */
-  text-align: center; /* Center text */
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15); /* Soft shadow */
-  position: relative; /* For z-index stacking */
-  z-index: 5; /* Above table content */
-  min-height: 50px; /* Ensure space for text */
+  background: rgba(255, 255, 255, 0.25);
+  /* More opaque background */
+  backdrop-filter: blur(12px);
+  /* Blur effect */
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  /* Subtle border */
+  border-radius: 12px 12px 0 0;
+  /* Rounded top corners */
+  padding: 10px;
+  /* Inner spacing */
+  margin-bottom: -1px;
+  /* Align with table */
+  text-align: center;
+  /* Center text */
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+  /* Soft shadow */
+  position: relative;
+  /* For stacking */
+  z-index: 5;
+  /* Above table */
+  min-height: 50px;
+  /* Minimum height */
 }
 
-/* Styles for table header text in the container */
+/* Table header text in container */
 .table-container .table-header h4,
 .table-container .table-header h5 {
-  margin: 5px 0; /* Vertical spacing */
-  color: #333; /* Dark text color */
-  text-shadow: 0 0 6px rgba(255, 255, 255, 1), 0 0 3px rgba(255, 255, 255, 0.8); /* Strong white glow for contrast */
-  font-weight: 700; /* Bolder text */
+  margin: 5px 0;
+  /* Vertical spacing */
+  color: #333;
+  /* Dark text */
+  text-shadow: 0 0 6px rgba(255, 255, 255, 1), 0 0 3px rgba(255, 255, 255, 0.8);
+  /* Strong white glow */
+  font-weight: 700;
+  /* Bolder text */
 }
 
-/* Dark mode styles for the table header in the container */
+/* Dark mode table header in container */
 .dark-mode .table-container .table-header {
-  background: rgba(50, 50, 50, 0.35); /* Slightly more opaque background */
-  border: 1px solid rgba(255, 255, 255, 0.1); /* Subtle white border */
+  background: rgba(50, 50, 50, 0.35);
+  /* More opaque background */
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  /* Subtle white border */
 }
 
-/* Dark mode styles for table header text in the container */
+/* Dark mode table header text in container */
 .dark-mode .table-container .table-header h4,
 .dark-mode .table-container .table-header h5 {
-  color: #fff; /* White text */
-  text-shadow: 0 0 6px rgba(0, 0, 0, 1), 0 0 3px rgba(0, 0, 0, 0.8); /* Strong dark glow for contrast */
+  color: #fff;
+  /* White text */
+  text-shadow: 0 0 6px rgba(0, 0, 0, 1), 0 0 3px rgba(0, 0, 0, 0.8);
+  /* Strong dark glow */
 }
 
-/* Styles for the mode toggle button */
+/* Mode toggle button in container */
 .table-container .mode-toggle {
-  z-index: 10; /* Above table header */
-  background: rgba(255, 255, 255, 0.2); /* Semi-transparent background */
-  backdrop-filter: blur(5px); /* Subtle blur effect */
-  border: 1px solid rgba(255, 255, 255, 0.3); /* Subtle border */
-  border-radius: 8px; /* Rounded corners */
-  position: absolute; /* Absolute positioning */
-  top: 2px !important; /* Position at the top */
-  right: 10px; /* Position on the right */
-  padding: 10px; /* Inner spacing */
-  color: #000000; /* Black text in light mode */
+  z-index: 10;
+  /* Above header */
+  background: rgba(255, 255, 255, 0.2);
+  /* Semi-transparent background */
+  backdrop-filter: blur(5px);
+  /* Subtle blur */
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  /* Subtle border */
+  border-radius: 8px;
+  /* Rounded corners */
+  position: absolute;
+  /* Absolute positioning */
+  top: 2px !important;
+  /* Top position */
+  right: 10px;
+  /* Right position */
+  padding: 10px;
+  /* Inner spacing */
+  color: #000000;
+  /* Black text */
 }
 
-/* Dark mode styles for the mode toggle button */
+/* Dark mode mode-toggle in container */
 .dark-mode .table-container .mode-toggle {
-  background: rgba(50, 50, 50, 0.3); /* Darker background */
-  color: #ffffff; /* White text */
+  background: rgba(50, 50, 50, 0.3);
+  /* Darker background */
+  color: #ffffff;
+  /* White text */
 }
 
-/* Ensure the Actions column has enough space */
+/* Ensure Actions column width */
 .table-wrapper th:last-child,
 .table-wrapper td:last-child {
-  min-width: 150px; /* Minimum width for the Actions column */
-  text-align: center; /* Center content */
+  min-width: 150px;
+  /* Minimum width */
+  text-align: center;
+  /* Center content */
 }
 
-/* Styles for buttons within task items */
+/* Buttons in task items */
 .task-item button {
-  padding: 6px 12px; /* Inner spacing */
-  margin: 2px; /* Spacing between buttons */
-  border: none; /* No border */
-  border-radius: 4px; /* Rounded corners */
-  background-color: #007bff; /* Blue background */
-  color: white; /* White text */
-  cursor: pointer; /* Pointer cursor on hover */
-  font-size: 14px; /* Readable font size */
+  padding: 6px 12px;
+  /* Inner spacing */
+  margin: 2px;
+  /* Spacing between buttons */
+  border: none;
+  /* No border */
+  border-radius: 4px;
+  /* Rounded corners */
+  background-color: #007bff;
+  /* Blue background */
+  color: white;
+  /* White text */
+  cursor: pointer;
+  /* Pointer cursor */
+  font-size: 14px;
+  /* Readable size */
 }
 
 /* Hover effect for buttons in task items */
 .task-item button:hover {
-  background-color: #0056b3; /* Darker blue on hover */
+  background-color: #0056b3;
+  /* Darker blue */
 }
 
-/* Styles for the add task container */
+/* Add task container positioning */
 .add-task-container {
-  position: fixed; /* Fixed position at the bottom */
-  bottom: 20px; /* Distance from the bottom */
-  left: 20px; /* Distance from the left */
-  z-index: 10; /* Above other content */
+  position: fixed;
+  /* Fixed at bottom */
+  bottom: 20px;
+  /* Bottom spacing */
+  left: 20px;
+  /* Left spacing */
+  z-index: 10;
+  /* Above content */
 }
 
-/* Styles for the task form container with glass effect */
+/* Glass effect for task form container */
 .task-form-container {
-  background: rgba(255, 255, 255, 0.1); /* Semi-transparent white background */
-  backdrop-filter: blur(10px); /* Blur for glass effect */
-  border: 1px solid rgba(255, 255, 255, 0.2); /* Subtle border */
-  border-radius: 12px; /* Rounded corners */
-  padding: 20px; /* Inner spacing */
-  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15); /* Soft shadow */
+  background: rgba(255, 255, 255, 0.1);
+  /* Semi-transparent white */
+  backdrop-filter: blur(10px);
+  /* Blur effect */
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  /* Subtle border */
+  border-radius: 12px;
+  /* Rounded corners */
+  padding: 20px;
+  /* Inner spacing */
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+  /* Soft shadow */
 }
 
-/* Dark mode styles for the task form container */
+/* Dark mode task form container */
 .dark-mode .task-form-container {
-  background: rgba(50, 50, 50, 0.2); /* Darker background */
-  border: 1px solid rgba(255, 255, 255, 0.1); /* Subtle white border */
+  background: rgba(50, 50, 50, 0.2);
+  /* Darker background */
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  /* Subtle white border */
 }
 
-/* Styles for inputs, textareas, and selects in the task form */
+/* Inputs, textareas, and selects in task form */
 .task-form-container input,
 .task-form-container textarea,
 .task-form-container select {
-  background: rgba(255, 255, 255, 0.9); /* Near-opaque white background */
-  border: 1px solid rgba(255, 255, 255, 0.5); /* Subtle border */
-  border-radius: 4px; /* Rounded corners */
-  padding: 6px; /* Inner spacing */
-  color: #333; /* Dark text color */
-  width: 100%; /* Full width */
-  box-sizing: border-box; /* Include padding in width */
+  background: rgba(255, 255, 255, 0.9);
+  /* Near-opaque white */
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  /* Subtle border */
+  border-radius: 4px;
+  /* Rounded corners */
+  padding: 6px;
+  /* Inner spacing */
+  color: #333;
+  /* Dark text */
+  width: 100%;
+  /* Full width */
+  box-sizing: border-box;
+  /* Include padding in width */
 }
 
-/* Styles for disabled number inputs in the task form */
+/* Disabled number inputs in task form */
 .task-form-container input[type="number"]:disabled {
-  background: rgba(200, 200, 200, 0.7); /* Grayed-out background */
-  color: #666; /* Muted text color */
+  background: rgba(200, 200, 200, 0.7);
+  /* Grayed-out background */
+  color: #666;
+  /* Muted text */
 }
 
-/* Dark mode styles for inputs, textareas, and selects in the task form */
+/* Dark mode inputs, textareas, and selects in task form */
 .dark-mode .task-form-container input,
 .dark-mode .task-form-container textarea,
 .dark-mode .task-form-container select {
-  background: rgba(40, 40, 40, 0.9); /* Dark background */
-  border: 1px solid rgba(255, 255, 255, 0.3); /* Subtle white border */
-  color: #fff; /* White text */
+  background: rgba(40, 40, 40, 0.9);
+  /* Dark background */
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  /* Subtle white border */
+  color: #fff;
+  /* White text */
 }
 
-/* Dark mode styles for disabled number inputs in the task form */
+/* Dark mode disabled number inputs in task form */
 .dark-mode .task-form-container input[type="number"]:disabled {
-  background: rgba(80, 80, 80, 0.7); /* Darker gray background */
-  color: #ccc; /* Light gray text */
+  background: rgba(80, 80, 80, 0.7);
+  /* Darker gray */
+  color: #ccc;
+  /* Light gray text */
 }
 
-/* General dark mode text color */
+/* Default dark mode text color */
 .dark-mode {
-  color: #ffffff; /* White text */
+  color: #ffffff;
+  /* White text */
 }
 
-/* Placeholder text styles in dark mode */
+/* Placeholder text in dark mode */
 .dark-mode ::placeholder {
-  color: #ffffff; /* White placeholder text */
-  opacity: 0.7; /* Slightly transparent for readability */
+  color: #ffffff;
+  /* White placeholder */
+  opacity: 0.7;
+  /* Slightly transparent */
 }
 
-/* Specific placeholder styles for task form inputs in dark mode */
+/* Specific placeholder styles in dark mode task form */
 .dark-mode input[name="title"]::placeholder,
 .dark-mode textarea[name="description"]::placeholder,
 .dark-mode input[name="assignedTo"]::placeholder {
-  color: #ffffff; /* White placeholder text */
-  opacity: 0.7; /* Slightly transparent for readability */
+  color: #ffffff;
+  /* White placeholder */
+  opacity: 0.7;
+  /* Slightly transparent */
 }
 
-/* Styles for the calendar picker icon in datetime inputs */
+/* Calendar picker icon in datetime inputs */
 .task-form-container input[type="datetime-local"]::-webkit-calendar-picker-indicator {
-  filter: invert(0.8); /* Adjust icon color for light mode */
-  cursor: pointer; /* Pointer cursor on hover */
-  padding: 4px; /* Spacing around the icon */
+  filter: invert(0.8);
+  /* Adjust for light mode */
+  cursor: pointer;
+  /* Pointer cursor */
+  padding: 4px;
+  /* Icon spacing */
 }
 
-/* Dark mode styles for the calendar picker icon */
+/* Dark mode calendar picker icon */
 .dark-mode .task-form-container input[type="datetime-local"]::-webkit-calendar-picker-indicator {
-  filter: invert(1); /* Invert icon color for dark mode */
+  filter: invert(1);
+  /* Invert for dark mode */
 }
 
-/* Styles for the mode toggle button (global) */
+/* Global mode toggle button */
 .mode-toggle {
-  z-index: 10; /* Above table header */
-  background: rgba(255, 255, 255, 0.2); /* Semi-transparent background */
-  backdrop-filter: blur(5px); /* Subtle blur effect */
-  border: 1px solid rgba(255, 255, 255, 0.3); /* Subtle border */
-  border-radius: 8px; /* Rounded corners */
-  position: absolute; /* Absolute positioning */
-  top: 5px; /* Position at the top */
-  right: 10px; /* Position on the right */
-  padding: 10px; /* Inner spacing */
-  color: #000000; /* Black text in light mode */
+  z-index: 10;
+  /* Above header */
+  background: rgba(255, 255, 255, 0.2);
+  /* Semi-transparent background */
+  backdrop-filter: blur(5px);
+  /* Subtle blur */
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  /* Subtle border */
+  border-radius: 8px;
+  /* Rounded corners */
+  position: absolute;
+  /* Absolute positioning */
+  top: 5px;
+  /* Top position */
+  right: 10px;
+  /* Right position */
+  padding: 10px;
+  /* Inner spacing */
+  color: #000000;
+  /* Black text */
 }
 
-/* Dark mode styles for the mode toggle button (global) */
+/* Dark mode global mode toggle button */
 .dark-mode .mode-toggle {
-  background: rgba(50, 50, 50, 0.3); /* Darker background */
-  color: #ffffff; /* White text */
+  background: rgba(50, 50, 50, 0.3);
+  /* Darker background */
+  color: #ffffff;
+  /* White text */
 }
