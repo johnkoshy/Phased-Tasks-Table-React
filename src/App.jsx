@@ -159,7 +159,7 @@ function App() {
       }, 0); // Ensure DOM is updated before focusing
     }
     setContextMenu({ visible: false, taskId: null, x: 0, y: 0 });
-  };
+  }
 
   // Close the context menu
   const handleCloseContextMenu = () => setContextMenu({ visible: false, taskId: null, x: 0, y: 0 });
@@ -389,12 +389,6 @@ const handleDeleteTask = (taskId, e) => {
   // Toggle the expanded state of a task with subtasks
   const toggleExpand = (taskId) => setExpandedTasks((prev) => ({ ...prev, [taskId]: !prev[taskId] }));
 
-  // Handle row click to start editing a task
-  const handleRowClick = (taskId, e) => {
-    if (e.target.tagName.toLowerCase() === 'input' || e.target.tagName.toLowerCase() === 'select') return;
-    if (editingTaskId !== taskId) handleEditTask(taskId);
-  };
-
   // Create falling leaf animation effect
   useEffect(() => {
     const numLeaves = 20;
@@ -470,7 +464,7 @@ const handleDeleteTask = (taskId, e) => {
       const isEditing = editingTaskId === task.id;
       return (
         <React.Fragment key={task.id}>
-          <tr className="task-item" onClick={(e) => handleRowClick(task.id, e)} onContextMenu={(e) => handleRowRightClick(e, task.id)}>
+          <tr className="task-item" onContextMenu={(e) => handleRowRightClick(e, task.id)}>
             <td className="task-title" style={{ paddingLeft: `${level * 20 + 20}px` }}>
               {hasSubtasks && (
                 <span onClick={(e) => { e.stopPropagation(); toggleExpand(task.id); }} style={{ cursor: 'pointer', marginRight: '8px' }}>
@@ -529,7 +523,10 @@ const handleDeleteTask = (taskId, e) => {
                   <button onClick={handleCancelEdit}>Cancel</button>
                 </>
               ) : (
-                <button onClick={(e) => handleDeleteTask(task.id, e)} style={{ color: 'red' }}>Delete</button>
+                <>
+                  <button onClick={() => handleEditTask(task.id)}>Edit</button>
+                  <button onClick={(e) => handleDeleteTask(task.id, e)} style={{ color: 'red' }}>Delete</button>
+                </>
               )}
             </td>
           </tr>
