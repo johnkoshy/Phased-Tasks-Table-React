@@ -1,6 +1,9 @@
 import React, { useState, useRef, useEffect } from 'react';
 import './App.css';
 import FooterClock from './components/FooterClock';
+import TaskGraph from './components/TaskGraph'; // Import TaskGraph
+import { ReactFlowProvider } from 'reactflow';
+import TaskForm from './components/TaskForm'; // Import the new component
 
 // Main App component for task management
 function App() {
@@ -19,6 +22,7 @@ function App() {
   const [isCursorActive, setIsCursorActive] = useState(true); // Track cursor activity for animations
   const formRef = useRef(null); // Reference to the task form for click-outside detection
   const taskTitleRef = useRef(null); // Reference for focus on the "Task Title" input field
+  const [view, setView] = useState('table'); // Add view state: 'table' or 'graph'
 
   // Effect to detect cursor activity for animations
   useEffect(() => {
@@ -261,6 +265,7 @@ function App() {
 
   // Show the form to add a new task
   const handleAddTaskClick = () => {
+    console.log('Add Task clicked, showForm before:', showForm); // Debug log
     setTask({
       title: '',
       description: '',
@@ -272,6 +277,7 @@ function App() {
     });
     setDueDateError('');
     setShowForm(true);
+    console.log('showForm after:', true); // Debug log
     // Focus the Task Title input after the form is shown
     setTimeout(() => {
       if (taskTitleRef.current) {
@@ -575,100 +581,102 @@ function App() {
           >
             {darkMode ? 'Light Mode' : 'Dark Mode'}
           </button>
+          <button
+            className="view-toggle"
+            onClick={() => {
+              console.log('Toggling view to:', view === 'table' ? 'graph' : 'table');
+              setView(view === 'table' ? 'graph' : 'table');
+            }}
+            style={{ 
+              position: 'absolute', 
+              top: '2px', 
+              right: '120px', 
+              padding: '10px', 
+              zIndex: 10 
+            }}
+          >
+            {view === 'table' ? 'Graph View' : 'Table View'}
+          </button>
         </div>
         <div className="table-container">
           <div className="table-header">
             <h4>PHASED TASKS TABLE</h4>
-            <h5>Task List</h5>
+            <h5>{view === 'table' ? 'Task List' : 'Dependency Graph'}</h5>
           </div>
-          {tasks.length > 0 ? (
-            <div className="table-wrapper">
-              <table>
-                <thead>
-                  <tr>
-                    <th>Task Title</th>
-                    <th>Description</th>
-                    <th>Assigned To</th>
-                    <th>Duration (Days)</th>
-                    <th>Created On</th>
-                    <th>Due By</th>
-                    <th>Parent Task</th>
-                    <th>Actions</th>
-
-                  </tr>
-                </thead>
-                {renderTableBody()}
-              </table>
+          {view === 'table' ? (
+            tasks.length > 0 ? (
+              <div className="table-wrapper">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Task Title</th>
+                      <th>Description</th>
+                      <th>Assigned To</th>
+                      <th>Duration (Days)</th>
+                      <th>Created On</th>
+                      <th>Due By</th>
+                      <th>Parent Task</th>
+                      <th>Actions</th>
+                    </tr>
+                  </thead>
+                  {renderTableBody()}
+                </table>
+              </div>
+            ) : (
+              <p className="no-tasks-message">No tasks available. Add your first task to get started!</p>
+            )
+          ) : (
+            <div className="graph-view-container">
+              {tasks.length > 0 ? (
+                <ReactFlowProvider>
+                  <TaskGraph 
+                    tasks={tasks}
+                    onNodeClick={(taskId) => {
+                      const task = tasks.find(t => t.id === taskId);
+                      if (task) handleEditTask(taskId);
+                    }}
+                  />
+                </ReactFlowProvider>
+              ) : (
+                <div className="empty-graph-message">
+                  <h3>No Tasks to Display</h3>
+                  <p>Add tasks to see the dependency graph</p>
+                  <button 
+                    className="add-first-task-btn"
+                    onClick={handleAddTaskClick}
+                  >
+                    Add First Task
+                  </button>
+                </div>
+              )}
             </div>
-          ) : <p>No tasks available.</p>}
+          )}
           <ContextMenu visible={contextMenu.visible} x={contextMenu.x} y={contextMenu.y} onAddSubtask={handleAddSubtask} onClose={handleCloseContextMenu} />
           <div className="add-task-container">
             {!showForm ? (
-              <button className="add-task-btn" onClick={handleAddTaskClick} style={{ backgroundColor: darkMode ? '#333' : '#f0f0f0' }}>Add Task</button>
+              <button 
+                className="add-task-btn" 
+                onClick={handleAddTaskClick} 
+                style={{ backgroundColor: darkMode ? '#333' : '#f0f0f0' }}
+              >
+                Add Task
+              </button>
             ) : (
-              <div className="task-form-container">
-                <form onSubmit={handleSubmit} className="task-form" ref={formRef}>
-                  <div className="form-group">
-                    <label>Task Title:</label>
-                    <input type="text" name="title" placeholder="Task Title" value={task.title} onChange={handleChange} required ref={taskTitleRef} />
-                  </div>
-                  <div className="form-group">
-                    <label>Task Description:</label>
-                    <textarea name="description" placeholder="Task Description" value={task.description} onChange={handleChange} required />
-                  </div>
-                  <div className="autocomplete">
-                    <label>Assigned To:</label>
-                    <input type="text" name="assignedTo" placeholder="Assigned To" value={task.assignedTo} onChange={handleChange} onFocus={handleAssignedToFocus} autoComplete="off" />
-                    {showAssigneeSuggestions && assigneeSuggestions.length > 0 && (
-                      <ul className="suggestions">
-                        {assigneeSuggestions.map((suggestion, index) => (
-                          <li key={index} onClick={() => handleSuggestionClick(suggestion)}>{suggestion}</li>
-                        ))}
-                      </ul>
-                    )}
-                  </div>
-                  <div className="form-group">
-                    <label>Duration (Days):</label>
-                    <input type="number" name="duration" placeholder="Duration (days)" value={task.duration || ''} disabled onChange={handleChange} />
-                  </div>
-                  <div className="form-group">
-                    <label>Created On:</label>
-                    <input
-                      type="datetime-local"
-                      id="createdDate"
-                      name="createdDate"
-                      value={task.createdDate}
-                      onChange={handleDateTimeChange}
-                      min={new Date().toISOString().slice(0, 16)}
-                      title="Date when the task was created."
-                    />
-                  </div>
-                  <div className="form-group">
-                    <label>Due By:</label>
-                    <input
-                      type="datetime-local"
-                      id="completionDate"
-                      name="completionDate"
-                      value={task.completionDate}
-                      onChange={handleDateTimeChange}
-                      min={task.createdDate || new Date().toISOString().slice(0, 16)}
-                      title="Estimated or actual completion date."
-                    />
-                    {dueDateError && <p style={{ color: 'red', fontSize: '0.9em' }}>{dueDateError}</p>}
-                  </div>
-                  <div className="form-group">
-                    <label>Parent Task:</label>
-                    <select name="parentTaskId" value={task.parentTaskId} onChange={handleChange}>
-                      <option value="">Main Task</option>
-                      {tasks.filter((t) => t.id !== task.id).map((t) => <option key={t.id} value={t.id}>{t.title}</option>)}
-                    </select>
-                  </div>
-                  <div className="form-buttons">
-                    <button type="submit" className="add-task-button">Add Task</button>
-                    <button type="button" className="clear-button" onClick={handleClearForm}>Clear</button>
-                  </div>
-                </form>
-              </div>
+              <TaskForm
+                task={task}
+                tasks={tasks}
+                onSubmit={handleSubmit}
+                onChange={handleChange}
+                onClear={handleClearForm}
+                onDateTimeChange={handleDateTimeChange}
+                onFocusAssignedTo={handleAssignedToFocus}
+                onSuggestionClick={handleSuggestionClick}
+                dueDateError={dueDateError}
+                showAssigneeSuggestions={showAssigneeSuggestions}
+                assigneeSuggestions={assigneeSuggestions}
+                formRef={formRef}
+                taskTitleRef={taskTitleRef}
+              />
             )}
           </div>
         </div>
