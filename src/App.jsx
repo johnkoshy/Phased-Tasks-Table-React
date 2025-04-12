@@ -8,7 +8,15 @@ import TaskForm from './components/TaskForm'; // Import the new component
 // Main App component for task management
 function App() {
   // State for managing tasks and form data
-  const [tasks, setTasks] = useState([]); // List of tasks
+  const [tasks, setTasks] = useState(() => {
+    try {
+      const savedTasks = localStorage.getItem('phased-tasks');
+      return savedTasks ? JSON.parse(savedTasks) : [];
+    } catch (error) {
+      console.error('Failed to load tasks from localStorage', error);
+      return [];
+    }
+  });
   const [task, setTask] = useState({ title: '', description: '', assignedTo: '', duration: '', completionDate: '', createdDate: '', parentTaskId: '', progress: 0 }); // Form data for new task
   const [showForm, setShowForm] = useState(false); // Toggle for showing/hiding the task form
   const [assigneeSuggestions, setAssigneeSuggestions] = useState([]); // Suggestions for assignee input
@@ -24,6 +32,12 @@ function App() {
   const taskTitleRef = useRef(null); // Reference for focus on the "Task Title" input field
   const [view, setView] = useState('table'); // Add view state: 'table' or 'graph'
 
+  useEffect(() => {
+    if (tasks.length > 0 || safeLocalStorage.getItem('phased-tasks') !== null) {
+      safeLocalStorage.setItem('phased-tasks', JSON.stringify(tasks));
+    }
+  }, [tasks]);
+  
   // Effect to detect cursor activity for animations
   useEffect(() => {
     let cursorTimeout;
@@ -41,6 +55,24 @@ function App() {
     };
   }, []);
 
+  const safeLocalStorage = {
+    getItem: (key) => {
+      try {
+        return localStorage.getItem(key);
+      } catch (error) {
+        console.error('LocalStorage access denied', error);
+        return null;
+      }
+    },
+    setItem: (key, value) => {
+      try {
+        localStorage.setItem(key, value);
+      } catch (error) {
+        console.error('LocalStorage access denied', error);
+      }
+    }
+  };
+
   // Calculate duration between two dates in days
   const calculateDurationInDays = (start, end) => {
     const startDate = new Date(start);
@@ -49,6 +81,32 @@ function App() {
     const timeDiff = endDate - startDate;
     const daysDiff = Math.ceil(timeDiff / (1000 * 60 * 60 * 24));
     return daysDiff > 0 ? daysDiff : 0;
+  };
+
+  const exportTasks = () => {
+    const dataStr = JSON.stringify(tasks);
+    const dataUri = 'data:application/json;charset=utf-8,'+ encodeURIComponent(dataStr);
+    
+    const exportFileDefaultName = 'tasks.json';
+    
+    const linkElement = document.createElement('a');
+    linkElement.setAttribute('href', dataUri);
+    linkElement.setAttribute('download', exportFileDefaultName);
+    linkElement.click();
+  };
+  
+  const importTasks = (event) => {
+    const fileReader = new FileReader();
+    fileReader.readAsText(event.target.files[0], "UTF-8");
+    fileReader.onload = e => {
+      try {
+        const importedTasks = JSON.parse(e.target.result);
+        setTasks(importedTasks);
+        localStorage.setItem('tasks', JSON.stringify(importedTasks));
+      } catch (error) {
+        alert('Invalid file format');
+      }
+    };
   };
 
   // Clear the task form with confirmation
@@ -138,21 +196,23 @@ function App() {
       
       // Update parent task progress if this is a subtask
       const task = updatedTasks.find(t => t.id === taskId);
-      if (task.parentTaskId) {
-        const parentProgress = calculateParentProgress(task.parentTaskId);
-        if (parentProgress !== null) {
-          return updatedTasks.map(t => 
-            t.id === task.parentTaskId 
-              ? { ...t, progress: parentProgress } 
-              : t
-          );
-        }
+    if (task.parentTaskId) {
+      const parentProgress = calculateParentProgress(task.parentTaskId);
+      if (parentProgress !== null) {
+        updatedTasks.forEach(t => {
+          if (t.id === task.parentTaskId) {
+            t.progress = parentProgress;
+          }
+        });
       }
-      return updatedTasks;
-    });
+    }
     
-    setEditingTaskId(null);
-  };
+    localStorage.setItem('tasks', JSON.stringify(updatedTasks)); // Save to localStorage
+    return updatedTasks;
+  });
+  
+  setEditingTaskId(null);
+};
 
   // Cancel editing and revert changes
   const handleCancelEdit = () => {
@@ -311,19 +371,19 @@ function App() {
 
   // Recursively delete a task and its subtasks
   const handleDeleteTask = (taskId, e) => {
-    e.stopPropagation(); // Prevent the row's onClick from firing
+    e.stopPropagation();
     const deleteTaskAndSubtasks = (id) => {
-      // Find all subtasks of the current task
       const subtasks = tasks.filter((t) => t.parentTaskId === id);
-      // Recursively delete each subtask
       subtasks.forEach((subtask) => deleteTaskAndSubtasks(subtask.id));
-      // Remove the task itself
-      setTasks((prevTasks) => prevTasks.filter((t) => t.id !== id));
+      setTasks((prevTasks) => {
+        const updatedTasks = prevTasks.filter((t) => t.id !== id);
+        localStorage.setItem('tasks', JSON.stringify(updatedTasks)); // Save to localStorage
+        return updatedTasks;
+      });
     };
-
+  
     if (window.confirm('Are you sure you want to delete this task and its subtasks?')) {
       deleteTaskAndSubtasks(taskId);
-      // If the deleted task was being edited, clear the editing state
       if (editingTaskId === taskId) {
         setEditingTaskId(null);
         setEditingTaskData({});
@@ -648,6 +708,13 @@ function App() {
     }
   }, [darkMode]);
 
+  useEffect(() => {
+    const savedTasks = localStorage.getItem('tasks');
+    if (savedTasks) {
+      setTasks(JSON.parse(savedTasks));
+    }
+  }, []);
+
   // Add event listener for click-outside detection
   useEffect(() => {
     document.addEventListener('mousedown', handleClickOutside);
@@ -767,6 +834,44 @@ function App() {
                   >
                     Add First Task
                   </button>
+                  <button onClick={exportTasks} className="export-button">
+  Export Tasks
+</button>
+<label className="import-button">
+  Import Tasks
+  <input type="file" onChange={importTasks} style={{display: 'none'}} />
+</label>
+                  // Add this near your other buttons in the return statement
+<div className="save-load-buttons">
+  <button 
+    onClick={() => localStorage.setItem('tasks', JSON.stringify(tasks))}
+    className="save-button"
+  >
+    Save Tasks
+  </button>
+  <button 
+    onClick={() => {
+      const savedTasks = localStorage.getItem('tasks');
+      if (savedTasks) {
+        setTasks(JSON.parse(savedTasks));
+      }
+    }}
+    className="load-button"
+  >
+    Load Tasks
+  </button>
+  <button
+    onClick={() => {
+      if (window.confirm('Clear all tasks?')) {
+        setTasks([]);
+        localStorage.removeItem('tasks');
+      }
+    }}
+    className="clear-button"
+  >
+    Clear All Tasks
+  </button>
+</div>
                 </div>
               )}
             </div>
