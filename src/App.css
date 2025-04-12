@@ -510,12 +510,16 @@ body {
 /* Graph View Container */
 .graph-view-container {
   width: 100%;
-  height: calc(100vh - 200px); /* Adjust if header/footer heights differ */
+  height: 70vh;
+  min-height: 500px; /* Minimum height to ensure good visibility */
   background: rgba(255, 255, 255, 0.85);
   backdrop-filter: blur(12px);
-  border-radius: 12px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  margin-top: 20px 0;
+
   padding: 0; /* Remove padding if it’s shrinking the graph */
-  margin-top: 20px;
+  
   box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
   border: 1px solid rgba(255, 255, 255, 0.3);
   position: relative;
@@ -604,4 +608,44 @@ body {
 
 .dark-mode .no-tasks-message {
   color: #bbb;
+}
+/* Add to your CSS file */
+.progress-summary {
+  margin-bottom: 20px;
+  padding: 15px;
+  background: rgba(0, 0, 0, 0.05);
+  border-radius: 8px;
+}
+
+.overall-progress {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  margin-bottom: 10px;
+}
+
+.progress-bar {
+  flex-grow: 1;
+  height: 20px;
+  background: #e0e0e0;
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.progress-fill {
+  height: 100%;
+  transition: width 0.3s ease;
+}
+
+.progress-stats {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
+}
+
+.progress-stats div {
+  padding: 8px;
+  background: rgba(0, 0, 0, 0.05);
+  border-radius: 4px;
+  text-align: center;
 }

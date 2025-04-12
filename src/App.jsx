@@ -9,7 +9,7 @@ import TaskForm from './components/TaskForm'; // Import the new component
 function App() {
   // State for managing tasks and form data
   const [tasks, setTasks] = useState([]); // List of tasks
-  const [task, setTask] = useState({ title: '', description: '', assignedTo: '', duration: '', completionDate: '', createdDate: '', parentTaskId: '' }); // Form data for new task
+  const [task, setTask] = useState({ title: '', description: '', assignedTo: '', duration: '', completionDate: '', createdDate: '', parentTaskId: '', progress: 0 }); // Form data for new task
   const [showForm, setShowForm] = useState(false); // Toggle for showing/hiding the task form
   const [assigneeSuggestions, setAssigneeSuggestions] = useState([]); // Suggestions for assignee input
   const [expandedTasks, setExpandedTasks] = useState({}); // Track expanded state of tasks with subtasks
@@ -54,7 +54,7 @@ function App() {
   // Clear the task form with confirmation
   const handleClearForm = () => {
     if (window.confirm('Are you sure you want to clear all fields?')) {
-      setTask({ title: '', description: '', assignedTo: '', duration: '', completionDate: '', createdDate: '', parentTaskId: '' });
+      setTask({ title: '', description: '', assignedTo: '', duration: '', completionDate: '', createdDate: '', parentTaskId: '', progress: 0 });
       setDueDateError('');
       setAssigneeSuggestions([]);
       setShowAssigneeSuggestions(false);
@@ -131,7 +131,26 @@ function App() {
       return;
     }
 
-    setTasks((prevTasks) => prevTasks.map((t) => (t.id === taskId ? { ...editingTaskData } : t)));
+    setTasks(prevTasks => {
+      const updatedTasks = prevTasks.map(t => 
+        t.id === taskId ? { ...editingTaskData } : t
+      );
+      
+      // Update parent task progress if this is a subtask
+      const task = updatedTasks.find(t => t.id === taskId);
+      if (task.parentTaskId) {
+        const parentProgress = calculateParentProgress(task.parentTaskId);
+        if (parentProgress !== null) {
+          return updatedTasks.map(t => 
+            t.id === task.parentTaskId 
+              ? { ...t, progress: parentProgress } 
+              : t
+          );
+        }
+      }
+      return updatedTasks;
+    });
+    
     setEditingTaskId(null);
   };
 
@@ -256,6 +275,7 @@ function App() {
       createdDate: createdDateFinal,
       parentTaskId: task.parentTaskId || null,
       subtasks: [],
+      progress: task.progress || 0
     };
 
     setTasks([...tasks, newTask]);
@@ -265,25 +285,28 @@ function App() {
 
   // Show the form to add a new task
   const handleAddTaskClick = () => {
-    console.log('Add Task clicked, showForm before:', showForm); // Debug log
+    const now = new Date();
+    const defaultDate = now.toISOString().slice(0, 16); // Format: YYYY-MM-DDTHH:MM
+    
     setTask({
       title: '',
       description: '',
       assignedTo: '',
       duration: '',
-      completionDate: '',
-      createdDate: '',
-      parentTaskId: ''
+      completionDate: defaultDate,
+      createdDate: defaultDate,
+      parentTaskId: '',
+      progress: 0
     });
+    
     setDueDateError('');
     setShowForm(true);
-    console.log('showForm after:', true); // Debug log
-    // Focus the Task Title input after the form is shown
+    
     setTimeout(() => {
       if (taskTitleRef.current) {
         taskTitleRef.current.focus();
       }
-    }, 0); // Timeout ensures the DOM is updated
+    }, 0);
   };
 
   // Recursively delete a task and its subtasks
@@ -479,14 +502,26 @@ function App() {
               )}
               {isEditing ? <input type="text" name="title" value={editingTaskData.title} onChange={handleEditInputChange} /> : task.title}
             </td>
-            <td>{isEditing ? <input type="text" name="description" value={editingTaskData.description} onChange={handleEditInputChange} /> : task.description}</td>
-            <td>{isEditing ? (
-              <select value={editingTaskData.assignedTo} onChange={(e) => setEditingTaskData({ ...editingTaskData, assignedTo: e.target.value })}>
-                <option value="">Select Assignee</option>
-                {assignees.map((assignee, index) => <option key={index} value={assignee}>{assignee}</option>)}
-              </select>
-            ) : task.assignedTo}</td>
-            <td>{isEditing ? <input type="number" value={editingTaskData.duration || ''} disabled /> : `${task.duration} ${task.duration === 1 ? 'day' : 'days'}`}</td>
+            <td>
+              {isEditing ? (
+                <input type="text" name="description" value={editingTaskData.description} onChange={handleEditInputChange} />
+              ) : task.description}
+            </td>
+            <td>
+              {isEditing ? (
+                <select value={editingTaskData.assignedTo} onChange={(e) => setEditingTaskData({ ...editingTaskData, assignedTo: e.target.value })}>
+                  <option value="">Select Assignee</option>
+                  {assignees.map((assignee, index) => (
+                    <option key={index} value={assignee}>{assignee}</option>
+                  ))}
+                </select>
+              ) : task.assignedTo}
+            </td>
+            <td>
+              {isEditing ? (
+                <input type="number" value={editingTaskData.duration || ''} disabled />
+              ) : `${task.duration} ${task.duration === 1 ? 'day' : 'days'}`}
+            </td>
             <td>
               {isEditing ? (
                 <input
@@ -513,15 +548,59 @@ function App() {
                 `⏳ ${formatDateTime(task.completionDate)}`
               )}
             </td>
-            <td>{task.parentTaskId ? (
-              <>
-                {tasks.find((t) => t.id === task.parentTaskId)?.title || 'Main Task'}
-                <select value={task.parentTaskId || ''} onChange={(e) => handleParentChange(e, task.id)} style={{ marginLeft: '10px' }}>
-                  <option value="">Change Parent Task</option>
-                  {tasks.filter((t) => t.id !== task.id && !isDescendant(t.id, task.id, tasks)).map((t) => <option key={t.id} value={t.id}>{t.title}</option>)}
-                </select>
-              </>
-            ) : 'Main Task'}</td>
+            <td>
+              {task.parentTaskId ? (
+                <>
+                  {tasks.find((t) => t.id === task.parentTaskId)?.title || 'Main Task'}
+                  {isEditing && (
+                    <select 
+                      value={task.parentTaskId || ''} 
+                      onChange={(e) => handleParentChange(e, task.id)} 
+                      style={{ marginLeft: '10px' }}
+                    >
+                      <option value="">Change Parent Task</option>
+                      {tasks.filter((t) => t.id !== task.id && !isDescendant(t.id, task.id, tasks)).map((t) => (
+                        <option key={t.id} value={t.id}>{t.title}</option>
+                      ))}
+                    </select>
+                  )}
+                </>
+              ) : 'Main Task'}
+            </td>
+            <td>
+              {isEditing ? (
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <input
+                    type="range"
+                    min="0"
+                    max="100"
+                    value={editingTaskData.progress || 0}
+                    onChange={(e) => setEditingTaskData({
+                      ...editingTaskData,
+                      progress: parseInt(e.target.value)
+                    })}
+                  />
+                  <span>{editingTaskData.progress || 0}%</span>
+                </div>
+              ) : (
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <div style={{
+                    width: '100px',
+                    height: '10px',
+                    backgroundColor: '#e0e0e0',
+                    borderRadius: '5px',
+                    overflow: 'hidden'
+                  }}>
+                    <div style={{
+                      width: `${task.progress || 0}%`,
+                      height: '100%',
+                      backgroundColor: task.progress === 100 ? '#4caf50' : '#2196f3'
+                    }}></div>
+                  </div>
+                  <span>{task.progress || 0}%</span>
+                </div>
+              )}
+            </td>
             <td>
               {isEditing ? (
                 <>
@@ -543,6 +622,20 @@ function App() {
 
   // Render the table body with tasks
   const renderTableBody = () => <tbody>{renderTasks(tasks)}</tbody>;
+
+  const calculateOverallProgress = () => {
+    if (tasks.length === 0) return 0;
+    const totalProgress = tasks.reduce((sum, task) => sum + (task.progress || 0), 0);
+    return Math.round(totalProgress / tasks.length);
+  };
+
+  const calculateParentProgress = (taskId) => {
+    const subtasks = tasks.filter(t => t.parentTaskId === taskId);
+    if (subtasks.length === 0) return null;
+    
+    const totalProgress = subtasks.reduce((sum, task) => sum + (task.progress || 0), 0);
+    return Math.round(totalProgress / subtasks.length);
+  };
 
   // Apply dark mode and persist in localStorage
   useEffect(() => {
@@ -605,7 +698,33 @@ function App() {
           </div>
           {view === 'table' ? (
             tasks.length > 0 ? (
+              
               <div className="table-wrapper">
+                <br></br>
+<div className="progress-summary">
+  <h3>Project Progress</h3>
+  <div className="overall-progress">
+    <div className="progress-bar">
+      <div 
+        className="progress-fill" 
+        style={{ 
+          width: `${calculateOverallProgress()}%`,
+          backgroundColor: calculateOverallProgress() === 100 ? '#4caf50' : '#2196f3'
+        }}
+      ></div>
+    </div>
+    <span>{calculateOverallProgress()}% Complete</span>
+  </div>
+  <div className="progress-stats">
+    <div>Total Tasks: {tasks.length}</div>
+    <div>Completed: {tasks.filter(t => t.progress === 100).length}</div>
+    <div>In Progress: {tasks.filter(t => t.progress > 0 && t.progress < 100).length}</div>
+    <div>Not Started: {tasks.filter(t => !t.progress || t.progress === 0).length}</div>
+  </div>
+</div>
+
+
+
                 <table>
                   <thead>
                     <tr>
@@ -616,6 +735,7 @@ function App() {
                       <th>Created On</th>
                       <th>Due By</th>
                       <th>Parent Task</th>
+                      <th>Progress</th>
                       <th>Actions</th>
                     </tr>
                   </thead>

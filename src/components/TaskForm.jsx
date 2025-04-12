@@ -2,7 +2,7 @@ import React from 'react';
 
 const TaskForm = ({
   task,
-  tasks, // For parent task options
+  tasks,
   onSubmit,
   onChange,
   onClear,
@@ -17,17 +17,29 @@ const TaskForm = ({
 }) => (
   <div className="task-form-container">
     <form onSubmit={onSubmit} className="task-form" ref={formRef}>
-      <div className="form-group">
-        <label>Task Title:</label>
+    <div className="form-group">
+        <label>Task Title *</label>
         <input
           type="text"
           name="title"
           placeholder="Task Title"
           value={task.title}
           onChange={onChange}
-          required
           ref={taskTitleRef}
+          required
         />
+      </div>
+      <div className="form-group">
+        <label>Progress:</label>
+        <input
+          type="range"
+          min="0"
+          max="100"
+          name="progress"
+          value={task.progress || 0}
+          onChange={onChange}
+        />
+        <span>{task.progress || 0}%</span>
       </div>
       <div className="form-group">
         <label>Task Description:</label>
