@@ -7,10 +7,25 @@ import TaskForm from './components/TaskForm'; // Import the new component
 
 // Main App component for task management
 function App() {
+
+  const saveTasksToStorage = (tasksToSave) => {
+    if (!Array.isArray(tasksToSave)) {
+      console.error('Tasks to save is not an array');
+      return;
+    }
+    
+    if (tasksToSave.some(task => !validateTaskStructure(task))) {
+      console.error('Invalid task structure detected');
+      return;
+    }
+    
+    safeLocalStorage.setItem('phased-tasks', JSON.stringify(tasksToSave));
+  };
+
   // State for managing tasks and form data
   const [tasks, setTasks] = useState(() => {
     try {
-      const savedTasks = localStorage.getItem('phased-tasks');
+      const savedTasks = safeLocalStorage.getItem('phased-tasks');
       return savedTasks ? JSON.parse(savedTasks) : [];
     } catch (error) {
       console.error('Failed to load tasks from localStorage', error);
@@ -32,12 +47,6 @@ function App() {
   const taskTitleRef = useRef(null); // Reference for focus on the "Task Title" input field
   const [view, setView] = useState('table'); // Add view state: 'table' or 'graph'
 
-  useEffect(() => {
-    if (tasks.length > 0 || safeLocalStorage.getItem('phased-tasks') !== null) {
-      safeLocalStorage.setItem('phased-tasks', JSON.stringify(tasks));
-    }
-  }, [tasks]);
-  
   // Effect to detect cursor activity for animations
   useEffect(() => {
     let cursorTimeout;
@@ -54,6 +63,18 @@ function App() {
       clearTimeout(cursorTimeout);
     };
   }, []);
+
+  // Initialize dark mode and tasks on first render
+useEffect(() => {
+  // Load dark mode preference
+  const savedDarkMode = localStorage.getItem('darkMode') === 'true';
+  setDarkMode(savedDarkMode);
+  
+  // Load tasks if not already loaded
+  if (tasks.length === 0) {
+    handleLoadTasks();
+  }
+}, []);
 
   const safeLocalStorage = {
     getItem: (key) => {
@@ -102,7 +123,7 @@ function App() {
       try {
         const importedTasks = JSON.parse(e.target.result);
         setTasks(importedTasks);
-        localStorage.setItem('tasks', JSON.stringify(importedTasks));
+        saveTasksToStorage(importedTasks); // Use our save function
       } catch (error) {
         alert('Invalid file format');
       }
@@ -207,7 +228,7 @@ function App() {
       }
     }
     
-    localStorage.setItem('tasks', JSON.stringify(updatedTasks)); // Save to localStorage
+    saveTasksToStorage(updatedTasks);
     return updatedTasks;
   });
   
@@ -271,6 +292,27 @@ function App() {
   const handleAssignedToFocus = () => {
     setAssigneeSuggestions(assignees);
     setShowAssigneeSuggestions(true);
+  };
+
+  const handleLoadTasks = () => {
+    try {
+      const savedTasks = safeLocalStorage.getItem('phased-tasks');
+      if (savedTasks) {
+        const parsedTasks = JSON.parse(savedTasks);
+        if (Array.isArray(parsedTasks)) {
+          setTasks(parsedTasks);
+        } else {
+          console.error('Loaded tasks is not an array');
+        }
+      }
+    } catch (error) {
+      console.error('Failed to load tasks', error);
+    }
+  };
+
+  const validateTaskStructure = (task) => {
+    const requiredFields = ['id', 'title', 'description', 'assignedTo', 'completionDate', 'createdDate'];
+    return requiredFields.every(field => field in task);
   };
 
   // Submit the form to add a new task
@@ -341,6 +383,7 @@ function App() {
     setTasks([...tasks, newTask]);
     setTask({ title: '', description: '', assignedTo: '', duration: '', completionDate: '', createdDate: '', parentTaskId: '' });
     setShowForm(false);
+    saveTasksToStorage([...tasks, newTask]);
   };
 
   // Show the form to add a new task
@@ -377,7 +420,7 @@ function App() {
       subtasks.forEach((subtask) => deleteTaskAndSubtasks(subtask.id));
       setTasks((prevTasks) => {
         const updatedTasks = prevTasks.filter((t) => t.id !== id);
-        localStorage.setItem('tasks', JSON.stringify(updatedTasks)); // Save to localStorage
+        saveTasksToStorage(updatedTasks);
         return updatedTasks;
       });
     };
@@ -708,13 +751,6 @@ function App() {
     }
   }, [darkMode]);
 
-  useEffect(() => {
-    const savedTasks = localStorage.getItem('tasks');
-    if (savedTasks) {
-      setTasks(JSON.parse(savedTasks));
-    }
-  }, []);
-
   // Add event listener for click-outside detection
   useEffect(() => {
     document.addEventListener('mousedown', handleClickOutside);
@@ -842,29 +878,24 @@ function App() {
   <input type="file" onChange={importTasks} style={{display: 'none'}} />
 </label>
                   // Add this near your other buttons in the return statement
-<div className="save-load-buttons">
+                  <div className="save-load-buttons">
   <button 
-    onClick={() => localStorage.setItem('tasks', JSON.stringify(tasks))}
+    onClick={() => saveTasksToStorage(tasks)}
     className="save-button"
   >
     Save Tasks
   </button>
   <button 
-    onClick={() => {
-      const savedTasks = localStorage.getItem('tasks');
-      if (savedTasks) {
-        setTasks(JSON.parse(savedTasks));
-      }
-    }}
-    className="load-button"
-  >
-    Load Tasks
-  </button>
+  onClick={handleLoadTasks}
+  className="load-button"
+>
+  Load Tasks
+</button>
   <button
     onClick={() => {
       if (window.confirm('Clear all tasks?')) {
         setTasks([]);
-        localStorage.removeItem('tasks');
+        safeLocalStorage.setItem('phased-tasks', JSON.stringify([]));
       }
     }}
     className="clear-button"
