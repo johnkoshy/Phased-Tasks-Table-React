@@ -1,13 +1,13 @@
 import React, { useState, useRef, useEffect } from 'react';
 import './App.css';
 import FooterClock from './components/FooterClock';
-import TaskGraph from './components/TaskGraph'; // Import TaskGraph
+import TaskGraph from './components/TaskGraph';
 import { ReactFlowProvider } from 'reactflow';
-import TaskForm from './components/TaskForm'; // Import the new component
+import TaskForm from './components/TaskForm';
 
 // Main App component for task management
 function App() {
-
+  // Safely save tasks to localStorage with validation
   const saveTasksToStorage = (tasksToSave) => {
     if (!Array.isArray(tasksToSave)) {
       console.error('Tasks to save is not an array');
@@ -22,7 +22,7 @@ function App() {
     safeLocalStorage.setItem('phased-tasks', JSON.stringify(tasksToSave));
   };
 
-  // State for managing tasks and form data
+  // State for tasks, form data, UI toggles, and interactions
   const [tasks, setTasks] = useState(() => {
     try {
       const savedTasks = safeLocalStorage.getItem('phased-tasks');
@@ -32,22 +32,24 @@ function App() {
       return [];
     }
   });
-  const [task, setTask] = useState({ title: '', description: '', assignedTo: '', duration: '', completionDate: '', createdDate: '', parentTaskId: '', progress: 0 }); // Form data for new task
-  const [showForm, setShowForm] = useState(false); // Toggle for showing/hiding the task form
-  const [assigneeSuggestions, setAssigneeSuggestions] = useState([]); // Suggestions for assignee input
-  const [expandedTasks, setExpandedTasks] = useState({}); // Track expanded state of tasks with subtasks
+  const [task, setTask] = useState({
+    title: '', description: '', assignedTo: '', duration: '', completionDate: '', createdDate: '', parentTaskId: '', progress: 0
+  });
+  const [showForm, setShowForm] = useState(false); // Toggle task form visibility
+  const [assigneeSuggestions, setAssigneeSuggestions] = useState([]); // Assignee input suggestions
+  const [expandedTasks, setExpandedTasks] = useState({}); // Track expanded tasks with subtasks
   const [editingTaskId, setEditingTaskId] = useState(null); // ID of task being edited
   const [editingTaskData, setEditingTaskData] = useState({}); // Data of task being edited
-  const [dueDateError, setDueDateError] = useState(''); // Error message for invalid dates
-  const [contextMenu, setContextMenu] = useState({ visible: false, taskId: null, x: 0, y: 0 }); // Context menu state for right-click actions
-  const [showAssigneeSuggestions, setShowAssigneeSuggestions] = useState(false); // Toggle for assignee suggestions dropdown
-  const [darkMode, setDarkMode] = useState(false); // Always start in light mode
-  const [isCursorActive, setIsCursorActive] = useState(true); // Track cursor activity for animations
-  const formRef = useRef(null); // Reference to the task form for click-outside detection
-  const taskTitleRef = useRef(null); // Reference for focus on the "Task Title" input field
-  const [view, setView] = useState('table'); // Add view state: 'table' or 'graph'
+  const [dueDateError, setDueDateError] = useState(''); // Date validation errors
+  const [contextMenu, setContextMenu] = useState({ visible: false, taskId: null, x: 0, y: 0 }); // Right-click context menu
+  const [showAssigneeSuggestions, setShowAssigneeSuggestions] = useState(false); // Assignee suggestions dropdown
+  const [darkMode, setDarkMode] = useState(false); // Theme toggle (starts in light mode)
+  const [isCursorActive, setIsCursorActive] = useState(true); // Cursor activity for animations
+  const [view, setView] = useState('table'); // Toggle between table and graph views
+  const formRef = useRef(null); // Reference to task form for click-outside detection
+  const taskTitleRef = useRef(null); // Reference to focus task title input
 
-  // Effect to detect cursor activity for animations
+  // Detect cursor activity for animations
   useEffect(() => {
     let cursorTimeout;
     const handleCursorMove = () => {
@@ -64,18 +66,16 @@ function App() {
     };
   }, []);
 
-  // Initialize dark mode and tasks on first render
-useEffect(() => {
-  // Load dark mode preference
-  const savedDarkMode = localStorage.getItem('darkMode') === 'true';
-  setDarkMode(savedDarkMode);
-  
-  // Load tasks if not already loaded
-  if (tasks.length === 0) {
-    handleLoadTasks();
-  }
-}, []);
+  // Initialize dark mode and tasks on mount
+  useEffect(() => {
+    const savedDarkMode = localStorage.getItem('darkMode') === 'true';
+    setDarkMode(savedDarkMode);
+    if (tasks.length === 0) {
+      handleLoadTasks();
+    }
+  }, []);
 
+  // Safe localStorage wrapper to handle access errors
   const safeLocalStorage = {
     getItem: (key) => {
       try {
@@ -104,18 +104,18 @@ useEffect(() => {
     return daysDiff > 0 ? daysDiff : 0;
   };
 
+  // Export tasks as JSON file
   const exportTasks = () => {
     const dataStr = JSON.stringify(tasks);
-    const dataUri = 'data:application/json;charset=utf-8,'+ encodeURIComponent(dataStr);
-    
+    const dataUri = 'data:application/json;charset=utf-8,' + encodeURIComponent(dataStr);
     const exportFileDefaultName = 'tasks.json';
-    
     const linkElement = document.createElement('a');
     linkElement.setAttribute('href', dataUri);
     linkElement.setAttribute('download', exportFileDefaultName);
     linkElement.click();
   };
-  
+
+  // Import tasks from JSON file
   const importTasks = (event) => {
     const fileReader = new FileReader();
     fileReader.readAsText(event.target.files[0], "UTF-8");
@@ -123,14 +123,14 @@ useEffect(() => {
       try {
         const importedTasks = JSON.parse(e.target.result);
         setTasks(importedTasks);
-        saveTasksToStorage(importedTasks); // Use our save function
+        saveTasksToStorage(importedTasks);
       } catch (error) {
         alert('Invalid file format');
       }
     };
   };
 
-  // Clear the task form with confirmation
+  // Clear task form with confirmation
   const handleClearForm = () => {
     if (window.confirm('Are you sure you want to clear all fields?')) {
       setTask({ title: '', description: '', assignedTo: '', duration: '', completionDate: '', createdDate: '', parentTaskId: '', progress: 0 });
@@ -140,14 +140,14 @@ useEffect(() => {
     }
   };
 
-  // Get the title of a parent task by its ID
+  // Get parent task title by ID
   const getParentTaskTitle = (parentTaskId) => {
     if (!parentTaskId) return 'Main Task';
     const parentTask = tasks.find((t) => t.id === parentTaskId);
     return parentTask ? parentTask.title : 'Main Task';
   };
 
-  // Check if a task is a descendant of another to prevent circular dependencies
+  // Check if a task is a descendant to prevent circular dependencies
   const isDescendant = (taskId, potentialParentId, tasks) => {
     let currentTaskId = potentialParentId;
     while (currentTaskId) {
@@ -158,7 +158,7 @@ useEffect(() => {
     return false;
   };
 
-  // Format a date string into a readable format (DD-MM-YYYY, HH:MM AM/PM)
+  // Format date to DD-MM-YYYY, HH:MM AM/PM
   const formatDateTime = (isoDate) => {
     if (!isoDate) return 'N/A';
     const date = new Date(isoDate);
@@ -171,25 +171,31 @@ useEffect(() => {
     return `${day}-${month}-${year}, ${hours}:${minutes} ${ampm}`;
   };
 
-  // Start editing a task by setting its ID and data
+  // Start editing a task
   const handleEditTask = (taskId) => {
     const taskToEdit = tasks.find((t) => t.id === taskId);
     setEditingTaskId(taskId);
     setEditingTaskData({ ...taskToEdit });
   };
 
-  // Context menu component for right-click actions
+  // Context menu for right-click actions
   const ContextMenu = ({ visible, x, y, onAddSubtask, onClose }) => {
     if (!visible) return null;
     return (
-      <div style={{ position: 'fixed', top: y, left: x, backgroundColor: 'white', color: 'black', boxShadow: '0 4px 8px rgba(0, 0, 0, 0.2)', zIndex: 1000, padding: '8px', borderRadius: '6px' }} className="context-menu">
+      <div
+        style={{
+          position: 'fixed', top: y, left: x, backgroundColor: 'white', color: 'black',
+          boxShadow: '0 4px 8px rgba(0, 0, 0, 0.2)', zIndex: 1000, padding: '8px', borderRadius: '6px'
+        }}
+        className="context-menu"
+      >
         <div style={{ padding: '8px', cursor: 'pointer' }} onClick={onAddSubtask}>Add Subtask</div>
         <div style={{ padding: '8px', cursor: 'pointer' }} onClick={onClose}>Close</div>
       </div>
     );
   };
 
-  // Save edited task after validation
+  // Save edited task with date validation
   const handleSaveTask = (taskId) => {
     const currentDate = new Date();
     const createdDate = new Date(editingTaskData.createdDate);
@@ -211,67 +217,50 @@ useEffect(() => {
     }
 
     setTasks(prevTasks => {
-      const updatedTasks = prevTasks.map(t => 
-        t.id === taskId ? { ...editingTaskData } : t
-      );
-      
-      // Update parent task progress if this is a subtask
+      const updatedTasks = prevTasks.map(t => t.id === taskId ? { ...editingTaskData } : t);
       const task = updatedTasks.find(t => t.id === taskId);
-    if (task.parentTaskId) {
-      const parentProgress = calculateParentProgress(task.parentTaskId);
-      if (parentProgress !== null) {
-        updatedTasks.forEach(t => {
-          if (t.id === task.parentTaskId) {
-            t.progress = parentProgress;
-          }
-        });
+      if (task.parentTaskId) {
+        const parentProgress = calculateParentProgress(task.parentTaskId);
+        if (parentProgress !== null) {
+          updatedTasks.forEach(t => {
+            if (t.id === task.parentTaskId) t.progress = parentProgress;
+          });
+        }
       }
-    }
-    
-    saveTasksToStorage(updatedTasks);
-    return updatedTasks;
-  });
-  
-  setEditingTaskId(null);
-};
+      saveTasksToStorage(updatedTasks);
+      return updatedTasks;
+    });
+    setEditingTaskId(null);
+  };
 
-  // Cancel editing and revert changes
+  // Cancel task editing
   const handleCancelEdit = () => {
     const originalTask = tasks.find((t) => t.id === editingTaskId);
     setEditingTaskData({ ...originalTask });
     setEditingTaskId(null);
   };
 
-  // Add a subtask by setting the parent task ID and showing the form
+  // Add a subtask by setting parent task ID
   const handleAddSubtask = () => {
     if (contextMenu.taskId) {
       setTask({
-        title: '',
-        description: '',
-        assignedTo: '',
-        duration: '',
-        completionDate: '',
-        createdDate: '',
-        parentTaskId: contextMenu.taskId // Set the parent task ID from context menu
+        title: '', description: '', assignedTo: '', duration: '', completionDate: '',
+        createdDate: '', parentTaskId: contextMenu.taskId, progress: 0
       });
       setDueDateError('');
       setShowForm(true);
-      setTimeout(() => {
-        if (taskTitleRef.current) {
-          taskTitleRef.current.focus();
-        }
-      }, 0); // Ensure DOM is updated before focusing
+      setTimeout(() => taskTitleRef.current?.focus(), 0);
     }
     setContextMenu({ visible: false, taskId: null, x: 0, y: 0 });
-  }
+  };
 
-  // Close the context menu
+  // Close context menu
   const handleCloseContextMenu = () => setContextMenu({ visible: false, taskId: null, x: 0, y: 0 });
 
-  // List of available assignees for suggestions
+  // List of assignees for suggestions
   const assignees = ['John Doe', 'Jane Smith', 'Alice Johnson', 'Bob Brown', 'Charlie Davis'];
 
-  // Handle form input changes and update assignee suggestions
+  // Handle form input changes and assignee suggestions
   const handleChange = (e) => {
     const { name, value } = e.target;
     setTask((prev) => ({ ...prev, [name]: value }));
@@ -281,19 +270,20 @@ useEffect(() => {
     }
   };
 
-  // Select an assignee from suggestions
+  // Select assignee from suggestions
   const handleSuggestionClick = (suggestion) => {
     setTask((prev) => ({ ...prev, assignedTo: suggestion }));
     setAssigneeSuggestions([]);
     setShowAssigneeSuggestions(false);
   };
 
-  // Show assignee suggestions when the input is focused
+  // Show assignee suggestions on input focus
   const handleAssignedToFocus = () => {
     setAssigneeSuggestions(assignees);
     setShowAssigneeSuggestions(true);
   };
 
+  // Load tasks from localStorage
   const handleLoadTasks = () => {
     try {
       const savedTasks = safeLocalStorage.getItem('phased-tasks');
@@ -310,30 +300,18 @@ useEffect(() => {
     }
   };
 
+  // Validate task structure
   const validateTaskStructure = (task) => {
     const requiredFields = ['id', 'title', 'description', 'assignedTo', 'completionDate', 'createdDate'];
     return requiredFields.every(field => field in task);
   };
 
-  // Submit the form to add a new task
+  // Submit new task with validation
   const handleSubmit = (e) => {
     e.preventDefault();
-
-    // Check if required fields are filled
-    if (!task.title.trim() || !task.description.trim()) {
-      alert('Please fill in Task Title and Description.');
-      return;
-    }
-    if (!task.assignedTo.trim()) {
-      alert('Please select an assignee for the task.');
-      return;
-    }
-    if (!task.createdDate) {
-      alert('Please specify the Created On date and time.');
-      return;
-    }
-    if (!task.completionDate) {
-      alert('Please specify the Due By date and time.');
+    if (!task.title.trim() || !task.description.trim() || !task.assignedTo.trim() ||
+        !task.createdDate || !task.completionDate) {
+      alert('Please fill in all required fields.');
       return;
     }
 
@@ -341,30 +319,12 @@ useEffect(() => {
     const createdDate = new Date(task.createdDate);
     const completionDate = new Date(task.completionDate);
 
-    if (createdDate < currentDate) {
-      setDueDateError('Created On date and time cannot be in the past.');
+    if (createdDate < currentDate || completionDate < currentDate || completionDate < createdDate) {
+      setDueDateError('Invalid dates. Check Created On and Due By dates.');
       return;
     }
 
-    if (completionDate < createdDate) {
-      setDueDateError('Due By date and time cannot be earlier than Created On.');
-      return;
-    }
-
-    if (completionDate < currentDate) {
-      setDueDateError('Due By date and time cannot be in the past.');
-      return;
-    }
-
-    const now = new Date();
-    const year = now.getFullYear();
-    const month = String(now.getMonth() + 1).padStart(2, '0');
-    const day = String(now.getDate()).padStart(2, '0');
-    const hours = String(now.getHours()).padStart(2, '0');
-    const minutes = String(now.getMinutes()).padStart(2, '0');
-    const formattedNow = `${year}-${month}-${day}T${hours}:${minutes}`;
-
-    const createdDateFinal = task.createdDate || formattedNow;
+    const createdDateFinal = task.createdDate || new Date().toISOString().slice(0, 16);
     const durationInDays = task.duration || calculateDurationInDays(createdDateFinal, task.completionDate);
 
     const newTask = {
@@ -386,33 +346,19 @@ useEffect(() => {
     saveTasksToStorage([...tasks, newTask]);
   };
 
-  // Show the form to add a new task
+  // Show form to add new task
   const handleAddTaskClick = () => {
-    const now = new Date();
-    const defaultDate = now.toISOString().slice(0, 16); // Format: YYYY-MM-DDTHH:MM
-    
+    const defaultDate = new Date().toISOString().slice(0, 16);
     setTask({
-      title: '',
-      description: '',
-      assignedTo: '',
-      duration: '',
-      completionDate: defaultDate,
-      createdDate: defaultDate,
-      parentTaskId: '',
-      progress: 0
+      title: '', description: '', assignedTo: '', duration: '', completionDate: defaultDate,
+      createdDate: defaultDate, parentTaskId: '', progress: 0
     });
-    
     setDueDateError('');
     setShowForm(true);
-    
-    setTimeout(() => {
-      if (taskTitleRef.current) {
-        taskTitleRef.current.focus();
-      }
-    }, 0);
+    setTimeout(() => taskTitleRef.current?.focus(), 0);
   };
 
-  // Recursively delete a task and its subtasks
+  // Delete task and its subtasks
   const handleDeleteTask = (taskId, e) => {
     e.stopPropagation();
     const deleteTaskAndSubtasks = (id) => {
@@ -424,7 +370,7 @@ useEffect(() => {
         return updatedTasks;
       });
     };
-  
+
     if (window.confirm('Are you sure you want to delete this task and its subtasks?')) {
       deleteTaskAndSubtasks(taskId);
       if (editingTaskId === taskId) {
@@ -434,7 +380,7 @@ useEffect(() => {
     }
   };
 
-  // Handle clicks outside the form to close it if empty
+  // Handle clicks outside form to close if empty
   const handleClickOutside = (e) => {
     if (formRef.current && !formRef.current.contains(e.target) && !task.title.trim() && !task.description.trim()) {
       if (!e.target.closest('.mode-toggle')) {
@@ -448,32 +394,25 @@ useEffect(() => {
     }
   };
 
-  // Handle date and time input changes with validation
+  // Handle date input changes with validation
   const handleDateTimeChange = (e) => {
     const { name, value } = e.target;
     setTask((prevTask) => {
       const updatedTask = { ...prevTask, [name]: value };
       const currentDate = new Date();
 
-      if (name === 'createdDate') {
-        const selectedDate = new Date(value);
-        if (selectedDate < currentDate) {
-          setDueDateError('Created On date and time cannot be in the past.');
-        } else {
-          setDueDateError('');
-        }
-      }
-
-      if (name === 'completionDate' && updatedTask.createdDate) {
+      if (name === 'createdDate' && new Date(value) < currentDate) {
+        setDueDateError('Created On date and time cannot be in the past.');
+      } else if (name === 'completionDate' && updatedTask.createdDate) {
         const createdDate = new Date(updatedTask.createdDate);
         const completionDate = new Date(value);
-        if (completionDate < createdDate) {
-          setDueDateError('Due By date and time cannot be earlier than Created On.');
-        } else if (completionDate < currentDate) {
-          setDueDateError('Due By date and time cannot be in the past.');
+        if (completionDate < createdDate || completionDate < currentDate) {
+          setDueDateError('Invalid Due By date.');
         } else {
           setDueDateError('');
         }
+      } else {
+        setDueDateError('');
       }
 
       if (updatedTask.createdDate && updatedTask.completionDate) {
@@ -482,13 +421,9 @@ useEffect(() => {
 
       return updatedTask;
     });
-
-    if (e.target.dataset.blurTimeout) clearTimeout(e.target.dataset.blurTimeout);
-    const timeoutId = setTimeout(() => e.target.blur(), 3000);
-    e.target.dataset.blurTimeout = timeoutId;
   };
 
-  // Cleanup for date input blur timeouts
+  // Cleanup date input blur timeouts
   useEffect(() => {
     return () => {
       const createdInput = document.getElementById('createdDate');
@@ -498,7 +433,7 @@ useEffect(() => {
     };
   }, []);
 
-  // Update duration when editing task dates change
+  // Update duration for edited task
   useEffect(() => {
     if (editingTaskId && editingTaskData.createdDate && editingTaskData.completionDate) {
       const newDuration = calculateDurationInDays(editingTaskData.createdDate, editingTaskData.completionDate);
@@ -508,20 +443,20 @@ useEffect(() => {
     }
   }, [editingTaskData.createdDate, editingTaskData.completionDate, editingTaskId]);
 
-  // Change the parent task of a task with validation
+  // Change task parent with validation
   const handleParentChange = (e, taskId) => {
     const newParentId = e.target.value || null;
     if (isDescendant(newParentId, taskId, tasks)) {
-      alert('Invalid parent selection. A task cannot be its own parent or a subtask of its own subtasks.');
+      alert('Invalid parent selection.');
       return;
     }
     setTasks((prev) => prev.map((t) => (t.id === taskId ? { ...t, parentTaskId: newParentId } : t)));
   };
 
-  // Toggle the expanded state of a task with subtasks
+  // Toggle task expansion
   const toggleExpand = (taskId) => setExpandedTasks((prev) => ({ ...prev, [taskId]: !prev[taskId] }));
 
-  // Create falling leaf animation effect
+  // Create falling leaf animation
   useEffect(() => {
     const numLeaves = 20;
     const leafContainer = document.getElementById('falling-leaf-container');
@@ -535,60 +470,31 @@ useEffect(() => {
     }
   }, []);
 
-  // Handle input changes during task editing with validation
+  // Handle input changes for editing task
   const handleEditInputChange = (e) => {
     const { name, value } = e.target;
-
-    if (name === 'createdDate') {
+    if (name === 'createdDate' || name === 'completionDate') {
       const currentDate = new Date();
       const selectedDate = new Date(value);
-
-      if (selectedDate < currentDate) {
-        setDueDateError('Created On date and time cannot be in the past.');
-        return;
-      } else {
-        setDueDateError('');
-      }
-
-      if (editingTaskData.completionDate && new Date(editingTaskData.completionDate) < selectedDate) {
-        setDueDateError('Due By date and time cannot be earlier than Created On.');
+      if (selectedDate < currentDate || (name === 'completionDate' && new Date(editingTaskData.createdDate) > selectedDate)) {
+        setDueDateError('Invalid date selection.');
         return;
       }
     }
-
-    if (name === 'completionDate' && editingTaskData.createdDate) {
-      const createdDate = new Date(editingTaskData.createdDate);
-      const completionDate = new Date(value);
-      const currentDate = new Date();
-
-      if (completionDate < createdDate) {
-        setDueDateError('Due By date and time cannot be earlier than Created On.');
-        return;
-      }
-
-      if (completionDate < currentDate) {
-        setDueDateError('Due By date and time cannot be in the past.');
-        return;
-      }
-
-      setDueDateError('');
-    }
-
     setEditingTaskData((prev) => ({ ...prev, [name]: value }));
-
     if (name === 'assignedTo') {
       const filteredSuggestions = assignees.filter((a) => a.toLowerCase().includes(value.toLowerCase()));
       setAssigneeSuggestions(filteredSuggestions);
     }
   };
 
-  // Handle right-click to show context menu
+  // Handle right-click for context menu
   const handleRowRightClick = (e, taskId) => {
     e.preventDefault();
     setContextMenu({ visible: true, taskId, x: e.clientX, y: e.clientY });
   };
 
-  // Recursively render tasks and their subtasks
+  // Recursively render tasks
   const renderTasks = (tasks, parentId = null, level = 0) =>
     tasks.filter((t) => t.parentTaskId === parentId).map((task) => {
       const hasSubtasks = tasks.some((t) => t.parentTaskId === task.id);
@@ -605,11 +511,7 @@ useEffect(() => {
               )}
               {isEditing ? <input type="text" name="title" value={editingTaskData.title} onChange={handleEditInputChange} /> : task.title}
             </td>
-            <td>
-              {isEditing ? (
-                <input type="text" name="description" value={editingTaskData.description} onChange={handleEditInputChange} />
-              ) : task.description}
-            </td>
+            <td>{isEditing ? <input type="text" name="description" value={editingTaskData.description} onChange={handleEditInputChange} /> : task.description}</td>
             <td>
               {isEditing ? (
                 <select value={editingTaskData.assignedTo} onChange={(e) => setEditingTaskData({ ...editingTaskData, assignedTo: e.target.value })}>
@@ -620,47 +522,23 @@ useEffect(() => {
                 </select>
               ) : task.assignedTo}
             </td>
+            <td>{isEditing ? <input type="number" value={editingTaskData.duration || ''} disabled /> : `${task.duration} ${task.duration === 1 ? 'day' : 'days'}`}</td>
             <td>
               {isEditing ? (
-                <input type="number" value={editingTaskData.duration || ''} disabled />
-              ) : `${task.duration} ${task.duration === 1 ? 'day' : 'days'}`}
+                <input type="datetime-local" value={editingTaskData.createdDate} onChange={handleEditInputChange} name="createdDate" min={new Date().toISOString().slice(0, 16)} />
+              ) : `📅 ${formatDateTime(task.createdDate)}`}
             </td>
             <td>
               {isEditing ? (
-                <input
-                  type="datetime-local"
-                  value={editingTaskData.createdDate}
-                  onChange={handleEditInputChange}
-                  name="createdDate"
-                  min={new Date().toISOString().slice(0, 16)}
-                />
-              ) : (
-                `📅 ${formatDateTime(task.createdDate)}`
-              )}
-            </td>
-            <td>
-              {isEditing ? (
-                <input
-                  type="datetime-local"
-                  value={editingTaskData.completionDate}
-                  onChange={handleEditInputChange}
-                  name="completionDate"
-                  min={editingTaskData.createdDate || new Date().toISOString().slice(0, 16)}
-                />
-              ) : (
-                `⏳ ${formatDateTime(task.completionDate)}`
-              )}
+                <input type="datetime-local" value={editingTaskData.completionDate} onChange={handleEditInputChange} name="completionDate" min={editingTaskData.createdDate || new Date().toISOString().slice(0, 16)} />
+              ) : `⏳ ${formatDateTime(task.completionDate)}`}
             </td>
             <td>
               {task.parentTaskId ? (
                 <>
                   {tasks.find((t) => t.id === task.parentTaskId)?.title || 'Main Task'}
                   {isEditing && (
-                    <select 
-                      value={task.parentTaskId || ''} 
-                      onChange={(e) => handleParentChange(e, task.id)} 
-                      style={{ marginLeft: '10px' }}
-                    >
+                    <select value={task.parentTaskId || ''} onChange={(e) => handleParentChange(e, task.id)} style={{ marginLeft: '10px' }}>
                       <option value="">Change Parent Task</option>
                       {tasks.filter((t) => t.id !== task.id && !isDescendant(t.id, task.id, tasks)).map((t) => (
                         <option key={t.id} value={t.id}>{t.title}</option>
@@ -678,27 +556,14 @@ useEffect(() => {
                     min="0"
                     max="100"
                     value={editingTaskData.progress || 0}
-                    onChange={(e) => setEditingTaskData({
-                      ...editingTaskData,
-                      progress: parseInt(e.target.value)
-                    })}
+                    onChange={(e) => setEditingTaskData({ ...editingTaskData, progress: parseInt(e.target.value) })}
                   />
                   <span>{editingTaskData.progress || 0}%</span>
                 </div>
               ) : (
                 <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                  <div style={{
-                    width: '100px',
-                    height: '10px',
-                    backgroundColor: '#e0e0e0',
-                    borderRadius: '5px',
-                    overflow: 'hidden'
-                  }}>
-                    <div style={{
-                      width: `${task.progress || 0}%`,
-                      height: '100%',
-                      backgroundColor: task.progress === 100 ? '#4caf50' : '#2196f3'
-                    }}></div>
+                  <div style={{ width: '100px', height: '10px', backgroundColor: '#e0e0e0', borderRadius: '5px', overflow: 'hidden' }}>
+                    <div style={{ width: `${task.progress || 0}%`, height: '100%', backgroundColor: task.progress === 100 ? '#4caf50' : '#2196f3' }}></div>
                   </div>
                   <span>{task.progress || 0}%</span>
                 </div>
@@ -723,74 +588,53 @@ useEffect(() => {
       );
     });
 
-  // Render the table body with tasks
+  // Render table body
   const renderTableBody = () => <tbody>{renderTasks(tasks)}</tbody>;
 
+  // Calculate overall project progress
   const calculateOverallProgress = () => {
     if (tasks.length === 0) return 0;
     const totalProgress = tasks.reduce((sum, task) => sum + (task.progress || 0), 0);
     return Math.round(totalProgress / tasks.length);
   };
 
+  // Calculate parent task progress based on subtasks
   const calculateParentProgress = (taskId) => {
     const subtasks = tasks.filter(t => t.parentTaskId === taskId);
     if (subtasks.length === 0) return null;
-    
     const totalProgress = subtasks.reduce((sum, task) => sum + (task.progress || 0), 0);
     return Math.round(totalProgress / subtasks.length);
   };
 
-  // Apply dark mode and persist in localStorage
+  // Apply dark mode and persist preference
   useEffect(() => {
-    if (darkMode) {
-      document.body.classList.add('dark-mode');
-      localStorage.setItem('darkMode', 'true');
-    } else {
-      document.body.classList.remove('dark-mode');
-      localStorage.setItem('darkMode', 'false');
-    }
+    document.body.classList.toggle('dark-mode', darkMode);
+    localStorage.setItem('darkMode', darkMode);
   }, [darkMode]);
 
-  // Add event listener for click-outside detection
+  // Handle click-outside for form
   useEffect(() => {
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, [showForm, task]);
 
-  // Update task duration when created/completion dates change
+  // Update task duration on date changes
   useEffect(() => {
     if (task.createdDate && task.completionDate) {
       setTask((prev) => ({ ...prev, duration: calculateDurationInDays(prev.createdDate, task.completionDate) }));
     }
   }, [task.createdDate, task.completionDate]);
 
-  // Render the main UI
+  // Main UI render
   return (
     <div className="App">
       <div className={`wallpaper ${darkMode ? 'dark-mode' : ''}`}></div>
       <div className={isCursorActive ? 'cursor-active' : 'no-cursor'}>
         <div id="falling-leaf-container" style={{ background: darkMode ? 'none' : "url('/wallpaper.jpg') no-repeat center center fixed", backgroundSize: 'cover' }}>
-          <button
-            className="mode-toggle"
-            onClick={() => setDarkMode((prev) => !prev)}
-            style={{ position: 'absolute', top: '2px', right: '20px', padding: '10px', zIndex: 10 }}
-          >
+          <button className="mode-toggle" onClick={() => setDarkMode((prev) => !prev)} style={{ position: 'absolute', top: '2px', right: '20px', padding: '10px', zIndex: 10 }}>
             {darkMode ? 'Light Mode' : 'Dark Mode'}
           </button>
-          <button
-            className="view-toggle"
-            onClick={() => {
-              console.log('Toggling view to:', view === 'table' ? 'graph' : 'table');
-              setView(view === 'table' ? 'graph' : 'table');
-            }}
-            style={{ 
-              position: 'absolute', 
-              top: '2px', 
-              right: '120px', 
-              padding: '10px', 
-              zIndex: 10 
-            }}
-          >
+          <button className="view-toggle" onClick={() => setView(view === 'table' ? 'graph' : 'table')} style={{ position: 'absolute', top: '2px', right: '120px', padding: '10px', zIndex: 10 }}>
             {view === 'table' ? 'Graph View' : 'Table View'}
           </button>
         </div>
@@ -801,33 +645,23 @@ useEffect(() => {
           </div>
           {view === 'table' ? (
             tasks.length > 0 ? (
-              
               <div className="table-wrapper">
-                <br></br>
-<div className="progress-summary">
-  <h3>Project Progress</h3>
-  <div className="overall-progress">
-    <div className="progress-bar">
-      <div 
-        className="progress-fill" 
-        style={{ 
-          width: `${calculateOverallProgress()}%`,
-          backgroundColor: calculateOverallProgress() === 100 ? '#4caf50' : '#2196f3'
-        }}
-      ></div>
-    </div>
-    <span>{calculateOverallProgress()}% Complete</span>
-  </div>
-  <div className="progress-stats">
-    <div>Total Tasks: {tasks.length}</div>
-    <div>Completed: {tasks.filter(t => t.progress === 100).length}</div>
-    <div>In Progress: {tasks.filter(t => t.progress > 0 && t.progress < 100).length}</div>
-    <div>Not Started: {tasks.filter(t => !t.progress || t.progress === 0).length}</div>
-  </div>
-</div>
-
-
-
+                <br />
+                <div className="progress-summary">
+                  <h3>Project Progress</h3>
+                  <div className="overall-progress">
+                    <div className="progress-bar">
+                      <div className="progress-fill" style={{ width: `${calculateOverallProgress()}%`, backgroundColor: calculateOverallProgress() === 100 ? '#4caf50' : '#2196f3' }}></div>
+                    </div>
+                    <span>{calculateOverallProgress()}% Complete</span>
+                  </div>
+                  <div className="progress-stats">
+                    <div>Total Tasks: {tasks.length}</div>
+                    <div>Completed: {tasks.filter(t => t.progress === 100).length}</div>
+                    <div>In Progress: {tasks.filter(t => t.progress > 0 && t.progress < 100).length}</div>
+                    <div>Not Started: {tasks.filter(t => !t.progress || t.progress === 0).length}</div>
+                  </div>
+                </div>
                 <table>
                   <thead>
                     <tr>
@@ -852,57 +686,23 @@ useEffect(() => {
             <div className="graph-view-container">
               {tasks.length > 0 ? (
                 <ReactFlowProvider>
-                  <TaskGraph 
-                    tasks={tasks}
-                    onNodeClick={(taskId) => {
-                      const task = tasks.find(t => t.id === taskId);
-                      if (task) handleEditTask(taskId);
-                    }}
-                  />
+                  <TaskGraph tasks={tasks} onNodeClick={(taskId) => handleEditTask(taskId)} />
                 </ReactFlowProvider>
               ) : (
                 <div className="empty-graph-message">
                   <h3>No Tasks to Display</h3>
                   <p>Add tasks to see the dependency graph</p>
-                  <button 
-                    className="add-first-task-btn"
-                    onClick={handleAddTaskClick}
-                  >
-                    Add First Task
-                  </button>
-                  <button onClick={exportTasks} className="export-button">
-  Export Tasks
-</button>
-<label className="import-button">
-  Import Tasks
-  <input type="file" onChange={importTasks} style={{display: 'none'}} />
-</label>
-                  // Add this near your other buttons in the return statement
+                  <button className="add-first-task-btn" onClick={handleAddTaskClick}>Add First Task</button>
+                  <button onClick={exportTasks} className="export-button">Export Tasks</button>
+                  <label className="import-button">
+                    Import Tasks
+                    <input type="file" onChange={importTasks} style={{ display: 'none' }} />
+                  </label>
                   <div className="save-load-buttons">
-  <button 
-    onClick={() => saveTasksToStorage(tasks)}
-    className="save-button"
-  >
-    Save Tasks
-  </button>
-  <button 
-  onClick={handleLoadTasks}
-  className="load-button"
->
-  Load Tasks
-</button>
-  <button
-    onClick={() => {
-      if (window.confirm('Clear all tasks?')) {
-        setTasks([]);
-        safeLocalStorage.setItem('phased-tasks', JSON.stringify([]));
-      }
-    }}
-    className="clear-button"
-  >
-    Clear All Tasks
-  </button>
-</div>
+                    <button onClick={() => saveTasksToStorage(tasks)} className="save-button">Save Tasks</button>
+                    <button onClick={handleLoadTasks} className="load-button">Load Tasks</button>
+                    <button onClick={() => { if (window.confirm('Clear all tasks?')) { setTasks([]); safeLocalStorage.setItem('phased-tasks', JSON.stringify([])); } }} className="clear-button">Clear All Tasks</button>
+                  </div>
                 </div>
               )}
             </div>
@@ -910,11 +710,7 @@ useEffect(() => {
           <ContextMenu visible={contextMenu.visible} x={contextMenu.x} y={contextMenu.y} onAddSubtask={handleAddSubtask} onClose={handleCloseContextMenu} />
           <div className="add-task-container">
             {!showForm ? (
-              <button 
-                className="add-task-btn" 
-                onClick={handleAddTaskClick} 
-                style={{ backgroundColor: darkMode ? '#333' : '#f0f0f0' }}
-              >
+              <button className="add-task-btn" onClick={handleAddTaskClick} style={{ backgroundColor: darkMode ? '#333' : '#f0f0f0' }}>
                 Add Task
               </button>
             ) : (
