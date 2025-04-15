@@ -662,6 +662,13 @@ function App() {
                     <div>Not Started: {tasks.filter(t => !t.progress || t.progress === 0).length}</div>
                   </div>
                 </div>
+                <div className="save-load-buttons">
+    <button onClick={exportTasks} className="export-button">Export Tasks</button>
+    <label className="import-button">
+      Import Tasks
+      <input type="file" onChange={importTasks} style={{ display: 'none' }} />
+    </label>
+  </div>
                 <table>
                   <thead>
                     <tr>
