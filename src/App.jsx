@@ -106,9 +106,48 @@ function App() {
 
   // Export tasks as JSON file
   const exportTasks = () => {
-    const dataStr = JSON.stringify(tasks);
-    const dataUri = 'data:application/json;charset=utf-8,' + encodeURIComponent(dataStr);
-    const exportFileDefaultName = 'tasks.json';
+    // Helper function to format a task and its subtasks
+    const formatTask = (task, level = 0) => {
+      const indent = '  '.repeat(level); // Two spaces per level for indentation
+      const fields = [
+        `${indent}Title: ${task.title}`,
+        `${indent}Description: ${task.description}`,
+        `${indent}Assigned To: ${task.assignedTo}`,
+        `${indent}Duration: ${task.duration} ${task.duration === 1 ? 'day' : 'days'}`,
+        `${indent}Created On: ${formatDateTime(task.createdDate)}`,
+        `${indent}Due By: ${formatDateTime(task.completionDate)}`,
+        `${indent}Parent Task: ${getParentTaskTitle(task.parentTaskId)}`,
+        `${indent}Progress: ${task.progress || 0}%`,
+      ].join('\n');
+      return fields;
+    };
+  
+    // Recursively format tasks with hierarchy
+    const formatTasksHierarchy = (tasks, parentId = null, level = 0) => {
+      const filteredTasks = tasks.filter((t) => t.parentTaskId === parentId);
+      let result = '';
+      filteredTasks.forEach((task, index) => {
+        result += formatTask(task, level);
+        result += '\n'; // Line break after task
+        // Add subtasks recursively
+        const subtasks = formatTasksHierarchy(tasks, task.id, level + 1);
+        if (subtasks) {
+          result += subtasks;
+        }
+        // Add extra line break between tasks, except for the last one
+        if (index < filteredTasks.length - 1 || level > 0) {
+          result += '\n';
+        }
+      });
+      return result;
+    };
+  
+    // Generate the text content
+    const textContent = formatTasksHierarchy(tasks);
+  
+    // Create and download the text file
+    const dataUri = 'data:text/plain;charset=utf-8,' + encodeURIComponent(textContent);
+    const exportFileDefaultName = 'tasks.txt';
     const linkElement = document.createElement('a');
     linkElement.setAttribute('href', dataUri);
     linkElement.setAttribute('download', exportFileDefaultName);
