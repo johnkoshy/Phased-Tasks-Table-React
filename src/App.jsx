@@ -154,6 +154,17 @@ function App() {
     linkElement.click();
   };
 
+  const exportTasksAsJson = () => {
+    const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
+    const dataStr = JSON.stringify(tasks, null, 2); // Pretty-print JSON with indentation
+    const dataUri = 'data:application/json;charset=utf-8,' + encodeURIComponent(dataStr);
+    const exportFileDefaultName = `tasks-${timestamp}.json`;
+    const linkElement = document.createElement('a');
+    linkElement.setAttribute('href', dataUri);
+    linkElement.setAttribute('download', exportFileDefaultName);
+    linkElement.click();
+  };
+
   // Import tasks from JSON file
   const importTasks = (event) => {
     const fileReader = new FileReader();
@@ -702,12 +713,13 @@ function App() {
                   </div>
                 </div>
                 <div className="save-load-buttons">
-    <button onClick={exportTasks} className="export-button">Export Tasks</button>
-    <label className="import-button">
-      Import Tasks
-      <input type="file" onChange={importTasks} style={{ display: 'none' }} />
-    </label>
-  </div>
+  <button onClick={exportTasks} className="export-button">Export Tasks as Text</button>
+  <button onClick={exportTasksAsJson} className="export-json-button">Export Tasks as JSON</button>
+  <label className="import-button">
+    Import Tasks
+    <input type="file" onChange={importTasks} style={{ display: 'none' }} accept=".json" />
+  </label>
+</div>
                 <table>
                   <thead>
                     <tr>
