@@ -692,6 +692,14 @@ function App() {
           <div className="table-header">
             <h4>PHASED TASKS TABLE</h4>
             <h5>{view === 'table' ? 'Task List' : 'Dependency Graph'}</h5>
+            <div className="header-buttons" style={{ display: 'flex', gap: '10px', marginTop: '10px' }}>
+            <button onClick={exportTasks} className="export-button">Export Tasks as Text</button>
+            <button onClick={exportTasksAsJson} className="export-json-button">Export Tasks as JSON</button>
+            <label className="import-button">
+              Import Tasks
+              <input type="file" onChange={importTasks} style={{ display: 'none' }} accept=".json" />
+            </label>
+          </div>
           </div>
           {view === 'table' ? (
             tasks.length > 0 ? (
@@ -712,14 +720,7 @@ function App() {
                     <div>Not Started: {tasks.filter(t => !t.progress || t.progress === 0).length}</div>
                   </div>
                 </div>
-                <div className="save-load-buttons">
-  <button onClick={exportTasks} className="export-button">Export Tasks as Text</button>
-  <button onClick={exportTasksAsJson} className="export-json-button">Export Tasks as JSON</button>
-  <label className="import-button">
-    Import Tasks
-    <input type="file" onChange={importTasks} style={{ display: 'none' }} accept=".json" />
-  </label>
-</div>
+                
                 <table>
                   <thead>
                     <tr>
@@ -751,16 +752,7 @@ function App() {
                   <h3>No Tasks to Display</h3>
                   <p>Add tasks to see the dependency graph</p>
                   <button className="add-first-task-btn" onClick={handleAddTaskClick}>Add First Task</button>
-                  <button onClick={exportTasks} className="export-button">Export Tasks</button>
-                  <label className="import-button">
-                    Import Tasks
-                    <input type="file" onChange={importTasks} style={{ display: 'none' }} />
-                  </label>
-                  <div className="save-load-buttons">
-                    <button onClick={() => saveTasksToStorage(tasks)} className="save-button">Save Tasks</button>
-                    <button onClick={handleLoadTasks} className="load-button">Load Tasks</button>
-                    <button onClick={() => { if (window.confirm('Clear all tasks?')) { setTasks([]); safeLocalStorage.setItem('phased-tasks', JSON.stringify([])); } }} className="clear-button">Clear All Tasks</button>
-                  </div>
+              
                 </div>
               )}
             </div>

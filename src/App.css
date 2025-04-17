@@ -651,7 +651,7 @@ body {
 }
 /* Add to your App.css */
 .save-load-buttons {
-  margin: 20px 0;
+  margin-bottom: 20px;
   display: flex;
   gap: 10px;
 }
@@ -671,7 +671,7 @@ body {
   color: white;
 }
 .export-button {
-  background-color: #ff9800;
+  background-color: #4caf50;
   color: white;
 }
 
@@ -680,4 +680,74 @@ body {
   color: white;
   padding: 6px 12px;
   cursor: pointer;
+}
+.export-button, .export-json-button, .import-button, .save-button, .load-button, .clear-button {
+  padding: 8px 16px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+}
+.export-json-button {
+  background-color: #2196f3;
+  color: white;
+}
+
+.import-button {
+  display: inline-block;
+  padding: 8px 16px;
+  background-color: #ff9800;
+  color: white;
+  border-radius: 4px;
+  cursor: pointer;
+}
+.import-button input {
+  display: none;
+}
+.header-buttons {
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+}
+.header-buttons button,
+.header-buttons label {
+  padding: 8px 16px;
+  font-size: 14px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+.header-buttons .export-button {
+  background-color: #2196f3;
+  color: white;
+  border: none;
+}
+.header-buttons .export-json-button {
+  background-color: #4caf50;
+  color: white;
+  border: none;
+}
+.header-buttons .import-button {
+  background-color: #f0f0f0;
+  color: black;
+  border: 1px solid #ccc;
+  display: inline-flex;
+  align-items: center;
+}
+.header-buttons .export-button:hover {
+  background-color: #1976d2;
+}
+.header-buttons .export-json-button:hover {
+  background-color: #388e3c;
+}
+.header-buttons .import-button:hover {
+  background-color: #e0e0e0;
+}
+.dark-mode .header-buttons .import-button {
+  background-color: #444;
+  color: white;
+  border-color: #666;
+}
+.dark-mode .header-buttons .import-button:hover {
+  background-color: #555;
 }
