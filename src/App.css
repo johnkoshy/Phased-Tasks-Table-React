@@ -3,6 +3,13 @@
 @tailwind components;
 @tailwind utilities;
 
+@media (max-width: 1400px) {
+  .table-container {
+    max-width: 100%;
+    padding: 10px;
+  }
+}
+
 /* Glass effect for task items */
 .task-item {
   background: rgba(255, 255, 255, 0.15); /* Semi-transparent white background */
@@ -144,6 +151,8 @@
   box-shadow: none; /* No shadow */
   width: 100%; /* Full width */
   position: relative; /* For positioning context */
+  max-height: none; /* Remove fixed height to allow content-driven height */
+  min-height: 400px; /* Ensure minimum height */
 }
 
 /* Table styles inside wrapper */
@@ -290,7 +299,7 @@ body {
   max-width: 1300px; /* Maximum width for larger screens */
   margin-left: 45px; /* Left margin for spacing */
   
-  
+  margin: 0 auto;
   min-height: 100vh; /* Ensure it takes full viewport height */
   width: 100%; /* Full width of its parent */
   padding: 20px; /* Optional: adds some breathing room */
@@ -509,37 +518,45 @@ body {
 
 /* Graph View Container */
 .graph-view-container {
-  width: 100%;
-  height: 70vh;
-  min-height: 500px; /* Minimum height to ensure good visibility */
-  background: rgba(255, 255, 255, 0.85);
-  backdrop-filter: blur(12px);
-  border: 1px solid #ccc;
+  width: 100%; /* Full width of parent (table-container) */
+  height: auto; /* Allow height to adjust dynamically */
+  min-height: 500px; /* Minimum height for consistency */
+  background: transparent; /* Avoid obscuring the canvas */
+  border: none; /* Remove border to maximize space */
   border-radius: 8px;
-  margin-top: 20px 0;
-
-  padding: 0; /* Remove padding if it’s shrinking the graph */
-  
-  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
-  border: 1px solid rgba(255, 255, 255, 0.3);
+  margin: 20px 0; /* Match table-wrapper margin */
+  padding: 0; /* Remove padding to maximize canvas size */
+  box-shadow: none; /* Remove shadow to simplify rendering */
   position: relative;
-  overflow: hidden; /* Prevent overflow issues */
+  overflow: visible; /* Allow nodes to be visible outside bounds */
+  display: flex; /* Ensure proper layout for React Flow */
+  flex-direction: column; /* Stack children vertically */
+  
 }
 
 /* Ensure ReactFlow takes full container size */
 .graph-view-container .react-flow {
   width: 100%;
   height: 100%;
+  min-height: 500px; /* Ensure sufficient height */
+  background: rgba(255, 255, 255, 0.1); /* Subtle background for visibility */
+}
+
+.dark-mode .graph-view-container .react-flow {
+  background: rgba(50, 50, 50, 0.2); /* Darker background for contrast */
 }
 
 /* Empty Graph State */
 .empty-graph-message {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  text-align: center;
   width: 100%;
+  height: 70vh; /* Match graph-view-container */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  background: transparent;
+  min-height: 500px;
 }
 
 .empty-graph-message h3 {

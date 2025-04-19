@@ -13,49 +13,66 @@ const TaskGraph = ({ tasks, onNodeClick }) => {
 
   console.log('TaskGraph rendered with tasks:', tasks);
 
-  const initialNodes = useMemo(() => 
-    tasks.map((task, index) => ({
+  // Generate nodes with dynamic positioning
+  const initialNodes = useMemo(() => {
+    return tasks.map((task, index) => ({
       id: task.id,
-      data: { 
+      data: {
         label: (
-          <div style={{ padding: '8px' }}>
-            <div style={{ fontWeight: 'bold' }}>{task.title}</div>
-            <div>Assigned: {task.assignedTo}</div>
+          <div
+            style={{
+              padding: '8px',
+              background: '#fff',
+              borderRadius: '4px',
+              boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
+              maxWidth: '200px', // Limit node width for readability
+              textAlign: 'center',
+            }}
+          >
+            <div style={{ fontWeight: 'bold', color: '#333' }}>{task.title}</div>
+            <div style={{ fontSize: '12px', color: '#666' }}>
+              Assigned: {task.assignedTo}
+            </div>
           </div>
         ),
       },
-      position: { x: index * 250, y: index % 2 === 0 ? 0 : 100 },
-    })), 
-    [tasks]
-  );
+      position: { x: (index % 4) * 250, y: Math.floor(index / 4) * 200 }, // Adjusted spacing
+    }));
+  }, [tasks]);
 
-  const initialEdges = useMemo(() =>
-    tasks
-      .filter((task) => task.parentTaskId)
-      .map((task) => ({
-        id: `e${task.parentTaskId}-${task.id}`,
-        source: task.parentTaskId,
-        target: task.id,
-        animated: true,
-      })),
+  // Generate edges
+  const initialEdges = useMemo(
+    () =>
+      tasks
+        .filter((task) => task.parentTaskId)
+        .map((task) => ({
+          id: `e${task.parentTaskId}-${task.id}`,
+          source: task.parentTaskId,
+          target: task.id,
+          animated: true,
+          style: { stroke: '#666', strokeWidth: 2 },
+        })),
     [tasks]
   );
 
   const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
   const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
 
+  // Update nodes and edges when tasks change
   useEffect(() => {
-    console.log('Nodes:', initialNodes);
-    console.log('Edges:', initialEdges);
+    console.log('Updating nodes:', initialNodes);
+    console.log('Updating edges:', initialEdges);
     setNodes(initialNodes);
     setEdges(initialEdges);
     if (tasks.length > 0) {
-      fitView({ padding: 0.2, duration: 800 });
+      setTimeout(() => {
+        fitView({ padding: 0.3, duration: 800 }); // Increased padding for better fit
+      }, 100);
     }
   }, [tasks, initialNodes, initialEdges, setNodes, setEdges, fitView]);
 
   return (
-    <div style={{ width: '100%', height: '100%' }}>
+    <div style={{ width: '100%', height: '100%', background: 'transparent' }}>
       <ReactFlow
         nodes={nodes}
         edges={edges}
@@ -63,8 +80,9 @@ const TaskGraph = ({ tasks, onNodeClick }) => {
         onEdgesChange={onEdgesChange}
         onNodeClick={(event, node) => onNodeClick(node.id)}
         fitView
+        style={{ width: '100%', height: '100%', minHeight: '500px' }}
       >
-        <Background />
+        <Background color="#aaa" gap={16} />
         <Controls />
       </ReactFlow>
     </div>

@@ -66,6 +66,17 @@ function App() {
     };
   }, []);
 
+  useEffect(() => {
+    if (view === 'graph' && tasks.length > 0) {
+      const tableWrapper = document.querySelector('.table-wrapper');
+      const graphContainer = document.querySelector('.graph-view-container');
+      if (tableWrapper && graphContainer) {
+        const tableHeight = tableWrapper.offsetHeight;
+        graphContainer.style.height = `${tableHeight}px`;
+      }
+    }
+  }, [view, tasks]);
+
   // Initialize dark mode and tasks on mount
   useEffect(() => {
     const savedDarkMode = localStorage.getItem('darkMode') === 'true';
@@ -187,6 +198,17 @@ function App() {
       setDueDateError('');
       setAssigneeSuggestions([]);
       setShowAssigneeSuggestions(false);
+    }
+  };
+
+  // Clear all tasks with confirmation
+  const handleClearAllTasks = () => {
+    if (window.confirm('Are you sure you want to delete all tasks? This action cannot be undone.')) {
+      setTasks([]);
+      safeLocalStorage.setItem('phased-tasks', JSON.stringify([]));
+      setEditingTaskId(null);
+      setEditingTaskData({});
+      setExpandedTasks({});
     }
   };
 
@@ -693,70 +715,80 @@ function App() {
             <h4>PHASED TASKS TABLE</h4>
             <h5>{view === 'table' ? 'Task List' : 'Dependency Graph'}</h5>
             <div className="header-buttons" style={{ display: 'flex', gap: '10px', marginTop: '10px' }}>
-            <button onClick={exportTasks} className="export-button">Export Tasks as Text</button>
-            <button onClick={exportTasksAsJson} className="export-json-button">Export Tasks as JSON</button>
-            <label className="import-button">
-              Import Tasks
-              <input type="file" onChange={importTasks} style={{ display: 'none' }} accept=".json" />
-            </label>
-          </div>
+              <button onClick={exportTasks} className="export-button">Export Tasks as Text</button>
+              <button onClick={exportTasksAsJson} className="export-json-button">Export Tasks as JSON</button>
+              <label className="import-button">
+                Import Tasks
+                <input type="file" onChange={importTasks} style={{ display: 'none' }} accept=".json" />
+              </label>
+              <button onClick={handleClearAllTasks} className="clear-all-button" style={{ backgroundColor: '#ff4d4d', color: 'white' }}>
+                Clear All Tasks
+              </button>
+            </div>
           </div>
           {view === 'table' ? (
-            tasks.length > 0 ? (
-              <div className="table-wrapper">
-                <br />
-                <div className="progress-summary">
-                  <h3>Project Progress</h3>
-                  <div className="overall-progress">
-                    <div className="progress-bar">
-                      <div className="progress-fill" style={{ width: `${calculateOverallProgress()}%`, backgroundColor: calculateOverallProgress() === 100 ? '#4caf50' : '#2196f3' }}></div>
-                    </div>
-                    <span>{calculateOverallProgress()}% Complete</span>
-                  </div>
-                  <div className="progress-stats">
-                    <div>Total Tasks: {tasks.length}</div>
-                    <div>Completed: {tasks.filter(t => t.progress === 100).length}</div>
-                    <div>In Progress: {tasks.filter(t => t.progress > 0 && t.progress < 100).length}</div>
-                    <div>Not Started: {tasks.filter(t => !t.progress || t.progress === 0).length}</div>
-                  </div>
-                </div>
-                
-                <table>
-                  <thead>
-                    <tr>
-                      <th>Task Title</th>
-                      <th>Description</th>
-                      <th>Assigned To</th>
-                      <th>Duration (Days)</th>
-                      <th>Created On</th>
-                      <th>Due By</th>
-                      <th>Parent Task</th>
-                      <th>Progress</th>
-                      <th>Actions</th>
-                    </tr>
-                  </thead>
-                  {renderTableBody()}
-                </table>
-              </div>
-            ) : (
-              <p className="no-tasks-message">No tasks available. Add your first task to get started!</p>
-            )
-          ) : (
-            <div className="graph-view-container">
-              {tasks.length > 0 ? (
-                <ReactFlowProvider>
-                  <TaskGraph tasks={tasks} onNodeClick={(taskId) => handleEditTask(taskId)} />
-                </ReactFlowProvider>
-              ) : (
-                <div className="empty-graph-message">
-                  <h3>No Tasks to Display</h3>
-                  <p>Add tasks to see the dependency graph</p>
-                  <button className="add-first-task-btn" onClick={handleAddTaskClick}>Add First Task</button>
-              
-                </div>
-              )}
-            </div>
-          )}
+  tasks.length > 0 ? (
+    <div className="table-wrapper">
+      <br />
+      <div className="progress-summary">
+        <h3>Project Progress</h3>
+        <div className="overall-progress">
+          <div className="progress-bar">
+            <div
+              className="progress-fill"
+              style={{
+                width: `${calculateOverallProgress()}%`,
+                backgroundColor: calculateOverallProgress() === 100 ? '#4caf50' : '#2196f3',
+              }}
+            ></div>
+          </div>
+          <span>{calculateOverallProgress()}% Complete</span>
+        </div>
+        <div className="progress-stats">
+          <div>Total Tasks: {tasks.length}</div>
+          <div>Completed: {tasks.filter((t) => t.progress === 100).length}</div>
+          <div>In Progress: {tasks.filter((t) => t.progress > 0 && t.progress < 100).length}</div>
+          <div>Not Started: {tasks.filter((t) => !t.progress || t.progress === 0).length}</div>
+        </div>
+      </div>
+      <table>
+        <thead>
+          <tr>
+            <th>Task Title</th>
+            <th>Description</th>
+            <th>Assigned To</th>
+            <th>Duration (Days)</th>
+            <th>Created On</th>
+            <th>Due By</th>
+            <th>Parent Task</th>
+            <th>Progress</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        {renderTableBody()}
+      </table>
+    </div>
+  ) : (
+    <p className="no-tasks-message">No tasks available. Add your first task to get started!</p>
+  )
+) : (
+  <div className="graph-view-container">
+    {console.log('Rendering graph view with tasks:', tasks)}
+    {tasks.length > 0 ? (
+      <ReactFlowProvider>
+        <TaskGraph tasks={tasks} onNodeClick={(taskId) => handleEditTask(taskId)} />
+      </ReactFlowProvider>
+    ) : (
+      <div className="empty-graph-message">
+        <h3>No Tasks to Display</h3>
+        <p>Add tasks to see the dependency graph</p>
+        <button className="add-first-task-btn" onClick={handleAddTaskClick}>
+          Add First Task
+        </button>
+      </div>
+    )}
+  </div>
+)}
           <ContextMenu visible={contextMenu.visible} x={contextMenu.x} y={contextMenu.y} onAddSubtask={handleAddSubtask} onClose={handleCloseContextMenu} />
           <div className="add-task-container">
             {!showForm ? (
