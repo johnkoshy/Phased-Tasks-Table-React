@@ -28,7 +28,7 @@ This project uses React with Vite for a fast development experience with Hot Mod
 
 Clone the Repository:
 git clone https://github.com/johnkoshy/phased-tasks-table.git
-cd your-repo-name
+cd phased-tasks-table
 
 
 Install Dependencies: Ensure you have Node.js installed. Then, install the required npm packages:
