@@ -27,7 +27,7 @@ Installation
 This project uses React with Vite for a fast development experience with Hot Module Replacement (HMR) and ESLint for code linting.
 
 Clone the Repository:
-git clone https://github.com/your-username/your-repo-name.git
+git clone https://github.com/johnkoshy/phased-tasks-table.git
 cd your-repo-name
 
 
