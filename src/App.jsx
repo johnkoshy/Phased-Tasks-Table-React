@@ -161,7 +161,7 @@ function App() {
       return allTasks.some(t => t.id === task.parentTaskId);
     };
     
-    if (importedTasks.some(task => !hasValidParent(task, [...tasks, ...importedTasks]))) {
+    if (importedTasks.some(task => !hasValidParent(task, importedTasks))) {
       alert('Some imported tasks reference invalid parent tasks');
       return;
     }
@@ -188,6 +188,7 @@ function App() {
 
   // Import tasks from JSON file
 // Import tasks from JSON file
+// Import tasks from JSON file
 const importTasks = (event) => {
   const fileReader = new FileReader();
   fileReader.readAsText(event.target.files[0], "UTF-8");
@@ -198,19 +199,32 @@ const importTasks = (event) => {
         alert('Invalid file format: Expected an array of tasks');
         return;
       }
+
+      // Validate imported tasks
       if (importedTasks.some(task => !validateTaskStructure(task))) {
         alert('Invalid task structure in imported file');
         return;
       }
 
-      const mergeTasks = window.confirm('Do you want to merge imported tasks with existing tasks? Click "Cancel" to replace existing tasks.');
+      // If no existing tasks, directly set imported tasks
+      if (tasks.length === 0) {
+        setTasks(importedTasks);
+        saveTasksToStorage(importedTasks);
+        alert('Tasks imported successfully');
+        return;
+      }
+
+      // If there are existing tasks, prompt for merge or replace
+      const mergeTasks = window.confirm('Merge imported tasks with existing tasks? Click "OK" to merge or "Cancel" to replace all existing tasks.');
       setTasks(prevTasks => {
         let mergedTasks;
         if (mergeTasks) {
+          // Merge: Add only tasks with unique IDs
           const existingIds = new Set(prevTasks.map(task => task.id));
           const newTasks = importedTasks.filter(task => !existingIds.has(task.id));
           mergedTasks = [...prevTasks, ...newTasks];
         } else {
+          // Replace: Use only imported tasks
           mergedTasks = importedTasks;
         }
         saveTasksToStorage(mergedTasks);
