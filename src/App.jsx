@@ -7,22 +7,20 @@ import TaskForm from './components/TaskForm';
 
 // Main App component for task management
 function App() {
-  // Safely save tasks to localStorage with validation
+  // Utility to safely save tasks to localStorage with validation
   const saveTasksToStorage = (tasksToSave) => {
     if (!Array.isArray(tasksToSave)) {
       console.error('Tasks to save is not an array');
       return;
     }
-    
     if (tasksToSave.some(task => !validateTaskStructure(task))) {
       console.error('Invalid task structure detected');
       return;
     }
-    
     safeLocalStorage.setItem('phased-tasks', JSON.stringify(tasksToSave));
   };
 
-  // State for tasks, form data, UI toggles, and interactions
+  // State management for tasks, form data, UI toggles, and interactions
   const [tasks, setTasks] = useState(() => {
     try {
       const savedTasks = safeLocalStorage.getItem('phased-tasks');
@@ -35,21 +33,21 @@ function App() {
   const [task, setTask] = useState({
     title: '', description: '', assignedTo: '', duration: '', completionDate: '', createdDate: '', parentTaskId: '', progress: 0
   });
-  const [showForm, setShowForm] = useState(false); // Toggle task form visibility
-  const [assigneeSuggestions, setAssigneeSuggestions] = useState([]); // Assignee input suggestions
-  const [expandedTasks, setExpandedTasks] = useState({}); // Track expanded tasks with subtasks
+  const [showForm, setShowForm] = useState(false); // Toggles task form visibility
+  const [assigneeSuggestions, setAssigneeSuggestions] = useState([]); // Suggestions for assignee input
+  const [expandedTasks, setExpandedTasks] = useState({}); // Tracks tasks with expanded subtasks
   const [editingTaskId, setEditingTaskId] = useState(null); // ID of task being edited
   const [editingTaskData, setEditingTaskData] = useState({}); // Data of task being edited
-  const [dueDateError, setDueDateError] = useState(''); // Date validation errors
-  const [contextMenu, setContextMenu] = useState({ visible: false, taskId: null, x: 0, y: 0 }); // Right-click context menu
-  const [showAssigneeSuggestions, setShowAssigneeSuggestions] = useState(false); // Assignee suggestions dropdown
-  const [darkMode, setDarkMode] = useState(false); // Theme toggle (starts in light mode)
-  const [isCursorActive, setIsCursorActive] = useState(true); // Cursor activity for animations
-  const [view, setView] = useState('table'); // Toggle between table and graph views
-  const formRef = useRef(null); // Reference to task form for click-outside detection
-  const taskTitleRef = useRef(null); // Reference to focus task title input
+  const [dueDateError, setDueDateError] = useState(''); // Stores date validation errors
+  const [contextMenu, setContextMenu] = useState({ visible: false, taskId: null, x: 0, y: 0 }); // Manages right-click context menu
+  const [showAssigneeSuggestions, setShowAssigneeSuggestions] = useState(false); // Toggles assignee suggestions dropdown
+  const [darkMode, setDarkMode] = useState(false); // Toggles dark/light theme
+  const [isCursorActive, setIsCursorActive] = useState(true); // Tracks cursor activity for animations
+  const [view, setView] = useState('table'); // Switches between table and graph views
+  const formRef = useRef(null); // Ref for task form to detect click-outside
+  const taskTitleRef = useRef(null); // Ref to focus task title input
 
-  // Detect cursor activity for animations
+  // Effect to detect cursor activity for animations
   useEffect(() => {
     let cursorTimeout;
     const handleCursorMove = () => {
@@ -66,18 +64,18 @@ function App() {
     };
   }, []);
 
+  // Effect to sync graph view height with table view
   useEffect(() => {
     if (view === 'graph' && tasks.length > 0) {
       const tableWrapper = document.querySelector('.table-wrapper');
       const graphContainer = document.querySelector('.graph-view-container');
       if (tableWrapper && graphContainer) {
-        const tableHeight = tableWrapper.offsetHeight;
-        graphContainer.style.height = `${tableHeight}px`;
+        graphContainer.style.height = `${tableWrapper.offsetHeight}px`;
       }
     }
   }, [view, tasks]);
 
-  // Initialize dark mode and tasks on mount
+  // Effect to initialize dark mode and load tasks on mount
   useEffect(() => {
     const savedDarkMode = localStorage.getItem('darkMode') === 'true';
     setDarkMode(savedDarkMode);
@@ -105,7 +103,7 @@ function App() {
     }
   };
 
-  // Calculate duration between two dates in days
+  // Calculates duration between two dates in days
   const calculateDurationInDays = (start, end) => {
     const startDate = new Date(start);
     const endDate = new Date(end);
@@ -115,13 +113,13 @@ function App() {
     return daysDiff > 0 ? daysDiff : 0;
   };
 
-  // Export tasks as JSON file
+  // Exports tasks as a formatted text file
   const exportTasks = async () => {
     try {
-      // Format tasks as text
+      // Formats a single task for text output
       const formatTask = (task, level = 0) => {
         const indent = '  '.repeat(level);
-        const fields = [
+        return [
           `${indent}Title: ${task.title}`,
           `${indent}Description: ${task.description}`,
           `${indent}Assigned To: ${task.assignedTo}`,
@@ -131,147 +129,121 @@ function App() {
           `${indent}Parent Task: ${getParentTaskTitle(task.parentTaskId)}`,
           `${indent}Progress: ${task.progress || 0}%`,
         ].join('\n');
-        return fields;
       };
-  
-    // Recursively format tasks with hierarchy
-    const formatTasksHierarchy = (tasks, parentId = null, level = 0) => {
-      const filteredTasks = tasks.filter((t) => t.parentTaskId === parentId);
-      let result = '';
-      filteredTasks.forEach((task, index) => {
-        result += formatTask(task, level);
-        result += '\n';
-        const subtasks = formatTasksHierarchy(tasks, task.id, level + 1);
-        if (subtasks) result += subtasks;
-        if (index < filteredTasks.length - 1 || level > 0) result += '\n';
-      });
-      return result;
-    };
-  
-    // Generate the text content
-    const textContent = formatTasksHierarchy(tasks);
 
-    // Check if File System Access API is supported
-    if ('showSaveFilePicker' in window) {
-      // Prompt user to choose a save location
-      const fileHandle = await window.showSaveFilePicker({
-        suggestedName: 'tasks.txt',
-        types: [
-          {
-            description: 'Text Files',
-            accept: { 'text/plain': ['.txt'] },
-          },
-        ],
-      });
-      const writableStream = await fileHandle.createWritable();
-      await writableStream.write(textContent);
-      await writableStream.close();
-    } else {
-      // Fallback to default download behavior
-      console.warn('File System Access API not supported. Using default download.');
+      // Recursively formats tasks with hierarchy
+      const formatTasksHierarchy = (tasks, parentId = null, level = 0) => {
+        const filteredTasks = tasks.filter((t) => t.parentTaskId === parentId);
+        let result = '';
+        filteredTasks.forEach((task, index) => {
+          result += formatTask(task, level) + '\n';
+          const subtasks = formatTasksHierarchy(tasks, task.id, level + 1);
+          if (subtasks) result += subtasks;
+          if (index < filteredTasks.length - 1 || level > 0) result += '\n';
+        });
+        return result;
+      };
 
-  // Create and download the text file
-  const dataUri = 'data:text/plain;charset=utf-8,' + encodeURIComponent(textContent);
-      const linkElement = document.createElement('a');
-      linkElement.setAttribute('href', dataUri);
-      linkElement.setAttribute('download', 'tasks.txt');
-      linkElement.click();
-    }
-  } catch (error) {
-    console.error('Error exporting tasks:', error);
-  }
-};
+      const textContent = formatTasksHierarchy(tasks);
 
-const exportTasksAsJson = async () => {
-  try {
-    const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
-    const dataStr = JSON.stringify(tasks, null, 2);
-
-    // Check if File System Access API is supported
-    if ('showSaveFilePicker' in window) {
-      // Prompt user to choose a save location
-      const fileHandle = await window.showSaveFilePicker({
-        suggestedName: `tasks-${timestamp}.json`,
-        types: [
-          {
-            description: 'JSON Files',
-            accept: { 'application/json': ['.json'] },
-          },
-        ],
-      });
-      const writableStream = await fileHandle.createWritable();
-      await writableStream.write(dataStr);
-      await writableStream.close();
-    } else {
-      // Fallback to default download behavior
-      console.warn('File System Access API not supported. Using default download.');
-      const dataUri = 'data:application/json;charset=utf-8,' + encodeURIComponent(dataStr);
-      const linkElement = document.createElement('a');
-      linkElement.setAttribute('href', dataUri);
-      linkElement.setAttribute('download', `tasks-${timestamp}.json`);
-      linkElement.click();
-    }
-  } catch (error) {
-    console.error('Error exporting tasks as JSON:', error);
-  }
-};
-
-  // Import tasks from JSON file
-// Import tasks from JSON file
-// Import tasks from JSON file
-const importTasks = (event) => {
-  const fileReader = new FileReader();
-  fileReader.readAsText(event.target.files[0], "UTF-8");
-  fileReader.onload = e => {
-    try {
-      const importedTasks = JSON.parse(e.target.result);
-      if (!Array.isArray(importedTasks)) {
-        alert('Invalid file format: Expected an array of tasks');
-        return;
+      // Uses File System Access API if available
+      if ('showSaveFilePicker' in window) {
+        const fileHandle = await window.showSaveFilePicker({
+          suggestedName: 'tasks.txt',
+          types: [{ description: 'Text Files', accept: { 'text/plain': ['.txt'] } }],
+        });
+        const writableStream = await fileHandle.createWritable();
+        await writableStream.write(textContent);
+        await writableStream.close();
+      } else {
+        // Fallback to default download
+        console.warn('File System Access API not supported. Using default download.');
+        const dataUri = 'data:text/plain;charset=utf-8,' + encodeURIComponent(textContent);
+        const linkElement = document.createElement('a');
+        linkElement.setAttribute('href', dataUri);
+        linkElement.setAttribute('download', 'tasks.txt');
+        linkElement.click();
       }
-
-      // Validate imported tasks
-      if (importedTasks.some(task => !validateTaskStructure(task))) {
-        alert('Invalid task structure in imported file');
-        return;
-      }
-
-      // If no existing tasks, directly set imported tasks
-      if (tasks.length === 0) {
-        setTasks(importedTasks);
-        saveTasksToStorage(importedTasks);
-        alert('Tasks imported successfully');
-        return;
-      }
-
-      // If there are existing tasks, prompt for merge or replace
-      const mergeTasks = window.confirm('Merge imported tasks with existing tasks? Click "OK" to merge or "Cancel" to replace all existing tasks.');
-      setTasks(prevTasks => {
-        let mergedTasks;
-        if (mergeTasks) {
-          const updatedTasks = [...prevTasks];
-          importedTasks.forEach(importedTask => {
-            const index = updatedTasks.findIndex(task => task.id === importedTask.id);
-            if (index !== -1) {
-              updatedTasks[index] = importedTask; // Update existing task
-            } else {
-              updatedTasks.push(importedTask); // Add new task
-            }
-          });
-          mergedTasks = updatedTasks;
-        }
-        saveTasksToStorage(mergedTasks);
-        return mergedTasks;
-      });
-      alert('Tasks imported successfully');
     } catch (error) {
-      alert('Error importing tasks: Invalid file format');
-      console.error('Failed to import tasks', error);
+      console.error('Error exporting tasks:', error);
     }
   };
-};
 
-  // Clear task form with confirmation
+  // Exports tasks as a JSON file
+  const exportTasksAsJson = async () => {
+    try {
+      const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
+      const dataStr = JSON.stringify(tasks, null, 2);
+
+      if ('showSaveFilePicker' in window) {
+        const fileHandle = await window.showSaveFilePicker({
+          suggestedName: `tasks-${timestamp}.json`,
+          types: [{ description: 'JSON Files', accept: { 'application/json': ['.json'] } }],
+        });
+        const writableStream = await fileHandle.createWritable();
+        await writableStream.write(dataStr);
+        await writableStream.close();
+      } else {
+        console.warn('File System Access API not supported. Using default download.');
+        const dataUri = 'data:application/json;charset=utf-8,' + encodeURIComponent(dataStr);
+        const linkElement = document.createElement('a');
+        linkElement.setAttribute('href', dataUri);
+        linkElement.setAttribute('download', `tasks-${timestamp}.json`);
+        linkElement.click();
+      }
+    } catch (error) {
+      console.error('Error exporting tasks as JSON:', error);
+      alert('Failed to export JSON. Please try again.');
+    }
+  };
+
+  // Imports tasks from a JSON file
+  const importTasks = (event) => {
+    const fileReader = new FileReader();
+    fileReader.readAsText(event.target.files[0], 'UTF-8');
+    fileReader.onload = (e) => {
+      try {
+        const importedTasks = JSON.parse(e.target.result);
+        if (!Array.isArray(importedTasks)) {
+          alert('Invalid file format: Expected an array of tasks');
+          return;
+        }
+        if (importedTasks.some(task => !validateTaskStructure(task))) {
+          alert('Invalid task structure in imported file');
+          return;
+        }
+        if (tasks.length === 0) {
+          setTasks(importedTasks);
+          saveTasksToStorage(importedTasks);
+          alert('Tasks imported successfully');
+          return;
+        }
+        const mergeTasks = window.confirm('Merge imported tasks with existing tasks? Click "OK" to merge or "Cancel" to replace.');
+        let newTasks;
+        if (mergeTasks) {
+          newTasks = [...tasks];
+          importedTasks.forEach((importedTask) => {
+            const index = newTasks.findIndex((task) => task.id === importedTask.id);
+            if (index !== -1) {
+              newTasks[index] = importedTask;
+            } else {
+              newTasks.push(importedTask);
+            }
+          });
+        } else {
+          newTasks = importedTasks;
+        }
+        setTasks(newTasks);
+        saveTasksToStorage(newTasks);
+        alert('Tasks imported successfully');
+      } catch (error) {
+        alert('Error importing tasks: Invalid file format');
+        console.error('Failed to import tasks', error);
+      }
+    };
+  };
+
+  // Clears task form with confirmation
   const handleClearForm = () => {
     if (window.confirm('Are you sure you want to clear all fields?')) {
       setTask({ title: '', description: '', assignedTo: '', duration: '', completionDate: '', createdDate: '', parentTaskId: '', progress: 0 });
@@ -281,7 +253,7 @@ const importTasks = (event) => {
     }
   };
 
-  // Clear all tasks with confirmation
+  // Clears all tasks with confirmation
   const handleClearAllTasks = () => {
     if (window.confirm('Are you sure you want to delete all tasks? This action cannot be undone.')) {
       setTasks([]);
@@ -292,14 +264,14 @@ const importTasks = (event) => {
     }
   };
 
-  // Get parent task title by ID
+  // Retrieves parent task title by ID
   const getParentTaskTitle = (parentTaskId) => {
     if (!parentTaskId) return 'Main Task';
     const parentTask = tasks.find((t) => t.id === parentTaskId);
     return parentTask ? parentTask.title : 'Main Task';
   };
 
-  // Check if a task is a descendant to prevent circular dependencies
+  // Checks if a task is a descendant to prevent circular dependencies
   const isDescendant = (taskId, potentialParentId, tasks) => {
     let currentTaskId = potentialParentId;
     while (currentTaskId) {
@@ -310,7 +282,7 @@ const importTasks = (event) => {
     return false;
   };
 
-  // Format date to DD-MM-YYYY, HH:MM AM/PM
+  // Formats date to DD-MM-YYYY, HH:MM AM/PM
   const formatDateTime = (isoDate) => {
     if (!isoDate) return 'N/A';
     const date = new Date(isoDate);
@@ -323,14 +295,14 @@ const importTasks = (event) => {
     return `${day}-${month}-${year}, ${hours}:${minutes} ${ampm}`;
   };
 
-  // Start editing a task
+  // Initiates editing of a task
   const handleEditTask = (taskId) => {
     const taskToEdit = tasks.find((t) => t.id === taskId);
     setEditingTaskId(taskId);
     setEditingTaskData({ ...taskToEdit });
   };
 
-  // Context menu for right-click actions
+  // Component for right-click context menu
   const ContextMenu = ({ visible, x, y, onAddSubtask, onClose }) => {
     if (!visible) return null;
     return (
@@ -347,7 +319,7 @@ const importTasks = (event) => {
     );
   };
 
-  // Save edited task with date validation
+  // Saves edited task with date validation
   const handleSaveTask = (taskId) => {
     const currentDate = new Date();
     const createdDate = new Date(editingTaskData.createdDate);
@@ -357,41 +329,27 @@ const importTasks = (event) => {
       setDueDateError('Created On date and time cannot be in the past.');
       return;
     }
-
-    if (completionDate < createdDate) {
-      setDueDateError('Due By date and time cannot be earlier than Created On.');
+    if (completionDate < createdDate || completionDate < currentDate) {
+      setDueDateError('Due By date and time cannot be earlier than Created On or in the past.');
       return;
     }
 
-    if (completionDate < currentDate) {
-      setDueDateError('Due By date and time cannot be in the past.');
-      return;
-    }
-
-    setTasks(prevTasks => {
-      const updatedTasks = [...prevTasks];
-      importedTasks.forEach(importedTask => {
-        const index = updatedTasks.findIndex(task => task.id === importedTask.id);
-        if (index !== -1) {
-          updatedTasks[index] = importedTask; // Update existing task
-        } else {
-          updatedTasks.push(importedTask); // Add new task
-        }
-      });
-      saveTasksToStorage(updatedTasks);
-      return updatedTasks;
-    });
+    setTasks((prevTasks) =>
+      prevTasks.map((t) => (t.id === taskId ? { ...t, ...editingTaskData } : t))
+    );
+    saveTasksToStorage(tasks.map((t) => (t.id === taskId ? { ...t, ...editingTaskData } : t)));
     setEditingTaskId(null);
+    setDueDateError('');
   };
 
-  // Cancel task editing
+  // Cancels task editing
   const handleCancelEdit = () => {
-    const originalTask = tasks.find((t) => t.id === editingTaskId);
-    setEditingTaskData({ ...originalTask });
     setEditingTaskId(null);
+    setEditingTaskData({});
+    setDueDateError('');
   };
 
-  // Add a subtask by setting parent task ID
+  // Adds a subtask by setting parent task ID
   const handleAddSubtask = () => {
     if (contextMenu.taskId) {
       setTask({
@@ -405,13 +363,13 @@ const importTasks = (event) => {
     setContextMenu({ visible: false, taskId: null, x: 0, y: 0 });
   };
 
-  // Close context menu
+  // Closes context menu
   const handleCloseContextMenu = () => setContextMenu({ visible: false, taskId: null, x: 0, y: 0 });
 
   // List of assignees for suggestions
   const assignees = ['John Doe', 'Jane Smith', 'Alice Johnson', 'Bob Brown', 'Charlie Davis'];
 
-  // Handle form input changes and assignee suggestions
+  // Handles form input changes and updates assignee suggestions
   const handleChange = (e) => {
     const { name, value } = e.target;
     setTask((prev) => ({ ...prev, [name]: value }));
@@ -421,20 +379,20 @@ const importTasks = (event) => {
     }
   };
 
-  // Select assignee from suggestions
+  // Selects an assignee from suggestions
   const handleSuggestionClick = (suggestion) => {
     setTask((prev) => ({ ...prev, assignedTo: suggestion }));
     setAssigneeSuggestions([]);
     setShowAssigneeSuggestions(false);
   };
 
-  // Show assignee suggestions on input focus
+  // Shows assignee suggestions on input focus
   const handleAssignedToFocus = () => {
     setAssigneeSuggestions(assignees);
     setShowAssigneeSuggestions(true);
   };
 
-  // Load tasks from localStorage
+  // Loads tasks from localStorage
   const handleLoadTasks = () => {
     try {
       const savedTasks = safeLocalStorage.getItem('phased-tasks');
@@ -451,17 +409,17 @@ const importTasks = (event) => {
     }
   };
 
-  // Validate task structure
+  // Validates task structure
   const validateTaskStructure = (task) => {
     const requiredFields = ['id', 'title', 'description', 'assignedTo', 'completionDate', 'createdDate'];
-    return requiredFields.every(field => field in task);
+    return requiredFields.every((field) => field in task);
   };
 
-  // Submit new task with validation
+  // Submits new task with validation
   const handleSubmit = (e) => {
     e.preventDefault();
     if (!task.title.trim() || !task.description.trim() || !task.assignedTo.trim() ||
-        !task.createdDate || !task.completionDate) {
+      !task.createdDate || !task.completionDate) {
       alert('Please fill in all required fields.');
       return;
     }
@@ -497,7 +455,7 @@ const importTasks = (event) => {
     saveTasksToStorage([...tasks, newTask]);
   };
 
-  // Show form to add new task
+  // Shows form to add a new task
   const handleAddTaskClick = () => {
     const defaultDate = new Date().toISOString().slice(0, 16);
     setTask({
@@ -509,7 +467,7 @@ const importTasks = (event) => {
     setTimeout(() => taskTitleRef.current?.focus(), 0);
   };
 
-  // Delete task and its subtasks
+  // Deletes a task and its subtasks
   const handleDeleteTask = (taskId, e) => {
     e.stopPropagation();
     const deleteTaskAndSubtasks = (id) => {
@@ -531,7 +489,7 @@ const importTasks = (event) => {
     }
   };
 
-  // Handle clicks outside form to close if empty
+  // Handles clicks outside the form to close it if empty
   const handleClickOutside = (e) => {
     if (formRef.current && !formRef.current.contains(e.target) && !task.title.trim() && !task.description.trim()) {
       if (!e.target.closest('.mode-toggle')) {
@@ -545,7 +503,7 @@ const importTasks = (event) => {
     }
   };
 
-  // Handle date input changes with validation
+  // Handles date input changes with validation
   const handleDateTimeChange = (e) => {
     const { name, value } = e.target;
     setTask((prevTask) => {
@@ -574,7 +532,7 @@ const importTasks = (event) => {
     });
   };
 
-  // Cleanup date input blur timeouts
+  // Cleans up date input blur timeouts
   useEffect(() => {
     return () => {
       const createdInput = document.getElementById('createdDate');
@@ -584,7 +542,7 @@ const importTasks = (event) => {
     };
   }, []);
 
-  // Update duration for edited task
+  // Updates duration for edited task
   useEffect(() => {
     if (editingTaskId && editingTaskData.createdDate && editingTaskData.completionDate) {
       const newDuration = calculateDurationInDays(editingTaskData.createdDate, editingTaskData.completionDate);
@@ -594,20 +552,20 @@ const importTasks = (event) => {
     }
   }, [editingTaskData.createdDate, editingTaskData.completionDate, editingTaskId]);
 
-  // Change task parent with validation
+  // Changes task parent with validation
   const handleParentChange = (e, taskId) => {
     const newParentId = e.target.value || null;
-    if (isDescendant(newParentId, taskId, tasks)) {
-      alert('Invalid parent selection.');
+    if (isDescendant(taskId, newParentId, tasks)) {
+      alert('Invalid parent selection: Circular dependency detected.');
       return;
     }
     setTasks((prev) => prev.map((t) => (t.id === taskId ? { ...t, parentTaskId: newParentId } : t)));
   };
 
-  // Toggle task expansion
+  // Toggles task expansion
   const toggleExpand = (taskId) => setExpandedTasks((prev) => ({ ...prev, [taskId]: !prev[taskId] }));
 
-  // Create falling leaf animation
+  // Creates falling leaf animation
   useEffect(() => {
     const numLeaves = 20;
     const leafContainer = document.getElementById('falling-leaf-container');
@@ -621,7 +579,7 @@ const importTasks = (event) => {
     }
   }, []);
 
-  // Handle input changes for editing task
+  // Handles input changes for editing task
   const handleEditInputChange = (e) => {
     const { name, value } = e.target;
     if (name === 'createdDate' || name === 'completionDate') {
@@ -639,13 +597,13 @@ const importTasks = (event) => {
     }
   };
 
-  // Handle right-click for context menu
+  // Handles right-click for context menu
   const handleRowRightClick = (e, taskId) => {
     e.preventDefault();
     setContextMenu({ visible: true, taskId, x: e.clientX, y: e.clientY });
   };
 
-  // Recursively render tasks
+  // Recursively renders tasks in table
   const renderTasks = (tasks, parentId = null, level = 0) =>
     tasks.filter((t) => t.parentTaskId === parentId).map((task) => {
       const hasSubtasks = tasks.some((t) => t.parentTaskId === task.id);
@@ -691,7 +649,7 @@ const importTasks = (event) => {
                   {isEditing && (
                     <select value={task.parentTaskId || ''} onChange={(e) => handleParentChange(e, task.id)} style={{ marginLeft: '10px' }}>
                       <option value="">Change Parent Task</option>
-                      {tasks.filter((t) => t.id !== task.id && !isDescendant(t.id, task.id, tasks)).map((t) => (
+                      {tasks.filter((t) => t.id !== task.id && !isDescendant(task.id, t.id, tasks)).map((t) => (
                         <option key={t.id} value={t.id}>{t.title}</option>
                       ))}
                     </select>
@@ -739,37 +697,37 @@ const importTasks = (event) => {
       );
     });
 
-  // Render table body
+  // Renders table body
   const renderTableBody = () => <tbody>{renderTasks(tasks)}</tbody>;
 
-  // Calculate overall project progress
+  // Calculates overall project progress
   const calculateOverallProgress = () => {
     if (tasks.length === 0) return 0;
     const totalProgress = tasks.reduce((sum, task) => sum + (task.progress || 0), 0);
     return Math.round(totalProgress / tasks.length);
   };
 
-  // Calculate parent task progress based on subtasks
+  // Calculates parent task progress based on subtasks
   const calculateParentProgress = (taskId) => {
-    const subtasks = tasks.filter(t => t.parentTaskId === taskId);
+    const subtasks = tasks.filter((t) => t.parentTaskId === taskId);
     if (subtasks.length === 0) return null;
     const totalProgress = subtasks.reduce((sum, task) => sum + (task.progress || 0), 0);
     return Math.round(totalProgress / subtasks.length);
   };
 
-  // Apply dark mode and persist preference
+  // Applies dark mode and persists preference
   useEffect(() => {
     document.body.classList.toggle('dark-mode', darkMode);
     localStorage.setItem('darkMode', darkMode);
   }, [darkMode]);
 
-  // Handle click-outside for form
+  // Handles click-outside for form
   useEffect(() => {
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, [showForm, task]);
 
-  // Update task duration on date changes
+  // Updates task duration on date changes
   useEffect(() => {
     if (task.createdDate && task.completionDate) {
       setTask((prev) => ({ ...prev, duration: calculateDurationInDays(prev.createdDate, task.completionDate) }));
@@ -806,65 +764,64 @@ const importTasks = (event) => {
             </div>
           </div>
           {view === 'table' ? (
-  tasks.length > 0 ? (
-    <div className="table-wrapper">
-      <br />
-      <div className="progress-summary">
-        <h3>Project Progress</h3>
-        <div className="overall-progress">
-          <div className="progress-bar">
-            <div
-              className="progress-fill"
-              style={{
-                width: `${calculateOverallProgress()}%`,
-                backgroundColor: calculateOverallProgress() === 100 ? '#4caf50' : '#2196f3',
-              }}
-            ></div>
-          </div>
-          <span>{calculateOverallProgress()}% Complete</span>
-        </div>
-        <div className="progress-stats">
-          <div>Total Tasks: {tasks.length}</div>
-          <div>Completed: {tasks.filter((t) => t.progress === 100).length}</div>
-          <div>In Progress: {tasks.filter((t) => t.progress > 0 && t.progress < 100).length}</div>
-          <div>Not Started: {tasks.filter((t) => !t.progress || t.progress === 0).length}</div>
-        </div>
-      </div>
-      <table>
-        <thead>
-          <tr>
-            <th>Task Title</th>
-            <th>Description</th>
-            <th>Assigned To</th>
-            <th>Duration (Days)</th>
-            <th>Created On</th>
-            <th>Due By</th>
-            <th>Parent Task</th>
-            <th>Progress</th>
-            <th>Actions</th>
-          </tr>
-        </thead>
-        {renderTableBody()}
-      </table>
-    </div>
-  ) : (
-    <p className="no-tasks-message">No tasks available. Add your first task to get started!</p>
-  )
-) : (
-  <div className="graph-view-container">
-    {console.log('Rendering graph view with tasks:', tasks)}
-    {tasks.length > 0 ? (
-      <ReactFlowProvider>
-        <TaskGraph tasks={tasks} onNodeClick={(taskId) => handleEditTask(taskId)} />
-      </ReactFlowProvider>
-    ) : (
-      <div className="empty-graph-message">
-        <h3>No Tasks to Display</h3>
-        <p>Add tasks using the button below to see the dependency graph</p>
-      </div>
-    )}
-  </div>
-)}
+            tasks.length > 0 ? (
+              <div className="table-wrapper">
+                <br />
+                <div className="progress-summary">
+                  <h3>Project Progress</h3>
+                  <div className="overall-progress">
+                    <div className="progress-bar">
+                      <div
+                        className="progress-fill"
+                        style={{
+                          width: `${calculateOverallProgress()}%`,
+                          backgroundColor: calculateOverallProgress() === 100 ? '#4caf50' : '#2196f3',
+                        }}
+                      ></div>
+                    </div>
+                    <span>{calculateOverallProgress()}% Complete</span>
+                  </div>
+                  <div className="progress-stats">
+                    <div>Total Tasks: {tasks.length}</div>
+                    <div>Completed: {tasks.filter((t) => t.progress === 100).length}</div>
+                    <div>In Progress: {tasks.filter((t) => t.progress > 0 && t.progress < 100).length}</div>
+                    <div>Not Started: {tasks.filter((t) => !t.progress || t.progress === 0).length}</div>
+                  </div>
+                </div>
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Task Title</th>
+                      <th>Description</th>
+                      <th>Assigned To</th>
+                      <th>Duration (Days)</th>
+                      <th>Created On</th>
+                      <th>Due By</th>
+                      <th>Parent Task</th>
+                      <th>Progress</th>
+                      <th>Actions</th>
+                    </tr>
+                  </thead>
+                  {renderTableBody()}
+                </table>
+              </div>
+            ) : (
+              <p className="no-tasks-message">No tasks available. Add your first task to get started!</p>
+            )
+          ) : (
+            <div className="graph-view-container">
+              {tasks.length > 0 ? (
+                <ReactFlowProvider>
+                  <TaskGraph tasks={tasks} onNodeClick={(taskId) => handleEditTask(taskId)} />
+                </ReactFlowProvider>
+              ) : (
+                <div className="empty-graph-message">
+                  <h3>No Tasks to Display</h3>
+                  <p>Add tasks using the button below to see the dependency graph</p>
+                </div>
+              )}
+            </div>
+          )}
           <ContextMenu visible={contextMenu.visible} x={contextMenu.x} y={contextMenu.y} onAddSubtask={handleAddSubtask} onClose={handleCloseContextMenu} />
           <div className="add-task-container">
             {!showForm ? (

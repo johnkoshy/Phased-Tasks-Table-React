@@ -1,23 +1,24 @@
+/* Styles for the footer clock, fixed at the bottom of the screen */
 .footer-clock {
-    position: fixed;
-    bottom: 0;
-    left: 0;
-    width: 100%;
-    background-color: #333; /* Dark background for visibility */
-    color: white; /* White text for contrast */
-    padding: 10px;
-    text-align: center;
-    z-index: 1000; /* High z-index to stay above tasks */
-    box-sizing: border-box;
-    font-size: 16px; /* Adjust as needed */
-  }
-  
-  /* Adjust for dark mode */
-  .App.dark-mode .footer-clock {
-    background-color: #222; /* Slightly darker for dark mode */
-  }
-  
-  /* Ensure footer is visible above falling leaves */
-  #falling-leaf-container {
-    z-index: 1; /* Keep leaves behind footer */
-  }
+  position: fixed; /* Keep footer pinned to the bottom */
+  bottom: 0;
+  left: 0;
+  width: 100%; /* Span the full viewport width */
+  background-color: #333; /* Dark background for visibility */
+  color: white; /* White text for high contrast */
+  padding: 10px; /* Add spacing for content */
+  text-align: center; /* Center the text */
+  z-index: 1000; /* Ensure footer stays above other elements like tasks */
+  box-sizing: border-box; /* Include padding in width calculation */
+  font-size: 16px; /* Set font size for readability */
+}
+
+/* Adjust footer styling for dark mode */
+.App.dark-mode .footer-clock {
+  background-color: #222; /* Slightly darker background for dark mode consistency */
+}
+
+/* Ensure falling leaves stay behind the footer */
+#falling-leaf-container {
+  z-index: 1; /* Low z-index to keep leaves below the footer */
+}
