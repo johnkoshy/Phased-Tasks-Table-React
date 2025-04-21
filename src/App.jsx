@@ -116,22 +116,23 @@ function App() {
   };
 
   // Export tasks as JSON file
-  const exportTasks = () => {
-    // Helper function to format a task and its subtasks
-    const formatTask = (task, level = 0) => {
-      const indent = '  '.repeat(level); // Two spaces per level for indentation
-      const fields = [
-        `${indent}Title: ${task.title}`,
-        `${indent}Description: ${task.description}`,
-        `${indent}Assigned To: ${task.assignedTo}`,
-        `${indent}Duration: ${task.duration} ${task.duration === 1 ? 'day' : 'days'}`,
-        `${indent}Created On: ${formatDateTime(task.createdDate)}`,
-        `${indent}Due By: ${formatDateTime(task.completionDate)}`,
-        `${indent}Parent Task: ${getParentTaskTitle(task.parentTaskId)}`,
-        `${indent}Progress: ${task.progress || 0}%`,
-      ].join('\n');
-      return fields;
-    };
+  const exportTasks = async () => {
+    try {
+      // Format tasks as text
+      const formatTask = (task, level = 0) => {
+        const indent = '  '.repeat(level);
+        const fields = [
+          `${indent}Title: ${task.title}`,
+          `${indent}Description: ${task.description}`,
+          `${indent}Assigned To: ${task.assignedTo}`,
+          `${indent}Duration: ${task.duration} ${task.duration === 1 ? 'day' : 'days'}`,
+          `${indent}Created On: ${formatDateTime(task.createdDate)}`,
+          `${indent}Due By: ${formatDateTime(task.completionDate)}`,
+          `${indent}Parent Task: ${getParentTaskTitle(task.parentTaskId)}`,
+          `${indent}Progress: ${task.progress || 0}%`,
+        ].join('\n');
+        return fields;
+      };
   
     // Recursively format tasks with hierarchy
     const formatTasksHierarchy = (tasks, parentId = null, level = 0) => {
@@ -139,16 +140,10 @@ function App() {
       let result = '';
       filteredTasks.forEach((task, index) => {
         result += formatTask(task, level);
-        result += '\n'; // Line break after task
-        // Add subtasks recursively
+        result += '\n';
         const subtasks = formatTasksHierarchy(tasks, task.id, level + 1);
-        if (subtasks) {
-          result += subtasks;
-        }
-        // Add extra line break between tasks, except for the last one
-        if (index < filteredTasks.length - 1 || level > 0) {
-          result += '\n';
-        }
+        if (subtasks) result += subtasks;
+        if (index < filteredTasks.length - 1 || level > 0) result += '\n';
       });
       return result;
     };
@@ -156,35 +151,72 @@ function App() {
     // Generate the text content
     const textContent = formatTasksHierarchy(tasks);
 
-    const hasValidParent = (task, allTasks) => {
-      if (!task.parentTaskId) return true;
-      return allTasks.some(t => t.id === task.parentTaskId);
-    };
-    
-    if (importedTasks.some(task => !hasValidParent(task, importedTasks))) {
-      alert('Some imported tasks reference invalid parent tasks');
-      return;
-    }
-  
-    // Create and download the text file
-    const dataUri = 'data:text/plain;charset=utf-8,' + encodeURIComponent(textContent);
-    const exportFileDefaultName = 'tasks.txt';
-    const linkElement = document.createElement('a');
-    linkElement.setAttribute('href', dataUri);
-    linkElement.setAttribute('download', exportFileDefaultName);
-    linkElement.click();
-  };
+    // Check if File System Access API is supported
+    if ('showSaveFilePicker' in window) {
+      // Prompt user to choose a save location
+      const fileHandle = await window.showSaveFilePicker({
+        suggestedName: 'tasks.txt',
+        types: [
+          {
+            description: 'Text Files',
+            accept: { 'text/plain': ['.txt'] },
+          },
+        ],
+      });
+      const writableStream = await fileHandle.createWritable();
+      await writableStream.write(textContent);
+      await writableStream.close();
+    } else {
+      // Fallback to default download behavior
+      console.warn('File System Access API not supported. Using default download.');
 
-  const exportTasksAsJson = () => {
+  // Create and download the text file
+  const dataUri = 'data:text/plain;charset=utf-8,' + encodeURIComponent(textContent);
+      const linkElement = document.createElement('a');
+      linkElement.setAttribute('href', dataUri);
+      linkElement.setAttribute('download', 'tasks.txt');
+      linkElement.click();
+    }
+  } catch (error) {
+    console.error('Error exporting tasks:', error);
+    alert('Failed to export tasks. Please try again.');
+  }
+};
+
+const exportTasksAsJson = async () => {
+  try {
     const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
-    const dataStr = JSON.stringify(tasks, null, 2); // Pretty-print JSON with indentation
-    const dataUri = 'data:application/json;charset=utf-8,' + encodeURIComponent(dataStr);
-    const exportFileDefaultName = `tasks-${timestamp}.json`;
-    const linkElement = document.createElement('a');
-    linkElement.setAttribute('href', dataUri);
-    linkElement.setAttribute('download', exportFileDefaultName);
-    linkElement.click();
-  };
+    const dataStr = JSON.stringify(tasks, null, 2);
+
+    // Check if File System Access API is supported
+    if ('showSaveFilePicker' in window) {
+      // Prompt user to choose a save location
+      const fileHandle = await window.showSaveFilePicker({
+        suggestedName: `tasks-${timestamp}.json`,
+        types: [
+          {
+            description: 'JSON Files',
+            accept: { 'application/json': ['.json'] },
+          },
+        ],
+      });
+      const writableStream = await fileHandle.createWritable();
+      await writableStream.write(dataStr);
+      await writableStream.close();
+    } else {
+      // Fallback to default download behavior
+      console.warn('File System Access API not supported. Using default download.');
+      const dataUri = 'data:application/json;charset=utf-8,' + encodeURIComponent(dataStr);
+      const linkElement = document.createElement('a');
+      linkElement.setAttribute('href', dataUri);
+      linkElement.setAttribute('download', `tasks-${timestamp}.json`);
+      linkElement.click();
+    }
+  } catch (error) {
+    console.error('Error exporting tasks as JSON:', error);
+    alert('Failed to export JSON. Please try again.');
+  }
+};
 
   // Import tasks from JSON file
 // Import tasks from JSON file
@@ -219,13 +251,16 @@ const importTasks = (event) => {
       setTasks(prevTasks => {
         let mergedTasks;
         if (mergeTasks) {
-          // Merge: Add only tasks with unique IDs
-          const existingIds = new Set(prevTasks.map(task => task.id));
-          const newTasks = importedTasks.filter(task => !existingIds.has(task.id));
-          mergedTasks = [...prevTasks, ...newTasks];
-        } else {
-          // Replace: Use only imported tasks
-          mergedTasks = importedTasks;
+          const updatedTasks = [...prevTasks];
+          importedTasks.forEach(importedTask => {
+            const index = updatedTasks.findIndex(task => task.id === importedTask.id);
+            if (index !== -1) {
+              updatedTasks[index] = importedTask; // Update existing task
+            } else {
+              updatedTasks.push(importedTask); // Add new task
+            }
+          });
+          mergedTasks = updatedTasks;
         }
         saveTasksToStorage(mergedTasks);
         return mergedTasks;
