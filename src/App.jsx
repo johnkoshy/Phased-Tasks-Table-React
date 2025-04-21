@@ -155,6 +155,16 @@ function App() {
   
     // Generate the text content
     const textContent = formatTasksHierarchy(tasks);
+
+    const hasValidParent = (task, allTasks) => {
+      if (!task.parentTaskId) return true;
+      return allTasks.some(t => t.id === task.parentTaskId);
+    };
+    
+    if (importedTasks.some(task => !hasValidParent(task, [...tasks, ...importedTasks]))) {
+      alert('Some imported tasks reference invalid parent tasks');
+      return;
+    }
   
     // Create and download the text file
     const dataUri = 'data:text/plain;charset=utf-8,' + encodeURIComponent(textContent);
@@ -177,19 +187,42 @@ function App() {
   };
 
   // Import tasks from JSON file
-  const importTasks = (event) => {
-    const fileReader = new FileReader();
-    fileReader.readAsText(event.target.files[0], "UTF-8");
-    fileReader.onload = e => {
-      try {
-        const importedTasks = JSON.parse(e.target.result);
-        setTasks(importedTasks);
-        saveTasksToStorage(importedTasks);
-      } catch (error) {
-        alert('Invalid file format');
+// Import tasks from JSON file
+const importTasks = (event) => {
+  const fileReader = new FileReader();
+  fileReader.readAsText(event.target.files[0], "UTF-8");
+  fileReader.onload = e => {
+    try {
+      const importedTasks = JSON.parse(e.target.result);
+      if (!Array.isArray(importedTasks)) {
+        alert('Invalid file format: Expected an array of tasks');
+        return;
       }
-    };
+      if (importedTasks.some(task => !validateTaskStructure(task))) {
+        alert('Invalid task structure in imported file');
+        return;
+      }
+
+      const mergeTasks = window.confirm('Do you want to merge imported tasks with existing tasks? Click "Cancel" to replace existing tasks.');
+      setTasks(prevTasks => {
+        let mergedTasks;
+        if (mergeTasks) {
+          const existingIds = new Set(prevTasks.map(task => task.id));
+          const newTasks = importedTasks.filter(task => !existingIds.has(task.id));
+          mergedTasks = [...prevTasks, ...newTasks];
+        } else {
+          mergedTasks = importedTasks;
+        }
+        saveTasksToStorage(mergedTasks);
+        return mergedTasks;
+      });
+      alert('Tasks imported successfully');
+    } catch (error) {
+      alert('Error importing tasks: Invalid file format');
+      console.error('Failed to import tasks', error);
+    }
   };
+};
 
   // Clear task form with confirmation
   const handleClearForm = () => {
@@ -289,16 +322,15 @@ function App() {
     }
 
     setTasks(prevTasks => {
-      const updatedTasks = prevTasks.map(t => t.id === taskId ? { ...editingTaskData } : t);
-      const task = updatedTasks.find(t => t.id === taskId);
-      if (task.parentTaskId) {
-        const parentProgress = calculateParentProgress(task.parentTaskId);
-        if (parentProgress !== null) {
-          updatedTasks.forEach(t => {
-            if (t.id === task.parentTaskId) t.progress = parentProgress;
-          });
+      const updatedTasks = [...prevTasks];
+      importedTasks.forEach(importedTask => {
+        const index = updatedTasks.findIndex(task => task.id === importedTask.id);
+        if (index !== -1) {
+          updatedTasks[index] = importedTask; // Update existing task
+        } else {
+          updatedTasks.push(importedTask); // Add new task
         }
-      }
+      });
       saveTasksToStorage(updatedTasks);
       return updatedTasks;
     });
