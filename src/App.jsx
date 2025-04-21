@@ -781,10 +781,7 @@ function App() {
     ) : (
       <div className="empty-graph-message">
         <h3>No Tasks to Display</h3>
-        <p>Add tasks to see the dependency graph</p>
-        <button className="add-first-task-btn" onClick={handleAddTaskClick}>
-          Add First Task
-        </button>
+        <p>Add tasks using the button below to see the dependency graph</p>
       </div>
     )}
   </div>

@@ -7,6 +7,7 @@
   .table-container {
     max-width: 100%;
     padding: 10px;
+    padding-bottom: 60px;
   }
 }
 
@@ -767,4 +768,52 @@ body {
 }
 .dark-mode .header-buttons .import-button:hover {
   background-color: #555;
+}
+.footer-clock {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  background-color: #333; /* Adjust based on theme */
+  color: white;
+  padding: 10px;
+  text-align: center;
+  z-index: 1000; /* Higher than other elements */
+  box-sizing: border-box;
+}
+.table-wrapper,
+.graph-view-container {
+  overflow-y: auto; /* Prevent overflow issues */
+  max-height: calc(100vh - 150px); /* Adjust for header and footer */
+}
+.footer-clock {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  background-color: #333;
+  color: white;
+  padding: 10px;
+  text-align: center;
+  z-index: 1000;
+  box-sizing: border-box;
+  font-size: 16px;
+}
+
+.App.dark-mode .footer-clock {
+  background-color: #222;
+}
+
+#falling-leaf-container {
+  z-index: 1;
+}
+
+.table-container {
+  padding-bottom: 60px; /* Space for footer */
+}
+
+.table-wrapper,
+.graph-view-container {
+  overflow-y: auto;
+  max-height: calc(100vh - 150px);
 }
