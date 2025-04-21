@@ -179,7 +179,6 @@ function App() {
     }
   } catch (error) {
     console.error('Error exporting tasks:', error);
-    alert('Failed to export tasks. Please try again.');
   }
 };
 
@@ -214,7 +213,6 @@ const exportTasksAsJson = async () => {
     }
   } catch (error) {
     console.error('Error exporting tasks as JSON:', error);
-    alert('Failed to export JSON. Please try again.');
   }
 };
 
