@@ -27,8 +27,8 @@ Installation
 This project uses React with Vite for a fast development experience with Hot Module Replacement (HMR) and ESLint for code linting.
 
 Clone the Repository:
-git clone https://github.com/johnkoshy/phased-tasks-table.git
-cd phased-tasks-table
+git clone https://github.com/johnkoshy/Phased-Tasks-Table.git
+cd Phased-Tasks-Table
 
 
 Install Dependencies: Ensure you have Node.js installed. Then, install the required npm packages:
