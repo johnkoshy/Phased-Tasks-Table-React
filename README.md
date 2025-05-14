@@ -30,9 +30,11 @@ Clone the Repository:
 git clone https://github.com/johnkoshy/Phased-Tasks-Table.git
 cd Phased-Tasks-Table
 
-
 Install Dependencies: Ensure you have Node.js installed. Then, install the required npm packages:
 npm install
+
+If npm install is slow or fails due to network issues, try Yarn as an alternative:
+yarn install
 
 Key dependencies include:
 
@@ -94,7 +96,8 @@ Track Progress:
 Update task progress using the slider in edit mode.
 View overall project progress and task statistics (total, completed, in progress, not started) in table view.
 
-
+Screenshots
+![Dashboard](screenshot/screenshot.png)
 
 Project Structure
 your-repo-name/
