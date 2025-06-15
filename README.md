@@ -1,130 +1,96 @@
-Task Management Application
-A React-based task management application built with Vite for creating, organizing, and tracking tasks with hierarchical dependencies. Features include a table view, dependency graph view, dark mode, task import/export, and progress tracking.
-Table of Contents
+# Task Management Application
 
-Features
-Installation
-Usage
-Project Structure
-Contributing
-License
+A React-based task management application built with Vite, featuring task creation, hierarchical dependencies, a dependency graph view, dark mode, import/export, and progress tracking with a responsive UI.
 
-Features
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
 
-Task Management: Create, edit, delete, and organize tasks with fields for title, description, assignee, duration, created date, due date, parent task, and progress.
-Hierarchical Tasks: Support for parent-child task relationships with expandable subtasks in table view.
-Dependency Graph: Visualize task dependencies in a graph view using React Flow.
-Progress Tracking: Track individual task progress (0-100%) and overall project progress with visual progress bars.
-Import/Export: Export tasks as JSON or text files and import tasks from JSON files.
-Clear All Tasks: Remove all tasks with a confirmation prompt.
-Dark Mode: Toggle between light and dark themes, with preference saved in localStorage.
-Responsive Design: Includes animations like falling leaves and cursor activity detection.
-Local Storage: Persist tasks and theme preferences using localStorage with safe access handling.
-Context Menu: Right-click tasks to add subtasks.
-Assignee Suggestions: Autocomplete suggestions for assignee input based on a predefined list.
+## Table of Contents
+- [Features](#features)
+- [Screenshots](#screenshots)
+- [Requirements](#requirements)
+- [Setup](#setup)
+- [Usage](#usage)
+- [Project Structure](#project_structure)
+- [Technologies](#technologies)
+- [Contributing](#contributing)
+- [License](#license)
 
-Installation
-This project uses React with Vite for a fast development experience with Hot Module Replacement (HMR) and ESLint for code linting.
+## Features
+- **Task Management**: Create, edit, delete, and organize tasks with fields for title, description, assignee, duration, dates, parent task, and progress.
+- **Hierarchical Tasks**: Support parent-child relationships with expandable subtasks in table view.
+- **Dependency Graph**: Visualize task dependencies using React Flow in a graph view.
+- **Progress Tracking**: Monitor task progress (0-100%) and overall project progress with visual bars.
+- **Import/Export**: Export tasks as JSON/text files and import from JSON.
+- **Clear All Tasks**: Remove all tasks with a confirmation prompt.
+- **Dark Mode**: Toggle between light/dark themes, saved in localStorage.
+- **Responsive Design**: Includes animations (e.g., falling leaves) and cursor activity detection.
+- **Local Storage**: Persist tasks and theme preferences with safe access handling.
+- **Context Menu**: Right-click tasks to add subtasks.
+- **Assignee Suggestions**: Autocomplete for assignee input from a predefined list.
 
-Clone the Repository:
-git clone https://github.com/johnkoshy/Phased-Tasks-Table.git
-cd Phased-Tasks-Table
+## Screenshots
+| Dashboard |
+|-----------|
+| <img src="screenshot/screenshot.png" alt="Task Management Dashboard" width="300"/> |
 
-Install Dependencies: Ensure you have Node.js installed. Then, install the required npm packages:
-npm install
+## Requirements
+- Node.js (v16 or higher)
+- npm or Yarn
+- Git
+- Web browser (e.g., Chrome, Firefox, Edge)
 
-If npm install is slow or fails due to network issues, try Yarn as an alternative:
-yarn install
+## Setup
+1. Clone the repository:
+   ```bash
+   git clone https://github.com/johnkoshy/Phased-Tasks-Table.git
+   cd Phased-Tasks-Table
+   ```
+2. Install dependencies:
+   ```bash
+   npm install
+   # or
+   yarn install
+   ```
+3. Start the development server:
+   ```bash
+   npm run dev
+   # or
+   yarn dev
+   ```
+   - Open `http://localhost:5173` in your browser.
 
-Key dependencies include:
+## Usage
+1. Access the app at `http://localhost:5173`.
+2. Click **Add Task** to open the task form and fill in details (title, description, assignee, etc.).
+3. Toggle between **Table View** (expandable subtasks) and **Graph View** (dependency nodes) using the view buttons.
+4. Edit tasks by clicking **Edit** in table view or a node in graph view.
+5. Delete tasks via the **Delete** button or clear all tasks with **Clear All Tasks**.
+6. Export tasks as JSON/text or import from JSON using the respective buttons.
+7. Toggle **Dark Mode** in the top-right corner.
+8. Track progress with sliders in edit mode and view project statistics in table view.
 
-react: For building the UI.
-reactflow: For the dependency graph view.
-@vitejs/plugin-react: Uses Babel for Fast Refresh (configured in vite.config.js).
-Other dependencies are listed in package.json.
+## Project Structure
+- **public/**:
+  - **index.html**: Main HTML entry point.
+  - **wallpaper.jpg**: Background image for light mode.
+- **src/**:
+  - **components/**: Reusable components (e.g., `TaskForm.js`, `TaskGraph.js`, `FooterClock.js`).
+  - **App.js**: Main app component.
+  - **App.css**: Global styles.
+  - **index.js**: React entry point.
+- **screenshots/**: Stores app screenshots.
+- **vite.config.js**: Vite configuration for HMR and ESLint.
+- **package.json**: Project dependencies and scripts.
 
+## Technologies
+- **React**: Frontend framework for UI.
+- **Vite**: Build tool with Hot Module Replacement.
+- **React Flow**: Library for dependency graph visualization.
+- **localStorage**: Persists tasks and theme preferences.
+- **ESLint**: Code linting for consistency.
 
-Start the Development Server:
-npm run dev
+## Contributing
+Contributions are welcome! 🎉 Fork the repository, create a feature branch, and submit a pull request. For issues or suggestions, open an issue on [GitHub](https://github.com/johnkoshy/Phased-Tasks-Table/issues). Ensure code follows existing style and includes tests where applicable.
 
-The application will run at http://localhost:5173 (default Vite port) with HMR enabled.
-
-
-Usage
-
-Add a Task:
-
-Click the "Add Task" button to open the task form.
-Fill in required fields (title, description, assignee, created date, due date).
-Optionally assign a parent task for hierarchical organization.
-Submit to add the task to the table or graph view.
-
-
-View Tasks:
-
-Table View: Displays tasks in a table with expandable subtasks. Edit or delete tasks using the action buttons.
-Graph View: Shows tasks as nodes with edges representing dependencies. Click a node to edit the task.
-Toggle between views using the "Graph View" or "Table View" button.
-
-
-Edit a Task:
-
-In table view, click "Edit" on a task row to modify its details.
-In graph view, click a task node to open the edit form.
-Save or cancel changes using the respective buttons.
-
-
-Delete a Task:
-
-In table view, click "Delete" on a task row. This removes the task and its subtasks after confirmation.
-Alternatively, use the "Clear All Tasks" button in the header to remove all tasks after confirmation.
-
-
-Import/Export Tasks:
-
-Export tasks as a JSON file or a formatted text file using the "Export Tasks as JSON" or "Export Tasks as Text" buttons.
-Import tasks from a JSON file using the "Import Tasks" button.
-
-
-Toggle Dark Mode:
-
-Use the "Dark Mode" or "Light Mode" button in the top-right corner to switch themes.
-
-
-Track Progress:
-
-Update task progress using the slider in edit mode.
-View overall project progress and task statistics (total, completed, in progress, not started) in table view.
-
-Screenshots
-![Dashboard](screenshot/screenshot.png)
-
-Project Structure
-your-repo-name/
-├── public/
-│   ├── index.html        # Main HTML file
-│   └── wallpaper.jpg     # Background image for light mode
-├── src/
-│   ├── components/
-│   │   ├── FooterClock.js  # Component for displaying a footer clock
-│   │   ├── TaskForm.js     # Component for the task input form
-│   │   └── TaskGraph.js    # Component for the dependency graph view
-│   ├── App.js            # Main App component
-│   ├── App.css           # Styles for the application
-│   └── index.js          # Entry point for React
-├── vite.config.js        # Vite configuration file
-├── package.json          # Project dependencies and scripts
-└── README.md             # This file
-
-Contributing
-Contributions are welcome! To contribute:
-
-Fork the repository.
-Create a feature branch (git checkout -b feature/your-feature).
-Commit your changes (git commit -m 'Add your feature').
-Push to the branch (git push origin feature/your-feature).
-Open a pull request.
-
-Please ensure your code follows the existing style and includes tests where applicable.
-License
-This project is licensed under the MIT License. See the LICENSE file for details.
+## License
+This project is licensed under the [MIT License](LICENSE).
